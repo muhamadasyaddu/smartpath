@@ -6,35 +6,28 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateLaporanRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return auth()->check();
+        return auth()->check()
+            && (auth()->user()->isWarga() || auth()->user()->isAdmin());
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
         return [
-            'judul' => ['sometimes', 'string', 'max:200'],
-            'deskripsi' => ['nullable', 'string'],
+            'judul' => ['required', 'string', 'max:200'],
+            'deskripsi' => ['required', 'string', 'max:5000'],
             'alamat_lengkap' => ['nullable', 'string', 'max:255'],
-            'status' => ['sometimes', 'in:menunggu_verifikasi,diverifikasi,ditolak,dalam_perbaikan,selesai,diarsipkan'],
         ];
     }
 
-    /**
-     * Get custom messages for validator errors.
-     */
     public function messages(): array
     {
         return [
+            'judul.required' => 'Judul laporan harus diisi.',
             'judul.max' => 'Judul laporan maksimal 200 karakter.',
-            'status.in' => 'Status tidak valid.',
+            'deskripsi.required' => 'Deskripsi laporan harus diisi.',
+            'deskripsi.max' => 'Deskripsi laporan maksimal 5000 karakter.',
         ];
     }
 }

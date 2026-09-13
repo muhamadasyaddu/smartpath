@@ -3,38 +3,40 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreVerifikasiRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return auth()->check() && (auth()->user()->isAdmin() || auth()->user()->isDinas());
+        return auth()->check() && auth()->user()->isAdmin();
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     */
     public function rules(): array
     {
+        $isReject = $this->routeIs('admin.verifikasi.reject');
+
         return [
-            'keputusan' => ['required', 'in:disetujui,ditolak,dikembalikan'],
-            'catatan_admin' => ['nullable', 'string', 'max:1000'],
-            'kategori_koreksi' => ['nullable', 'exists:kategori_hambatan,id'],
+            'catatan_admin' => [
+                $isReject ? 'required' : 'nullable',
+                'string',
+                'max:1000',
+            ],
+            'kategori_koreksi' => [
+                'nullable',
+                Rule::exists('kategori_hambatan', 'id')->where(
+                    fn ($query) => $query->where('aktif', true)
+                ),
+            ],
         ];
     }
 
-    /**
-     * Get custom messages for validator errors.
-     */
     public function messages(): array
     {
         return [
-            'keputusan.required' => 'Keputusan verifikasi harus dipilih.',
-            'keputusan.in' => 'Keputusan tidak valid.',
-            'catatan_admin.max' => 'Catatan maksimal 1000 karakter.',
+            'catatan_admin.required' => 'Alasan penolakan wajib diisi.',
+            'catatan_admin.max' => 'Catatan admin maksimal 1000 karakter.',
+            'kategori_koreksi.exists' => 'Kategori koreksi tidak valid.',
         ];
     }
 }

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Kategori Hambatan')
-@section('page_title', 'Edit Kategori Hambatan')
+@section('title', 'Tambah Kategori Hambatan')
+@section('page_title', 'Tambah Kategori Hambatan')
 
 @section('content')
 <div class="max-w-2xl mx-auto space-y-6">
@@ -9,13 +9,16 @@
     <nav class="text-sm text-slate-400" aria-label="Breadcrumb">
         <ol class="flex items-center gap-2">
             <li>
-                <a href="{{ route('admin.kategori-hambatan.index') }}" class="hover:text-emerald-700 transition-colors">
+                <a
+                    href="{{ route('admin.kategori-hambatan.index') }}"
+                    class="hover:text-emerald-700 transition-colors"
+                >
                     Kategori Hambatan
                 </a>
             </li>
             <li aria-hidden="true">/</li>
             <li class="text-slate-700 font-medium" aria-current="page">
-                Edit: {{ $kategoriHambatan->nama }}
+                Tambah
             </li>
         </ol>
     </nav>
@@ -23,11 +26,10 @@
     <div class="bg-white rounded-xl border border-slate-200 p-6">
         <form
             method="POST"
-            action="{{ route('admin.kategori-hambatan.update', $kategoriHambatan) }}"
+            action="{{ route('admin.kategori-hambatan.store') }}"
             novalidate
         >
             @csrf
-            @method('PUT')
 
             @if($errors->any())
                 <div
@@ -53,9 +55,10 @@
                         type="text"
                         id="nama"
                         name="nama"
-                        value="{{ old('nama', $kategoriHambatan->nama) }}"
+                        value="{{ old('nama') }}"
                         maxlength="100"
                         class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                        placeholder="Contoh: Guiding Block Rusak"
                         required
                     >
 
@@ -73,10 +76,11 @@
                         type="text"
                         id="slug"
                         name="slug"
-                        value="{{ old('slug', $kategoriHambatan->slug) }}"
+                        value="{{ old('slug') }}"
                         maxlength="100"
                         pattern="[A-Za-z0-9_-]+"
                         class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm font-mono"
+                        placeholder="guiding-block-rusak"
                         required
                     >
 
@@ -96,7 +100,8 @@
                         rows="4"
                         maxlength="2000"
                         class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
-                    >{{ old('keterangan', $kategoriHambatan->keterangan) }}</textarea>
+                        placeholder="Jelaskan kondisi hambatan yang termasuk kategori ini."
+                    >{{ old('keterangan') }}</textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -110,17 +115,13 @@
                             type="number"
                             id="bobot_keparahan"
                             name="bobot_keparahan"
-                            value="{{ old('bobot_keparahan', $kategoriHambatan->bobot_keparahan) }}"
+                            value="{{ old('bobot_keparahan', 50) }}"
                             min="0"
                             max="100"
                             step="1"
                             class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
                             required
                         >
-
-                        @error('bobot_keparahan')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div>
@@ -132,12 +133,11 @@
                             type="number"
                             id="urutan_tampil"
                             name="urutan_tampil"
-                            value="{{ old('urutan_tampil', $kategoriHambatan->urutan_tampil) }}"
+                            value="{{ old('urutan_tampil', 0) }}"
                             min="0"
                             max="255"
                             step="1"
                             class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
-                            required
                         >
                     </div>
                 </div>
@@ -153,14 +153,10 @@
                             type="color"
                             id="warna_penanda"
                             name="warna_penanda"
-                            value="{{ old('warna_penanda', $kategoriHambatan->warna_penanda ?: '#059669') }}"
+                            value="{{ old('warna_penanda', '#059669') }}"
                             class="w-full h-10 rounded-xl border-slate-300 cursor-pointer"
                             required
                         >
-
-                        @error('warna_penanda')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div>
@@ -172,9 +168,10 @@
                             type="text"
                             id="ikon"
                             name="ikon"
-                            value="{{ old('ikon', $kategoriHambatan->ikon) }}"
+                            value="{{ old('ikon') }}"
                             maxlength="100"
                             class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                            placeholder="alert-triangle"
                         >
                     </div>
                 </div>
@@ -187,7 +184,7 @@
                         id="aktif"
                         name="aktif"
                         value="1"
-                        {{ old('aktif', $kategoriHambatan->aktif) ? 'checked' : '' }}
+                        {{ old('aktif', true) ? 'checked' : '' }}
                         class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                     >
 
@@ -209,7 +206,7 @@
                     type="submit"
                     class="inline-flex items-center gap-2 bg-emerald-600 text-white font-semibold px-6 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shadow-sm text-sm"
                 >
-                    Simpan Perubahan
+                    Simpan Kategori
                 </button>
             </div>
         </form>

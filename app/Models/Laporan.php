@@ -62,14 +62,45 @@ class Laporan extends Model
         });
     }
 
-    /**
-     * Generate unique laporan code
+        /**
+     * Generate kode laporan unik.
+     *
+     * Soft delete tidak boleh membuat kode lama dapat digunakan kembali,
+     * karena kolom kode_laporan memiliki UNIQUE constraint.
+     *
+     * Format:
+     * LP-YYYYMM-XXXXX
      */
     protected function generateKodeLaporan(): string
     {
         $yearMonth = now()->format('Ym');
-        $count = static::where('kode_laporan', 'like', "LP-{$yearMonth}-%")->count() + 1;
-        return sprintf('LP-%s-%05d', $yearMonth, $count);
+        $prefix = "LP-{$yearMonth}-";
+
+        
+        $lastNumber = static::withTrashed()
+            ->where('kode_laporan', 'like', $prefix . '%')
+            ->selectRaw(
+                "MAX(CAST(SUBSTRING(kode_laporan, 11) AS UNSIGNED)) as nomor_terakhir"
+            )
+            ->value('nomor_terakhir');
+
+        $nextNumber = ((int) $lastNumber) + 1;
+
+        /*
+        * Format XXXXX hanya mampu menampung 99.999 laporan
+        * per bulan.
+        */
+        if ($nextNumber > 99999) {
+            throw new \RuntimeException(
+                "Nomor laporan untuk {$yearMonth} telah mencapai batas maksimum."
+            );
+        }
+
+        return sprintf(
+            'LP-%s-%05d',
+            $yearMonth,
+            $nextNumber
+        );
     }
 
     /**

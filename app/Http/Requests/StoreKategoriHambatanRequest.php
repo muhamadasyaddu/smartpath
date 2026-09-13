@@ -15,13 +15,13 @@ class StoreKategoriHambatanRequest extends FormRequest
     {
         return [
             'nama' => ['required', 'string', 'max:100'],
-            'slug' => ['required', 'string', 'max:100', 'unique:kategori_hambatan,slug'],
-            'keterangan' => ['nullable', 'string'],
+            'slug' => ['required', 'string', 'max:100', 'alpha_dash', 'unique:kategori_hambatan,slug'],
+            'keterangan' => ['nullable', 'string', 'max:2000'],
             'bobot_keparahan' => ['required', 'integer', 'between:0,100'],
             'ikon' => ['nullable', 'string', 'max:100'],
-            'warna_penanda' => ['nullable', 'string', 'max:7'],
-            'urutan_tampil' => ['nullable', 'integer', 'min:0'],
-            'aktif' => ['nullable', 'boolean'],
+            'warna_penanda' => ['required', 'regex:/^#[0-9A-Fa-f]{6}$/'],
+            'urutan_tampil' => ['nullable', 'integer', 'min:0', 'max:255'],
+            'aktif' => ['required', 'boolean'],
         ];
     }
 
@@ -30,9 +30,14 @@ class StoreKategoriHambatanRequest extends FormRequest
         return [
             'nama.required' => 'Nama kategori harus diisi.',
             'slug.required' => 'Slug harus diisi.',
+            'slug.alpha_dash' => 'Slug hanya boleh berisi huruf, angka, tanda hubung, dan garis bawah.',
             'slug.unique' => 'Slug sudah digunakan.',
+            'keterangan.max' => 'Keterangan maksimal 2000 karakter.',
             'bobot_keparahan.required' => 'Bobot keparahan harus diisi.',
-            'bobot_keparahan.between' => 'Bobot keparahan antara 0-100.',
+            'bobot_keparahan.between' => 'Bobot keparahan harus berada pada rentang 0-100.',
+            'warna_penanda.required' => 'Warna penanda harus dipilih.',
+            'warna_penanda.regex' => 'Warna penanda harus berupa kode HEX 6 digit.',
+            'aktif.required' => 'Status kategori harus ditentukan.',
         ];
     }
 }

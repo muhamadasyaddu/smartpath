@@ -18,151 +18,271 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ForgotPasswordController;
 
-
 // ============================================
-// RUTE PUBLIK (Tanpa Autentikasi)
+// RUTE PUBLIK
 // ============================================
 Route::get('/', [BerandaController::class, 'index'])->name('beranda');
-route::get('/tentang', [BerandaController::class, 'tentang'])->name('tentang');
+Route::get('/tentang', [BerandaController::class, 'tentang'])->name('tentang');
 
+Route::post(
+    '/newsletter/subscribe',
+    [BerandaController::class, 'subscribeNewsletter']
+)->name('newsletter.subscribe');
 
-// Rute Newsletter
-Route::post('/newsletter/subscribe', [BerandaController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
+Route::get(
+    '/peta',
+    [PetaController::class, 'index']
+)->name('peta.index');
 
-// Rute Peta Interaktif Leaflet.js & GIS
-Route::get('peta', [PetaController::class, 'index'])->name('peta.index');
-Route::get('peta/data', [PetaController::class, 'getLaporanData'])->name('peta.data');
-Route::get('peta/fasilitas', [PetaController::class, 'getFasilitasData'])->name('peta.fasilitas');
+Route::get(
+    '/peta/data',
+    [PetaController::class, 'getLaporanData']
+)->name('peta.data');
 
-// ============================================
-// RUTE AUTENTIKASI (Lokal & Google OAuth)
-// ============================================
-Route::get('login', [AuthController::class, 'showLoginForm'])
-->name('login');
-
-Route::post('login', [AuthController::class, 'login'])
-->middleware('throttle:6,1')
-->name('login.post');
-
-Route::get('register', [AuthController::class, 'showRegisterForm'])
-->name('auth.register');
-
-Route::post('register', [AuthController::class, 'register'])
-->middleware('throttle:5,10')
-->name('register.post');
-
-Route::post('logout', [AuthController::class, 'logout'])
-->name('logout');
-
-// Rute OAuth Google API
-Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])
-->name('auth.google');
-
-Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback'])
-->name('auth.google.callback');
-
-// Rute lupa password untuk semua pengguna.
-Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
-    ->name('password.request');
-Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
-    ->name('password.email');
-Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
-    ->name('password.reset');
-Route::post('reset-password', [ForgotPasswordController::class, 'resetPassword'])
-    ->name('password.update');
+Route::get(
+    '/peta/fasilitas',
+    [PetaController::class, 'getFasilitasData']
+)->name('peta.fasilitas');
 
 // ============================================
-// RUTE WARGA / TERAUTENTIKASI
+// AUTENTIKASI
 // ============================================
-Route::middleware(['auth'])->group(function () {
-// Laporan
-Route::resource('laporan', LaporanController::class)->except(['index']);
-Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
-Route::get('/dinas/laporan/unduh', [LaporanController::class, 'unduh'])->name('dinas.laporan.unduh');
-// Notifikasi
-Route::get('notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
-Route::post('notifikasi/{notifikasi}/baca', [NotifikasiController::class, 'markAsRead'])->name('notifikasi.read');
-Route::post('notifikasi/baca-semua', [NotifikasiController::class, 'markAllAsRead'])->name('notifikasi.read-all');
-Route::get('notifikasi/belum-dibaca', [NotifikasiController::class, 'unreadCount'])->name('notifikasi.unread-count');
+Route::get(
+    '/login',
+    [AuthController::class, 'showLoginForm']
+)->name('login');
 
-// Profil
-Route::get('profil', [ProfileController::class, 'edit'])->name('profile.edit');
-Route::put('profil', [ProfileController::class, 'update'])->name('profile.update');
+Route::post(
+    '/login',
+    [AuthController::class, 'login']
+)->middleware('throttle:6,1')->name('login.post');
+
+Route::get(
+    '/register',
+    [AuthController::class, 'showRegisterForm']
+)->name('auth.register');
+
+Route::post(
+    '/register',
+    [AuthController::class, 'register']
+)->middleware('throttle:5,10')->name('register.post');
+
+Route::post(
+    '/logout',
+    [AuthController::class, 'logout']
+)->name('logout');
+
+Route::get(
+    '/auth/google',
+    [AuthController::class, 'redirectToGoogle']
+)->name('auth.google');
+
+Route::get(
+    '/auth/google/callback',
+    [AuthController::class, 'handleGoogleCallback']
+)->name('auth.google.callback');
+
+Route::get(
+    '/forgot-password',
+    [ForgotPasswordController::class, 'showLinkRequestForm']
+)->name('password.request');
+
+Route::post(
+    '/forgot-password',
+    [ForgotPasswordController::class, 'sendResetLinkEmail']
+)->name('password.email');
+
+Route::get(
+    '/reset-password/{token}',
+    [ForgotPasswordController::class, 'showResetForm']
+)->name('password.reset');
+
+Route::post(
+    '/reset-password',
+    [ForgotPasswordController::class, 'resetPassword']
+)->name('password.update');
+
+// ============================================
+// RUTE PENGGUNA TERAUTENTIKASI
+// ============================================
+Route::middleware('auth')->group(function () {
+    Route::resource('laporan', LaporanController::class)
+        ->except(['index']);
+
+    Route::get(
+        '/laporan',
+        [LaporanController::class, 'index']
+    )->name('laporan.index');
+
+    Route::get(
+        '/notifikasi',
+        [NotifikasiController::class, 'index']
+    )->name('notifikasi.index');
+
+    Route::post(
+        '/notifikasi/{notifikasi}/baca',
+        [NotifikasiController::class, 'markAsRead']
+    )->name('notifikasi.read');
+
+    Route::post(
+        '/notifikasi/baca-semua',
+        [NotifikasiController::class, 'markAllAsRead']
+    )->name('notifikasi.read-all');
+
+    Route::get(
+        '/notifikasi/belum-dibaca',
+        [NotifikasiController::class, 'unreadCount']
+    )->name('notifikasi.unread-count');
+
+    Route::get(
+        '/profil',
+        [ProfileController::class, 'edit']
+    )->name('profile.edit');
+
+    Route::put(
+        '/profil',
+        [ProfileController::class, 'update']
+    )->name('profile.update');
 });
 
 // ============================================
-// RUTE ADMIN & DINAS (Autentikasi + Role Dinas)
+// ADMINISTRATOR SAJA
 // ============================================
-Route::middleware(['auth', 'dinas'])->prefix('admin')->name('admin.')->group(function () {
-// Dashboard
-Route::get('dashboard', [DashboardController::class, 'index'])
-    ->middleware('admin')
-    ->name('dashboard');
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        // Dashboard
+        Route::get(
+            '/dashboard',
+            [DashboardController::class, 'index']
+        )->name('dashboard');
 
-Route::get('dashboard/chart', [DashboardController::class, 'getChartData'])
-    ->middleware('admin')
-    ->name('dashboard.chart');
+        Route::get(
+            '/dashboard/chart',
+            [DashboardController::class, 'getChartData']
+        )->name('dashboard.chart');
 
-// Verifikasi Laporan
-Route::get('verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
-Route::get('verifikasi/{laporan}', [VerifikasiController::class, 'show'])->name('verifikasi.show');
-Route::post('verifikasi/{laporan}/setujui', [VerifikasiController::class, 'approve'])->name('verifikasi.approve');
-Route::post('verifikasi/{laporan}/tolak', [VerifikasiController::class, 'reject'])->name('verifikasi.reject');
-Route::post('verifikasi/{laporan}/kembalikan', [VerifikasiController::class, 'return'])->name('verifikasi.return');
-Route::post('verifikasi/{laporan}/perbaikan', [VerifikasiController::class, 'markInProgress'])->name('verifikasi.in-progress');
-Route::post('verifikasi/{laporan}/selesai', [VerifikasiController::class, 'markCompleted'])->name('verifikasi.completed');
-});
+        // Sprint 2: Verifikasi laporan
+        Route::get(
+            '/verifikasi',
+            [VerifikasiController::class, 'index']
+        )->name('verifikasi.index');
 
-// Rute Dinas
-Route::middleware(['auth', 'dinas'])->prefix('dinas')->name('dinas.')->group(function () {
-Route::get('dashboard', [DashboardController::class, 'indexDinas'])->name('dashboard');
-});
+        Route::get(
+            '/verifikasi/{laporan}',
+            [VerifikasiController::class, 'show']
+        )->name('verifikasi.show');
 
-// Rute Warga
-Route::middleware(['auth'])->prefix('warga')->name('warga.')->group(function () {
-Route::get('dashboard', [DashboardController::class, 'indexWarga'])->name('dashboard');
-});
+        Route::post(
+            '/verifikasi/{laporan}/setujui',
+            [VerifikasiController::class, 'approve']
+        )->name('verifikasi.approve');
+
+        Route::post(
+            '/verifikasi/{laporan}/tolak',
+            [VerifikasiController::class, 'reject']
+        )->name('verifikasi.reject');
+
+        // Fitur verifikasi lama tetap dipertahankan.
+        Route::post(
+            '/verifikasi/{laporan}/kembalikan',
+            [VerifikasiController::class, 'return']
+        )->name('verifikasi.return');
+
+        Route::post(
+            '/verifikasi/{laporan}/perbaikan',
+            [VerifikasiController::class, 'markInProgress']
+        )->name('verifikasi.in-progress');
+
+        Route::post(
+            '/verifikasi/{laporan}/selesai',
+            [VerifikasiController::class, 'markCompleted']
+        )->name('verifikasi.completed');
+
+        // Sprint 2: CRUD Kategori Hambatan
+        Route::resource(
+            'kategori-hambatan',
+            KategoriHambatanController::class
+        )->parameters([
+            'kategori-hambatan' => 'kategoriHambatan',
+        ]);
+
+        // Modul admin yang sudah ada.
+        Route::resource(
+            'fasilitas-publik',
+            FasilitasPublikController::class
+        )->parameters([
+            'fasilitas-publik' => 'fasilitasPublik',
+        ]);
+
+        Route::resource(
+            'pengaturan-prioritas',
+            PengaturanPrioritasController::class
+        )->parameters([
+            'pengaturan-prioritas' => 'pengaturanPrioritas',
+        ]);
+
+        Route::post(
+            '/pengaturan-prioritas/{pengaturanPrioritas}/aktifkan',
+            [PengaturanPrioritasController::class, 'activate']
+        )->name('pengaturan-prioritas.activate');
+
+        Route::post(
+            '/pengaturan-prioritas/hitung-ulang',
+            [PengaturanPrioritasController::class, 'recalculate']
+        )->name('pengaturan-prioritas.recalculate');
+
+        Route::resource('wilayah', WilayahController::class);
+
+        Route::resource(
+            'konfigurasi-sistem',
+            KonfigurasiSistemController::class
+        )->except(['create', 'show', 'destroy'])
+            ->parameters([
+                'konfigurasi-sistem' => 'konfigurasiSistem',
+            ]);
+
+        Route::resource('user', UserController::class);
+
+        Route::get(
+            '/audit',
+            [AuditController::class, 'index']
+        )->name('audit.index');
+
+        Route::get(
+            '/audit/{audit}',
+            [AuditController::class, 'show']
+        )->name('audit.show');
+    });
 
 // ============================================
-// RUTE ADMINISTRATOR SAJA
+// DINAS
 // ============================================
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-// Kategori Hambatan
-Route::resource('kategori-hambatan', KategoriHambatanController::class)->parameters([
-'kategori-hambatan' => 'kategoriHambatan',
-]);
+Route::middleware(['auth', 'dinas'])
+    ->prefix('dinas')
+    ->name('dinas.')
+    ->group(function () {
+        Route::get(
+            '/dashboard',
+            [DashboardController::class, 'indexDinas']
+        )->name('dashboard');
 
-// Fasilitas Publik
-Route::resource('fasilitas-publik', FasilitasPublikController::class)->parameters([
-'fasilitas-publik' => 'fasilitasPublik',
-]);
+        Route::get(
+            '/laporan/unduh',
+            [LaporanController::class, 'unduh']
+        )->name('laporan.unduh');
+    });
 
-// Pengaturan Prioritas
-Route::resource('pengaturan-prioritas', PengaturanPrioritasController::class)->parameters([
-'pengaturan-prioritas' => 'pengaturanPrioritas',
-]);
-Route::post('pengaturan-prioritas/{pengaturanPrioritas}/aktifkan', [PengaturanPrioritasController::class, 'activate'])->name('pengaturan-prioritas.activate');
-Route::post('pengaturan-prioritas/hitung-ulang', [PengaturanPrioritasController::class, 'recalculate'])->name('pengaturan-prioritas.recalculate');
-
-// Wilayah
-Route::resource('wilayah', WilayahController::class);
-
-// Konfigurasi Sistem
-Route::resource('konfigurasi-sistem', KonfigurasiSistemController::class)->except(['create', 'show', 'destroy'])->parameters([
-'konfigurasi-sistem' => 'konfigurasiSistem',
-]);
-
-// User Management
-Route::resource('user', UserController::class);
-
-// Audit Log
-Route::get('audit', [AuditController::class, 'index'])->name('audit.index');
-Route::get('audit/{audit}', [AuditController::class, 'show'])->name('audit.show');
-
-
-// Rute lupa password
-// 1. Tampilkan halaman input email (Lupa Password)
-// 2. Proses kirim link reset ke email
-// 3. Tampilkan halaman input password baru (diklik dari email)
-// 4. Proses simpan password baru ke database
-});
+// ============================================
+// WARGA
+// ============================================
+Route::middleware('auth')
+    ->prefix('warga')
+    ->name('warga.')
+    ->group(function () {
+        Route::get(
+            '/dashboard',
+            [DashboardController::class, 'indexWarga']
+        )->name('dashboard');
+    });

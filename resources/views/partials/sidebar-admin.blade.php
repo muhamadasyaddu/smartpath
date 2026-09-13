@@ -228,7 +228,7 @@
         </a>
 
 
-        {{-- MASTER DATA --}}
+        {{-- Kategori Hambatan --}}
         <a
             href="{{ route('admin.kategori-hambatan.index') }}"
             class="sp-nav {{ request()->routeIs(
@@ -273,7 +273,7 @@
             </svg>
 
             <span>
-                Master Data
+                Kategori Hambatan
             </span>
 
         </a>

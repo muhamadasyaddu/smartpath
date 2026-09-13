@@ -4,30 +4,49 @@
 @section('page_title', 'Verifikasi Laporan')
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #verifikasi-map {
+        height: 320px;
+        border-radius: 0.75rem;
+        z-index: 1;
+    }
+</style>
 @endpush
 
 @section('content')
 <div class="space-y-6">
-    {{-- Breadcrumb --}}
+
     <nav class="text-sm text-slate-400" aria-label="Breadcrumb">
         <ol class="flex items-center gap-2">
-            <li><a href="{{ route('admin.verifikasi.index') }}" class="hover:text-emerald-700 transition-colors">Verifikasi</a></li>
+            <li>
+                <a href="{{ route('admin.verifikasi.index') }}" class="hover:text-emerald-700 transition-colors">
+                    Verifikasi
+                </a>
+            </li>
             <li aria-hidden="true">/</li>
-            <li class="text-slate-700 font-medium" aria-current="page">{{ $laporan->kode_laporan }}</li>
+            <li class="text-slate-700 font-medium" aria-current="page">
+                {{ $laporan->kode_laporan }}
+            </li>
         </ol>
     </nav>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Main content --}}
+
         <div class="lg:col-span-2 space-y-6">
-            {{-- Report detail --}}
-            <div class="bg-white rounded-xl border border-slate-200 p-6">
+
+            {{-- Detail laporan --}}
+            <section class="bg-white rounded-xl border border-slate-200 p-6">
                 <div class="flex items-start justify-between gap-3 mb-4">
                     <div>
-                        <span class="text-xs font-mono text-slate-400">{{ $laporan->kode_laporan }}</span>
-                        <h2 class="text-lg font-bold text-slate-900 mt-1">{{ $laporan->judul }}</h2>
+                        <span class="text-xs font-mono text-slate-400">
+                            {{ $laporan->kode_laporan }}
+                        </span>
+
+                        <h2 class="text-lg font-bold text-slate-900 mt-1">
+                            {{ $laporan->judul }}
+                        </h2>
                     </div>
+
                     <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-semibold {{ $laporan->warna }} whitespace-nowrap">
                         {{ $laporan->status_label }}
                     </span>
@@ -36,193 +55,413 @@
                 <div class="flex flex-wrap items-center gap-2 mb-4">
                     @if($laporan->kategoriHambatan)
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-sm text-slate-700">
-                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: {{ $laporan->kategoriHambatan->warna_penanda }}" aria-hidden="true"></span>
+                            <span
+                                class="w-2.5 h-2.5 rounded-full"
+                                style="background-color: {{ $laporan->kategoriHambatan->warna_penanda ?? '#64748b' }}"
+                                aria-hidden="true"
+                            ></span>
                             {{ $laporan->kategoriHambatan->nama }}
                         </span>
                     @endif
-                    <span class="text-xs text-slate-400">{{ $laporan->created_at->format('d M Y H:i') }}</span>
+
+                    <span class="text-xs text-slate-400">
+                        {{ $laporan->created_at->locale('id')->translatedFormat('d M Y H:i') }}
+                    </span>
                 </div>
 
-                <p class="text-slate-700 leading-relaxed mb-4">{{ $laporan->deskripsi }}</p>
+                <p class="text-slate-700 leading-relaxed">
+                    {{ $laporan->deskripsi }}
+                </p>
 
-                <div class="flex items-center gap-2 text-sm text-slate-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-                    {{ $laporan->alamat_lengkap }}
+                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div class="rounded-lg bg-slate-50 border border-slate-100 p-3">
+                        <p class="text-xs text-slate-400 mb-1">Pelapor</p>
+                        <p class="font-medium text-slate-700">
+                            {{ $laporan->pelapor->nama_lengkap ?? '-' }}
+                        </p>
+                    </div>
+
+                    <div class="rounded-lg bg-slate-50 border border-slate-100 p-3">
+                        <p class="text-xs text-slate-400 mb-1">Sumber Koordinat</p>
+                        <p class="font-medium text-slate-700">
+                            {{ $laporan->sumber_koordinat === 'gps_otomatis' ? 'GPS Otomatis' : 'Penandaan Manual' }}
+                        </p>
+                    </div>
                 </div>
-            </div>
+            </section>
 
-            {{-- Photos --}}
-            @if($laporan->fotoLaporan->count() > 0)
-                <div class="bg-white rounded-xl border border-slate-200 p-6">
-                    <h3 class="font-semibold text-slate-900 mb-4">Foto Laporan</h3>
+            {{-- Foto --}}
+            <section class="bg-white rounded-xl border border-slate-200 p-6">
+                <h3 class="font-semibold text-slate-900 mb-4">
+                    Bukti Foto
+                </h3>
+
+                @if($laporan->fotoLaporan->count())
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         @foreach($laporan->fotoLaporan as $foto)
-                            <div class="relative overflow-hidden rounded-lg">
-                                <img src="{{ $foto->url }}" alt="Foto laporan {{ $loop->iteration }}" class="w-full h-40 object-cover" loading="lazy">
+                            <div class="relative overflow-hidden rounded-lg border border-slate-200">
+                                <img
+                                    src="{{ $foto->url }}"
+                                    alt="Foto laporan {{ $loop->iteration }}"
+                                    class="w-full h-40 object-cover"
+                                    loading="lazy"
+                                >
+
                                 @if($foto->adalah_utama)
-                                    <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">Utama</span>
+                                    <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">
+                                        Utama
+                                    </span>
                                 @endif
                             </div>
                         @endforeach
                     </div>
+                @else
+                    <p class="text-sm text-red-600">
+                        Tidak ada foto yang tersimpan.
+                    </p>
+                @endif
+            </section>
+
+            {{-- Lokasi --}}
+            <section class="bg-white rounded-xl border border-slate-200 p-6">
+                <h3 class="font-semibold text-slate-900 mb-4">
+                    Lokasi Hambatan
+                </h3>
+
+                <div
+                    id="verifikasi-map"
+                    role="application"
+                    aria-label="Peta lokasi laporan"
+                ></div>
+
+                <div class="mt-3 space-y-1">
+                    <p class="text-sm text-slate-600">
+                        {{ $laporan->alamat_lengkap ?: 'Alamat tidak tersedia.' }}
+                    </p>
+
+                    <p class="text-xs text-slate-400 font-mono">
+                        {{ $laporan->latitude }}, {{ $laporan->longitude }}
+                    </p>
                 </div>
-            @endif
+            </section>
 
-            {{-- Map --}}
-            <div class="bg-white rounded-xl border border-slate-200 p-6">
-                <h3 class="font-semibold text-slate-900 mb-4">Lokasi</h3>
-                <div id="verifikasi-map" class="w-full h-64 rounded-xl" role="application" aria-label="Peta lokasi laporan"></div>
-            </div>
-
-            {{-- Duplicate reports --}}
+            {{-- Indikasi duplikasi --}}
             @if($laporan->laporanInduk)
-                <div class="bg-amber-50 rounded-xl border border-amber-200 p-6">
-                    <h3 class="font-semibold text-amber-800 mb-2 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Laporan Duplikat
+                <section class="bg-amber-50 rounded-xl border border-amber-200 p-6">
+                    <h3 class="font-semibold text-amber-800 mb-2">
+                        Laporan Terhubung
                     </h3>
-                    <p class="text-sm text-amber-700 mb-2">Laporan ini terdeteksi sebagai duplikat dari:</p>
-                    <a href="{{ route('admin.verifikasi.show', $laporan->laporanInduk) }}" class="inline-flex items-center gap-1 text-sm font-medium text-amber-800 hover:text-amber-900">
-                        {{ $laporan->laporanInduk->kode_laporan }} — {{ $laporan->laporanInduk->judul }} →
+
+                    <p class="text-sm text-amber-700 mb-2">
+                        Sistem mendeteksi laporan ini berada pada kategori yang sama
+                        dan radius deduplikasi 50 meter dari laporan induk.
+                    </p>
+
+                    <a
+                        href="{{ route('admin.verifikasi.show', $laporan->laporanInduk) }}"
+                        class="inline-flex items-center gap-1 text-sm font-medium text-amber-800 hover:text-amber-900"
+                    >
+                        {{ $laporan->laporanInduk->kode_laporan }}
+                        — {{ $laporan->laporanInduk->judul }}
                     </a>
-                </div>
+                </section>
             @endif
 
-            {{-- Verification history --}}
-            @if($laporan->verifikasi->count() > 0)
-                <div class="bg-white rounded-xl border border-slate-200 p-6">
-                    <h3 class="font-semibold text-slate-900 mb-4">Riwayat Verifikasi</h3>
+            {{-- Riwayat verifikasi --}}
+            @if($laporan->verifikasi->count())
+                <section class="bg-white rounded-xl border border-slate-200 p-6">
+                    <h3 class="font-semibold text-slate-900 mb-4">
+                        Riwayat Verifikasi
+                    </h3>
+
                     <div class="space-y-4">
-                        @foreach($laporan->verifikasi as $v)
+                        @foreach($laporan->verifikasi as $verifikasi)
                             <div class="flex gap-3 p-3 rounded-lg bg-slate-50">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold {{ $v->warna }} shrink-0">{{ $v->keputusan_label }}</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold {{ $verifikasi->warna }} shrink-0">
+                                    {{ $verifikasi->keputusan_label }}
+                                </span>
+
                                 <div>
-                                    <p class="text-sm text-slate-700">{{ $v->catatan_admin }}</p>
-                                    <p class="text-xs text-slate-400 mt-1">{{ $v->admin->nama_lengkap ?? 'Sistem' }} • {{ $v->created_at->format('d M Y H:i') }}</p>
+                                    <p class="text-sm text-slate-700">
+                                        {{ $verifikasi->catatan_admin ?: 'Tidak ada catatan.' }}
+                                    </p>
+
+                                    <p class="text-xs text-slate-400 mt-1">
+                                        {{ $verifikasi->admin->nama_lengkap ?? 'Sistem' }}
+                                        •
+                                        {{ $verifikasi->created_at->format('d M Y H:i') }}
+                                    </p>
                                 </div>
                             </div>
                         @endforeach
                     </div>
-                </div>
+                </section>
             @endif
         </div>
 
-        {{-- Sidebar: Actions & Info --}}
-        <div class="space-y-6">
-            {{-- Priority Score --}}
-            <div class="bg-white rounded-xl border border-slate-200 p-6">
-                <h3 class="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">Skor Prioritas</h3>
-                @if($laporan->skor_prioritas)
+        {{-- Sidebar --}}
+        <aside class="space-y-6">
+
+            {{-- SLA --}}
+            <section class="bg-white rounded-xl border border-slate-200 p-6">
+                <h3 class="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">
+                    SLA Verifikasi
+                </h3>
+
+                @if($laporan->status === 'menunggu_verifikasi')
+                    @php
+                        $slaExpired = $laporan->created_at->lt(now()->subHours(48));
+                        $elapsedHours = (int) $laporan->created_at->diffInHours(now());
+                    @endphp
+
+                    @if($slaExpired)
+                        <div class="rounded-xl bg-red-50 border border-red-200 p-4">
+                            <p class="text-sm font-semibold text-red-800">
+                                Melewati target 2×24 jam
+                            </p>
+                            <p class="text-xs text-red-600 mt-1">
+                                Laporan telah menunggu sekitar {{ $elapsedHours }} jam.
+                            </p>
+                        </div>
+                    @else
+                        <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+                            <p class="text-sm font-semibold text-emerald-800">
+                                Masih dalam SLA
+                            </p>
+                            <p class="text-xs text-emerald-700 mt-1">
+                                Menunggu sekitar {{ $elapsedHours }} jam.
+                            </p>
+                        </div>
+                    @endif
+                @else
+                    <p class="text-sm text-slate-500">
+                        Laporan sudah diproses.
+                    </p>
+                @endif
+            </section>
+
+            {{-- Prioritas --}}
+            <section class="bg-white rounded-xl border border-slate-200 p-6">
+                <h3 class="font-semibold text-slate-900 mb-4 text-sm uppercase tracking-wider">
+                    Skor Prioritas
+                </h3>
+
+                @if($laporan->skor_prioritas !== null)
                     <div class="text-center mb-4">
-                        <p class="text-3xl font-bold {{ $laporan->tingkat_prioritas === 'tinggi' ? 'text-red-600' : ($laporan->tingkat_prioritas === 'sedang' ? 'text-amber-600' : 'text-blue-600') }}">
-                            {{ number_format($laporan->skor_prioritas, 2) }}
+                        <p class="text-3xl font-bold text-slate-900">
+                            {{ number_format((float) $laporan->skor_prioritas, 2) }}
                         </p>
-                        <p class="text-xs text-slate-400 uppercase mt-1">{{ $laporan->tingkat_prioritas }}</p>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between"><span class="text-slate-500">Keparahan</span><span class="font-medium">{{ number_format($laporan->skor_keparahan, 2) }}</span></div>
-                        <div class="flex justify-between"><span class="text-slate-500">Pelapor</span><span class="font-medium">{{ number_format($laporan->skor_pelapor, 2) }}</span></div>
-                        <div class="flex justify-between"><span class="text-slate-500">Fasilitas</span><span class="font-medium">{{ number_format($laporan->skor_fasilitas, 2) }}</span></div>
-                        <div class="flex justify-between"><span class="text-slate-500">Jumlah Pelapor</span><span class="font-medium">{{ $laporan->jumlah_pelapor }}</span></div>
+
+                        <p class="text-xs text-slate-400 uppercase mt-1">
+                            {{ $laporan->tingkat_prioritas }}
+                        </p>
                     </div>
                 @else
-                    <p class="text-sm text-slate-400 text-center py-4">Skor belum dihitung</p>
+                    <p class="text-sm text-slate-400 text-center py-4">
+                        Skor akan dihitung setelah laporan induk terverifikasi.
+                    </p>
                 @endif
-            </div>
 
-            {{-- Reporter --}}
-            <div class="bg-white rounded-xl border border-slate-200 p-6">
-                <h3 class="font-semibold text-slate-900 mb-3 text-sm uppercase tracking-wider">Pelapor</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">Jumlah Pelapor</span>
+                        <span class="font-medium">{{ $laporan->jumlah_pelapor }}</span>
+                    </div>
+
+                    @if($laporan->skor_prioritas !== null)
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Keparahan</span>
+                            <span class="font-medium">{{ number_format((float) $laporan->skor_keparahan, 2) }}</span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Pelapor</span>
+                            <span class="font-medium">{{ number_format((float) $laporan->skor_pelapor, 2) }}</span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Fasilitas</span>
+                            <span class="font-medium">{{ number_format((float) $laporan->skor_fasilitas, 2) }}</span>
+                        </div>
+                    @endif
+                </div>
+            </section>
+
+            {{-- Pelapor --}}
+            <section class="bg-white rounded-xl border border-slate-200 p-6">
+                <h3 class="font-semibold text-slate-900 mb-3 text-sm uppercase tracking-wider">
+                    Pelapor
+                </h3>
+
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-semibold text-sm">
                         {{ strtoupper(substr($laporan->pelapor->nama_lengkap ?? 'NA', 0, 2)) }}
                     </div>
+
                     <div>
-                        <p class="text-sm font-medium text-slate-700">{{ $laporan->pelapor->nama_lengkap ?? '-' }}</p>
-                        <p class="text-xs text-slate-400">{{ $laporan->pelapor->email ?? '-' }}</p>
+                        <p class="text-sm font-medium text-slate-700">
+                            {{ $laporan->pelapor->nama_lengkap ?? '-' }}
+                        </p>
+
+                        <p class="text-xs text-slate-400">
+                            {{ $laporan->pelapor->email ?? '-' }}
+                        </p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {{-- Verification Actions --}}
-            @if(in_array($laporan->status, ['menunggu_verifikasi', 'diverifikasi', 'dalam_perbaikan']))
-                <div class="bg-white rounded-xl border border-slate-200 p-6">
-                    <h3 class="font-semibold text-slate-900 mb-4">Aksi Verifikasi</h3>
+            {{-- Aksi --}}
+            @if($laporan->status === 'menunggu_verifikasi')
+                <section class="bg-white rounded-xl border border-slate-200 p-6">
+                    <h3 class="font-semibold text-slate-900 mb-4">
+                        Keputusan Verifikasi
+                    </h3>
 
-                    {{-- Verification form --}}
-                    <form id="verifikasi-form" method="POST" action="" class="space-y-4">
+                    <form
+                        id="verifikasi-form"
+                        method="POST"
+                        action=""
+                        class="space-y-4"
+                    >
                         @csrf
+
                         <div>
-                            <label for="catatan_admin" class="block text-sm font-medium text-slate-700 mb-1.5">Catatan Admin</label>
-                            <textarea id="catatan_admin" name="catatan_admin" rows="3" class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm" placeholder="Tambahkan catatan verifikasi..."></textarea>
+                            <label
+                                for="catatan_admin"
+                                class="block text-sm font-medium text-slate-700 mb-1.5"
+                            >
+                                Catatan Admin
+                            </label>
+
+                            <textarea
+                                id="catatan_admin"
+                                name="catatan_admin"
+                                rows="4"
+                                maxlength="1000"
+                                class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                                placeholder="Untuk penolakan, tuliskan alasan yang jelas dan dapat dipahami pelapor."
+                            >{{ old('catatan_admin') }}</textarea>
+
+                            @error('catatan_admin')
+                                <p class="mt-1 text-sm text-red-600" role="alert">
+                                    {{ $message }}
+                                </p>
+                            @enderror
                         </div>
+
                         <div>
-                            <label for="kategori_koreksi" class="block text-sm font-medium text-slate-700 mb-1.5">Kategori Koreksi (opsional)</label>
-                            <select id="kategori_koreksi" name="kategori_koreksi" class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm">
-                                <option value="">Tidak ada koreksi</option>
-                                <option value="kategori_salah">Kategori Salah</option>
-                                <option value="lokasi_tidak_tepat">Lokasi Tidak Tepat</option>
-                                <option value="duplikat">Duplikat</option>
-                                <option value="tidak_relevan">Tidak Relevan</option>
-                                <option value="informasi_kurang">Informasi Kurang</option>
+                            <label
+                                for="kategori_koreksi"
+                                class="block text-sm font-medium text-slate-700 mb-1.5"
+                            >
+                                Koreksi Kategori (opsional)
+                            </label>
+
+                            <select
+                                id="kategori_koreksi"
+                                name="kategori_koreksi"
+                                class="w-full rounded-xl border-slate-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+                            >
+                                <option value="">
+                                    Tidak ada koreksi
+                                </option>
+
+                                @foreach(\App\Models\KategoriHambatan::aktif()->urutTampil()->get() as $kategori)
+                                    <option
+                                        value="{{ $kategori->id }}"
+                                        {{ old('kategori_koreksi') == $kategori->id ? 'selected' : '' }}
+                                    >
+                                        {{ $kategori->nama }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
-                    </form>
 
-                    {{-- Action buttons --}}
-                    <div class="space-y-2 mt-4">
-                        @if($laporan->status === 'menunggu_verifikasi')
-                            <button type="button" onclick="submitVerifikasi('{{ route("admin.verifikasi.approve", $laporan) }}')" class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white font-medium px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <div class="space-y-2 pt-2">
+                            <button
+                                type="button"
+                                onclick="submitVerification('{{ route('admin.verifikasi.approve', $laporan) }}', false)"
+                                class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white font-medium px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                            >
                                 Setujui Laporan
                             </button>
-                            <button type="button" onclick="submitVerifikasi('{{ route("admin.verifikasi.reject", $laporan) }}')" class="w-full inline-flex items-center justify-center gap-2 bg-white text-red-600 font-medium px-4 py-2.5 rounded-xl border border-red-200 hover:bg-red-50 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+
+                            <button
+                                type="button"
+                                onclick="submitVerification('{{ route('admin.verifikasi.reject', $laporan) }}', true)"
+                                class="w-full inline-flex items-center justify-center gap-2 bg-white text-red-600 font-medium px-4 py-2.5 rounded-xl border border-red-200 hover:bg-red-50 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                            >
                                 Tolak Laporan
                             </button>
-                            <button type="button" onclick="submitVerifikasi('{{ route("admin.verifikasi.return", $laporan) }}')" class="w-full inline-flex items-center justify-center gap-2 bg-white text-amber-600 font-medium px-4 py-2.5 rounded-xl border border-amber-200 hover:bg-amber-50 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                                Kembalikan ke Warga
-                            </button>
-                        @elseif($laporan->status === 'diverifikasi')
-                            <button type="button" onclick="confirmAction('{{ route("admin.verifikasi.in-progress", $laporan) }}', 'Tandai sebagai dalam perbaikan?')" class="w-full inline-flex items-center justify-center gap-2 bg-teal-600 text-white font-medium px-4 py-2.5 rounded-xl hover:bg-teal-700 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                                Tandai Dalam Perbaikan
-                            </button>
-                        @elseif($laporan->status === 'dalam_perbaikan')
-                            <button type="button" onclick="confirmAction('{{ route("admin.verifikasi.completed", $laporan) }}', 'Tandai sebagai selesai?')" class="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white font-medium px-4 py-2.5 rounded-xl hover:bg-green-700 transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                Tandai Selesai
-                            </button>
-                        @endif
-                    </div>
-                </div>
+                        </div>
+                    </form>
+                </section>
             @endif
-        </div>
+        </aside>
     </div>
 </div>
 @endsection
+
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const map = L.map('verifikasi-map', { center: [{{ $laporan->latitude }}, {{ $laporan->longitude }}], zoom: 16 });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM', maxZoom: 19 }).addTo(map);
-    L.marker([{{ $laporan->latitude }}, {{ $laporan->longitude }}]).addTo(map).bindPopup('{{ addslashes($laporan->judul) }}').openPopup();
+document.addEventListener('DOMContentLoaded', function () {
+    const map = L.map('verifikasi-map', {
+        center: [
+            {{ (float) $laporan->latitude }},
+            {{ (float) $laporan->longitude }}
+        ],
+        zoom: 16
+    });
+
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution: '&copy; OpenStreetMap',
+            maxZoom: 19
+        }
+    ).addTo(map);
+
+    L.marker([
+        {{ (float) $laporan->latitude }},
+        {{ (float) $laporan->longitude }}
+    ])
+    .addTo(map)
+    .bindPopup(
+        @json($laporan->judul)
+    )
+    .openPopup();
+
+    setTimeout(() => map.invalidateSize(), 300);
 });
 
-function submitVerifikasi(action) {
+function submitVerification(action, isReject) {
     const form = document.getElementById('verifikasi-form');
+
+    if (!form) {
+        return;
+    }
+
+    if (isReject) {
+        const note = document
+            .getElementById('catatan_admin')
+            .value
+            .trim();
+
+        if (!note) {
+            alert('Alasan penolakan wajib diisi.');
+            document.getElementById('catatan_admin').focus();
+            return;
+        }
+
+        if (!confirm('Tolak laporan ini? Alasan penolakan akan disimpan dan dapat dilihat pelapor.')) {
+            return;
+        }
+    } else if (!confirm('Setujui laporan ini? Laporan akan menjadi terverifikasi dan diproses ke tahap prioritas.')) {
+        return;
+    }
+
     form.action = action;
     form.submit();
-}
-
-function confirmAction(action, message) {
-    if (confirm(message)) {
-        const form = document.getElementById('verifikasi-form');
-        form.action = action;
-        form.submit();
-    }
 }
 </script>
 @endpush
