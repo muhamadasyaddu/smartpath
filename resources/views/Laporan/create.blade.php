@@ -413,15 +413,16 @@
                 </a>
 
                 <button
-                    type="submit"
-                    id="submit-laporan"
-                    class="inline-flex items-center gap-2 bg-emerald-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9 2zm0 0v-8"/>
-                    </svg>
-                    Kirim Laporan
-                </button>
+    type="submit"
+    id="submit-laporan"
+    class="inline-flex items-center gap-2 bg-emerald-600 text-white font-semibold px-8 py-3 rounded-xl hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
+>
+    <!-- Icon Paper Plane miring ke kanan atas -->
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+    </svg>
+    Kirim Laporan
+</button>
             </div>
         </div>
     </form>
