@@ -17,7 +17,7 @@ use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ForgotPasswordController;
-
+use App\Http\Controllers\RencanaPerbaikanController;
 // ============================================
 // RUTE PUBLIK
 // ============================================
@@ -278,6 +278,11 @@ Route::middleware(['auth', 'dinas'])
 
     });
 
+    //rencana perbaikan
+      Route::get(
+            '/rencana-perbaikan',
+            [RencanaPerbaikanController::class, 'index']
+        )->name('rencana perbaikan.index');
 // ============================================
 // WARGA
 // ============================================
