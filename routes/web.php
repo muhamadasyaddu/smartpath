@@ -263,15 +263,19 @@ Route::middleware(['auth', 'dinas'])
     ->prefix('dinas')
     ->name('dinas.')
     ->group(function () {
-        Route::get(
-            '/dashboard',
-            [DashboardController::class, 'indexDinas']
-        )->name('dashboard');
+          Route::get('/dashboard', [DashboardController::class, 'indexDinas'])
+            ->name('dashboard');
 
-        Route::get(
-            '/laporan/unduh',
-            [LaporanController::class, 'unduh']
-        )->name('laporan.unduh');
+        Route::get('/laporan', [LaporanController::class, 'indexDinas'])
+            ->name('laporan.index');
+
+        Route::get('/laporan/unduh', [LaporanController::class, 'unduh'])
+            ->name('laporan.unduh');
+            Route::get(
+    '/laporan/{id}/pdf',
+    [LaporanController::class, 'unduhPdf']
+)->name('laporan.pdf');
+
     });
 
 // ============================================

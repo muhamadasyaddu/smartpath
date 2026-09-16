@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Throwable;
 
 class LaporanController extends Controller
@@ -252,52 +253,71 @@ class LaporanController extends Controller
      * Unduh ringkasan laporan untuk Dinas.
      * Dipertahankan untuk kompatibilitas tombol pada header Dinas.
      */
-    public function unduh()
-    {
-        abort_unless(auth()->user()->isDinas(), 403);
+   
+       public function unduh()
+{
+    abort_unless(auth()->user()->isDinas(), 403);
 
-        $laporan = Laporan::query()
-            ->induk()
-            ->with('kategoriHambatan')
-            ->orderByDesc('created_at')
-            ->get();
+    $laporan = Laporan::query()
+        ->induk()
+        ->with('kategoriHambatan')
+        ->orderByDesc('created_at')
+        ->get();
 
-        return response()->streamDownload(function () use ($laporan) {
-            $handle = fopen('php://output', 'w');
+    return response()->streamDownload(function () use ($laporan) {
+
+        $handle = fopen('php://output', 'w');
+
+        fputcsv($handle, [
+            'Kode',
+            'Judul',
+            'Kategori',
+            'Status',
+            'Prioritas',
+            'Jumlah Pelapor',
+            'Latitude',
+            'Longitude',
+            'Tanggal',
+        ], ';');
+
+        foreach ($laporan as $item) {
 
             fputcsv($handle, [
-                'Kode',
-                'Judul',
-                'Kategori',
-                'Status',
-                'Prioritas',
-                'Jumlah Pelapor',
-                'Latitude',
-                'Longitude',
-                'Tanggal',
-            ]);
+                $item->kode_laporan,
+                $item->judul,
+                $item->kategoriHambatan?->nama ?? '',
+                $item->status_label,
+                $item->skor_prioritas !== null
+                    ? number_format((float) $item->skor_prioritas, 2, '.', '')
+                    : '',
+                $item->jumlah_pelapor,
+                $item->latitude,
+                $item->longitude,
+                $item->created_at?->format('Y-m-d H:i:s'),
+            ], ';');
+        }
 
-            foreach ($laporan as $item) {
-                fputcsv($handle, [
-                    $item->kode_laporan,
-                    $item->judul,
-                    $item->kategoriHambatan?->nama ?? '',
-                    $item->status_label,
-                    $item->skor_prioritas !== null
-                        ? number_format((float) $item->skor_prioritas, 2, '.', '')
-                        : '',
-                    $item->jumlah_pelapor,
-                    $item->latitude,
-                    $item->longitude,
-                    $item->created_at?->format('Y-m-d H:i:s'),
-                ]);
-            }
+        fclose($handle);
 
-            fclose($handle);
-        }, 'smartpath-laporan-' . now()->format('Y-m-d-His') . '.csv', [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
-    }
+    }, 'smartpath-laporan-' . now()->format('Y-m-d-His') . '.csv', [
+        'Content-Type' => 'text/csv; charset=UTF-8',
+    ]);
+}
+public function unduhPdf($id)
+{
+    abort_unless(auth()->user()->isDinas(), 403);
+
+    $laporan = Laporan::query()
+        ->with('kategoriHambatan')
+        ->findOrFail($id);
+
+    $pdf = \PDF::loadView('dinas.laporan-pdf', compact('laporan'));
+
+    return $pdf->download(
+        'laporan-' . $laporan->kode_laporan . '.pdf'
+    );
+}   
+    
 
     /**
      * Detail laporan.
@@ -576,4 +596,17 @@ class LaporanController extends Controller
             abort(403, 'Anda tidak memiliki izin untuk mengubah laporan ini.');
         }
     }
+
+    public function indexDinas(Request $request)
+{
+    abort_unless(auth()->user()->isDinas(), 403);
+
+    $laporan = Laporan::query()
+        ->induk()
+        ->with('kategoriHambatan')
+        ->orderByDesc('created_at')
+        ->paginate(10);
+
+    return view('dinas.index', compact('laporan'));
+}
 }
