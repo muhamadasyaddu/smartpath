@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\RencanaPerbaikanController;
+use App\Http\Controllers\NavigasiController;
 // ============================================
 // RUTE PUBLIK
 // ============================================
@@ -283,6 +284,24 @@ Route::middleware(['auth', 'dinas'])
             '/rencana-perbaikan',
             [RencanaPerbaikanController::class, 'index']
         )->name('rencana perbaikan.index');
+
+        //nearby
+        Route::get('/peta/nearby', [PetaController::class, 'nearby'])
+    ->name('peta.nearby');
+
+    //navigasi
+   
+    Route::get('/navigasi', [NavigasiController::class, 'index'])
+    ->name('navigasi.index');
+    //tujuan
+Route::post('/navigasi/cari-tujuan', [NavigasiController::class, 'cariTujuan'])
+    ->name('navigasi.cari-tujuan');
+    //rute
+    Route::post('/navigasi/rute', [NavigasiController::class, 'rute'])
+    ->name('navigasi.rute');
+    //cek hambatam
+    Route::post('/navigasi/cek-hambatan', [NavigasiController::class, 'cekHambatanRute'])
+    ->name('navigasi.cek-hambatan');
 // ============================================
 // WARGA
 // ============================================

@@ -78,4 +78,35 @@ class PetaController extends Controller
 
         return response()->json($fasilitasPublik);
     }
+
+   public function nearby()
+{
+    $laporan = Laporan::induk()
+        ->terverifikasi()
+        ->with([
+            'kategoriHambatan',
+            'wilayah',
+            'foto'
+        ])
+        ->whereNotNull('latitude')
+        ->whereNotNull('longitude')
+        ->get();
+
+    $laporanData = $laporan->map(function ($item) {
+        return [
+            'id' => $item->id,
+            'judul' => $item->judul,
+            'latitude' => (float) $item->latitude,
+            'longitude' => (float) $item->longitude,
+            'kategori' => $item->kategoriHambatan?->nama,
+            'alamat' => $item->alamat_lengkap,
+            'tingkat_prioritas' => $item->tingkat_prioritas,
+            'skor_prioritas' => $item->skor_prioritas !== null
+                ? (float) $item->skor_prioritas
+                : null,
+        ];
+    })->values();
+
+    return view('peta.nearby', compact('laporanData'));
+}
 }
