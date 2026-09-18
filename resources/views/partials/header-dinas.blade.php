@@ -104,7 +104,7 @@
              TOMBOL UNDUH LAPORAN
         ====================================================== --}}
         <a
-            href="{{ route('dinas.laporan.unduh') }}"
+            href="{{ route('dinas.laporan.index') }}"
             class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-[10px] sm:text-[11px] font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
             title="Unduh Laporan"
         >

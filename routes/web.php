@@ -17,7 +17,8 @@ use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ForgotPasswordController;
-
+use App\Http\Controllers\RencanaPerbaikanController;
+use App\Http\Controllers\NavigasiController;
 // ============================================
 // RUTE PUBLIK
 // ============================================
@@ -263,17 +264,44 @@ Route::middleware(['auth', 'dinas'])
     ->prefix('dinas')
     ->name('dinas.')
     ->group(function () {
-        Route::get(
-            '/dashboard',
-            [DashboardController::class, 'indexDinas']
-        )->name('dashboard');
+          Route::get('/dashboard', [DashboardController::class, 'indexDinas'])
+            ->name('dashboard');
 
-        Route::get(
-            '/laporan/unduh',
-            [LaporanController::class, 'unduh']
-        )->name('laporan.unduh');
+        Route::get('/laporan', [LaporanController::class, 'indexDinas'])
+            ->name('laporan.index');
+
+        Route::get('/laporan/unduh', [LaporanController::class, 'unduh'])
+            ->name('laporan.unduh');
+            Route::get(
+    '/laporan/{id}/pdf',
+    [LaporanController::class, 'unduhPdf']
+)->name('laporan.pdf');
+
     });
 
+    //rencana perbaikan
+      Route::get(
+            '/rencana-perbaikan',
+            [RencanaPerbaikanController::class, 'index']
+        )->name('rencana perbaikan.index');
+
+        //nearby
+        Route::get('/peta/nearby', [PetaController::class, 'nearby'])
+    ->name('peta.nearby');
+
+    //navigasi
+   
+    Route::get('/navigasi', [NavigasiController::class, 'index'])
+    ->name('navigasi.index');
+    //tujuan
+Route::post('/navigasi/cari-tujuan', [NavigasiController::class, 'cariTujuan'])
+    ->name('navigasi.cari-tujuan');
+    //rute
+    Route::post('/navigasi/rute', [NavigasiController::class, 'rute'])
+    ->name('navigasi.rute');
+    //cek hambatam
+    Route::post('/navigasi/cek-hambatan', [NavigasiController::class, 'cekHambatanRute'])
+    ->name('navigasi.cek-hambatan');
 // ============================================
 // WARGA
 // ============================================
