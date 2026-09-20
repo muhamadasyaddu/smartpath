@@ -3,17 +3,10 @@
 @section('title', 'Buat Laporan Baru')
 
 @push('styles')
-<style>
-    #location-map {
-        height: 320px;
-        border-radius: 0.75rem;
-        z-index: 1;
-    }
-
-    .photo-preview-item {
-        position: relative;
-    }
-</style>
+<link
+    rel="stylesheet"
+    href="{{ asset('css/laporan-create.css') }}"
+>
 @endpush
 
 @section('content')
@@ -313,6 +306,12 @@
                     <span class="text-red-500" aria-hidden="true">*</span>
                 </label>
 
+                <p class="mb-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-500">
+                    Kecamatan harus sesuai dengan titik GPS atau titik manual pada peta.
+                    Jika lokasi berada di kecamatan lain, sistem akan menolak pengiriman
+                    sampai pilihan kecamatan diperbaiki.
+                </p>
+
                 <select
                     id="wilayah_id"
                     name="wilayah_id"
@@ -322,14 +321,17 @@
                 >
                     <option value="">Pilih Kecamatan</option>
 
-                    @foreach($wilayahList as $wilayah)
-                        <option
-                            value="{{ $wilayah->id }}"
-                            {{ old('wilayah_id') == $wilayah->id ? 'selected' : '' }}
-                        >
-                            {{ $wilayah->nama }}
-                        </option>
-                    @endforeach
+                @foreach($wilayahList as $wilayah)
+                    <option
+                        value="{{ $wilayah->id }}"
+                        data-latitude="{{ $wilayah->latitude }}"
+                        data-longitude="{{ $wilayah->longitude }}"
+                        {{ old('wilayah_id') == $wilayah->id ? 'selected' : '' }}
+                    >
+                        {{ $wilayah->nama }}
+                    </option>
+
+                @endforeach
                 </select>
 
                 @error('wilayah_id')
@@ -373,14 +375,15 @@
                     </p>
 
                     <input
-                        type="file"
-                        id="foto-input"
-                        name="foto[]"
-                        multiple
-                        accept="image/jpeg,image/png,image/webp"
-                        class="hidden"
-                        aria-label="Pilih foto laporan"
-                    >
+                    type="file"
+                    id="foto-input"
+                    name="foto[]"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp"
+                    class="hidden"
+                    data-max-foto="{{ (int) $maxFoto }}"
+                    aria-label="Pilih foto laporan"
+                >
                 </div>
 
                 <div
@@ -430,341 +433,8 @@
 @endsection
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const defaultCenter = [-6.4025, 106.8197];
-    const map = L.map('location-map', {
-        center: defaultCenter,
-        zoom: 14
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap',
-        maxZoom: 19
-    }).addTo(map);
-
-    setTimeout(() => map.invalidateSize(), 300);
-
-    const latInput = document.getElementById('latitude');
-    const lngInput = document.getElementById('longitude');
-    const addressInput = document.getElementById('alamat_lengkap');
-    const sourceInput = document.getElementById('sumber_koordinat');
-    const locationStatus = document.getElementById('location-status');
-    const locateButton = document.getElementById('btn-locate');
-
-    let marker = null;
-
-    function setSource(source) {
-        sourceInput.value = source;
-    }
-
-    function reverseGeocode(lat, lng) {
-        /*
-         * Reverse geocoding hanya membantu mengisi alamat.
-         * Kegagalan layanan ini tidak menggagalkan pelaporan karena
-         * koordinat GPS tetap menjadi sumber lokasi utama.
-         */
-        fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&format=json&accept-language=id`,
-            {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            }
-        )
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Reverse geocoding gagal.');
-            }
-
-            return response.json();
-        })
-        .then(data => {
-            if (data.display_name && !addressInput.value) {
-                addressInput.value = data.display_name;
-            }
-        })
-        .catch(() => {
-            // Alamat bersifat tambahan; jangan blokir pengiriman laporan.
-        });
-    }
-
-    function placeMarker(lat, lng, source = 'manual', zoom = 16) {
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-            return;
-        }
-
-        if (marker) {
-            map.removeLayer(marker);
-        }
-
-        marker = L.marker([lat, lng], {
-            draggable: true
-        }).addTo(map);
-
-        latInput.value = lat.toFixed(7);
-        lngInput.value = lng.toFixed(7);
-        setSource(source);
-
-        map.setView([lat, lng], zoom);
-
-        marker.on('dragend', function (event) {
-            const position = event.target.getLatLng();
-
-            latInput.value = position.lat.toFixed(7);
-            lngInput.value = position.lng.toFixed(7);
-            setSource('manual');
-
-            locationStatus.textContent =
-                'Lokasi diubah secara manual melalui marker peta.';
-
-            reverseGeocode(position.lat, position.lng);
-        });
-
-        reverseGeocode(lat, lng);
-    }
-
-    function useCurrentLocation() {
-        if (!('geolocation' in navigator)) {
-            locationStatus.textContent =
-                'Perangkat/browser tidak mendukung Geolocation API. Pilih lokasi secara manual pada peta.';
-            return;
-        }
-
-        locationStatus.textContent =
-            'Meminta izin lokasi dan mengambil koordinat GPS...';
-
-        navigator.geolocation.getCurrentPosition(
-            function (position) {
-                placeMarker(
-                    position.coords.latitude,
-                    position.coords.longitude,
-                    'gps_otomatis'
-                );
-
-                locationStatus.textContent =
-                    'Lokasi GPS berhasil diperoleh secara otomatis.';
-            },
-            function (error) {
-                let message =
-                    'GPS tidak dapat digunakan. Silakan pilih lokasi secara manual pada peta.';
-
-                if (error.code === error.PERMISSION_DENIED) {
-                    message =
-                        'Izin lokasi ditolak. Silakan pilih lokasi secara manual pada peta atau izinkan akses lokasi.';
-                }
-
-                locationStatus.textContent = message;
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 30000
-            }
-        );
-    }
-
-    map.on('click', function (event) {
-        placeMarker(
-            event.latlng.lat,
-            event.latlng.lng,
-            'manual'
-        );
-
-        locationStatus.textContent =
-            'Lokasi dipilih secara manual pada peta.';
-    });
-
-    locateButton.addEventListener('click', useCurrentLocation);
-
-    /*
-     * Jika validasi server mengembalikan koordinat lama,
-     * pertahankan titik tersebut.
-     */
-    const oldLat = parseFloat(latInput.value);
-    const oldLng = parseFloat(lngInput.value);
-
-    if (
-        Number.isFinite(oldLat)
-        && Number.isFinite(oldLng)
-    ) {
-        placeMarker(
-            oldLat,
-            oldLng,
-            sourceInput.value || 'manual'
-        );
-
-        locationStatus.textContent =
-            sourceInput.value === 'gps_otomatis'
-                ? 'Lokasi GPS sebelumnya dipertahankan.'
-                : 'Lokasi manual sebelumnya dipertahankan.';
-    } else {
-        /*
-         * Sesuai spesifikasi proposal, GPS dicoba otomatis.
-         * Pengguna tetap memiliki fallback manual.
-         */
-        useCurrentLocation();
-    }
-
-    // ==========================================
-    // Upload foto
-    // ==========================================
-    const dropZone = document.getElementById('drop-zone');
-    const fotoInput = document.getElementById('foto-input');
-    const preview = document.getElementById('foto-preview');
-    const maxFoto = {{ (int) $maxFoto }};
-
-    let selectedFiles = [];
-
-    function syncInputFiles() {
-        const dataTransfer = new DataTransfer();
-
-        selectedFiles.forEach(file => {
-            dataTransfer.items.add(file);
-        });
-
-        fotoInput.files = dataTransfer.files;
-    }
-
-    function renderPreviews() {
-        preview.innerHTML = '';
-
-        selectedFiles.forEach((file, index) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'photo-preview-item group';
-
-            const image = document.createElement('img');
-            image.className =
-                'w-full h-24 object-cover rounded-lg border border-slate-200';
-            image.alt = `Preview foto ${index + 1}`;
-
-            const removeButton = document.createElement('button');
-            removeButton.type = 'button';
-            removeButton.className =
-                'absolute -top-1.5 -right-1.5 w-6 h-6 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity';
-            removeButton.setAttribute(
-                'aria-label',
-                `Hapus foto ${index + 1}`
-            );
-            removeButton.textContent = '×';
-
-            removeButton.addEventListener('click', function () {
-                selectedFiles.splice(index, 1);
-                syncInputFiles();
-                renderPreviews();
-            });
-
-            wrapper.appendChild(image);
-            wrapper.appendChild(removeButton);
-            preview.appendChild(wrapper);
-
-            const reader = new FileReader();
-
-            reader.onload = function (event) {
-                image.src = event.target.result;
-            };
-
-            reader.readAsDataURL(file);
-        });
-    }
-
-    function addFiles(fileList) {
-        const incoming = Array.from(fileList);
-
-        for (const file of incoming) {
-            if (selectedFiles.length >= maxFoto) {
-                break;
-            }
-
-            if (![
-                'image/jpeg',
-                'image/png',
-                'image/webp'
-            ].includes(file.type)) {
-                continue;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                alert(
-                    `Ukuran file "${file.name}" melebihi batas 5MB.`
-                );
-                continue;
-            }
-
-            const duplicate = selectedFiles.some(existing =>
-                existing.name === file.name
-                && existing.size === file.size
-                && existing.lastModified === file.lastModified
-            );
-
-            if (!duplicate) {
-                selectedFiles.push(file);
-            }
-        }
-
-        syncInputFiles();
-        renderPreviews();
-    }
-
-    dropZone.addEventListener('click', function () {
-        fotoInput.click();
-    });
-
-    dropZone.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            fotoInput.click();
-        }
-    });
-
-    dropZone.addEventListener('dragover', function (event) {
-        event.preventDefault();
-        dropZone.classList.add(
-            'border-emerald-400',
-            'bg-emerald-50'
-        );
-    });
-
-    dropZone.addEventListener('dragleave', function () {
-        dropZone.classList.remove(
-            'border-emerald-400',
-            'bg-emerald-50'
-        );
-    });
-
-    dropZone.addEventListener('drop', function (event) {
-        event.preventDefault();
-
-        dropZone.classList.remove(
-            'border-emerald-400',
-            'bg-emerald-50'
-        );
-
-        addFiles(event.dataTransfer.files);
-    });
-
-    fotoInput.addEventListener('change', function () {
-        addFiles(this.files);
-    });
-
-    document.getElementById('laporan-form')
-        .addEventListener('submit', function (event) {
-            syncInputFiles();
-
-            if (!fotoInput.files.length) {
-                event.preventDefault();
-                alert('Minimal satu foto harus diunggah.');
-                return;
-            }
-
-            if (!latInput.value || !lngInput.value) {
-                event.preventDefault();
-
-                alert(
-                    'Lokasi laporan belum ditentukan. Gunakan GPS atau pilih titik pada peta.'
-                );
-            }
-        });
-});
-</script>
+<script
+    src="{{ asset('js/laporan-create.js') }}"
+    defer
+></script>
 @endpush

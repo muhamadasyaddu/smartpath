@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\KonfigurasiSistem;
+use App\Models\Wilayah;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -10,20 +11,13 @@ class StoreLaporanRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        if (!auth()->check()) {
-            return false;
-        }
-
-        return auth()->user()->isWarga()
-            || auth()->user()->isAdmin();
+        return auth()->check()
+            && (
+                auth()->user()->isWarga()
+                || auth()->user()->isAdmin()
+            );
     }
 
-    /**
-     * Mengambil batas maksimum foto dari konfigurasi sistem.
-     *
-     * Nilai minimal dipastikan 1 agar konfigurasi yang salah
-     * tidak menyebabkan form laporan tidak dapat digunakan.
-     */
     protected function getMaxFoto(): int
     {
         $maxFoto = (int) KonfigurasiSistem::getValue(
@@ -31,7 +25,7 @@ class StoreLaporanRequest extends FormRequest
             5
         );
 
-        return max(1, $maxFoto);
+        return max(1, min($maxFoto, 10));
     }
 
     public function rules(): array
@@ -39,29 +33,30 @@ class StoreLaporanRequest extends FormRequest
         $maxFoto = $this->getMaxFoto();
 
         return [
+
             'kategori_hambatan_id' => [
                 'required',
+
                 Rule::exists(
                     'kategori_hambatan',
                     'id'
                 )->where(
-                    fn ($query) => $query->where(
-                        'aktif',
-                        true
-                    )
+                    fn ($query) =>
+                        $query->where('aktif', true)
                 ),
             ],
 
             'wilayah_id' => [
                 'required',
+
                 Rule::exists(
                     'wilayah',
                     'id'
                 )->where(
-                    fn ($query) => $query->where(
-                        'aktif',
-                        true
-                    )
+                    fn ($query) =>
+                        $query
+                            ->where('aktif', true)
+                            ->where('level', 'kecamatan')
                 ),
             ],
 
@@ -116,11 +111,222 @@ class StoreLaporanRequest extends FormRequest
         ];
     }
 
+    /**
+     * Validasi konsistensi kecamatan dengan koordinat laporan.
+     *
+     * Catatan:
+     * MVP belum memiliki polygon batas administrasi.
+     * Oleh karena itu digunakan titik referensi kecamatan.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+
+            if (
+                $validator->errors()->hasAny([
+                    'wilayah_id',
+                    'latitude',
+                    'longitude',
+                ])
+            ) {
+                return;
+            }
+
+            $wilayahId = (int) $this->input('wilayah_id');
+
+            $latitude = (float) $this->input('latitude');
+
+            $longitude = (float) $this->input('longitude');
+
+
+            /*
+             * Kecamatan yang dipilih user.
+             */
+            $wilayahDipilih = Wilayah::query()
+                ->where('id', $wilayahId)
+                ->where('level', 'kecamatan')
+                ->where('aktif', true)
+                ->first();
+
+
+            if (!$wilayahDipilih) {
+
+                $validator->errors()->add(
+                    'wilayah_id',
+                    'Kecamatan yang dipilih tidak valid.'
+                );
+
+                return;
+            }
+
+
+            /*
+             * Semua kecamatan aktif yang mempunyai
+             * titik referensi.
+             */
+            $kecamatanAktif = Wilayah::query()
+                ->where('level', 'kecamatan')
+                ->where('aktif', true)
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get([
+                    'id',
+                    'nama',
+                    'latitude',
+                    'longitude',
+                ]);
+
+
+            if ($kecamatanAktif->isEmpty()) {
+
+                $validator->errors()->add(
+                    'wilayah_id',
+                    'Data referensi kecamatan belum tersedia. Hubungi administrator.'
+                );
+
+                return;
+            }
+
+
+            /*
+             * Titik referensi kecamatan yang dipilih.
+             */
+            if (
+                $wilayahDipilih->latitude === null
+                || $wilayahDipilih->longitude === null
+            ) {
+
+                $validator->errors()->add(
+                    'wilayah_id',
+                    'Kecamatan yang dipilih belum memiliki titik referensi lokasi.'
+                );
+
+                return;
+            }
+
+
+            /*
+             * Jarak koordinat laporan ke kecamatan pilihan.
+             */
+            $jarakDipilih = $this->haversine(
+                $latitude,
+                $longitude,
+                (float) $wilayahDipilih->latitude,
+                (float) $wilayahDipilih->longitude
+            );
+
+
+            /*
+             * Cari kecamatan referensi terdekat.
+             */
+            $terdekat = null;
+            $jarakTerdekat = INF;
+
+            foreach ($kecamatanAktif as $kecamatan) {
+
+                $jarak = $this->haversine(
+                    $latitude,
+                    $longitude,
+                    (float) $kecamatan->latitude,
+                    (float) $kecamatan->longitude
+                );
+
+                if ($jarak < $jarakTerdekat) {
+
+                    $jarakTerdekat = $jarak;
+                    $terdekat = $kecamatan;
+                }
+            }
+
+
+            if (!$terdekat) {
+                return;
+            }
+
+
+            /*
+             * Jangan menolak kasus yang masih dekat
+             * dengan batas wilayah hanya karena perbedaan
+             * kecil pada titik referensi.
+             *
+             * Untuk MVP:
+             *
+             * - minimum toleransi 1.500 meter
+             * - atau 1.25x jarak kecamatan terdekat
+             */
+            $batasToleransi = max(
+                1500,
+                $jarakTerdekat * 1.25
+            );
+
+
+            $bukanKecamatanTerdekat =
+                $terdekat->id !== $wilayahDipilih->id;
+
+
+            $jelasTidakSesuai =
+                $jarakDipilih > $batasToleransi;
+
+
+            if (
+                $bukanKecamatanTerdekat
+                && $jelasTidakSesuai
+            ) {
+
+                $validator->errors()->add(
+                    'wilayah_id',
+                    "Koordinat laporan berada lebih dekat ke Kecamatan {$terdekat->nama}. Kecamatan {$wilayahDipilih->nama} tidak sesuai dengan titik lokasi. Silakan pilih kecamatan yang sesuai dengan marker GPS/peta."
+                );
+            }
+        });
+    }
+
+    /**
+     * Haversine distance dalam meter.
+     */
+    private function haversine(
+        float $lat1,
+        float $lng1,
+        float $lat2,
+        float $lng2
+    ): float {
+
+        $earthRadius = 6371000;
+
+        $latFrom = deg2rad($lat1);
+        $latTo = deg2rad($lat2);
+
+        $lngFrom = deg2rad($lng1);
+        $lngTo = deg2rad($lng2);
+
+        $latDelta = $latTo - $latFrom;
+        $lngDelta = $lngTo - $lngFrom;
+
+        $a =
+            sin($latDelta / 2) ** 2
+            +
+            cos($latFrom)
+            * cos($latTo)
+            * sin($lngDelta / 2) ** 2;
+
+        $a = min(1, max(0, $a));
+
+        return $earthRadius
+            * (
+                2
+                * atan2(
+                    sqrt($a),
+                    sqrt(1 - $a)
+                )
+            );
+    }
+
     public function messages(): array
     {
         $maxFoto = $this->getMaxFoto();
 
         return [
+
             'kategori_hambatan_id.required' =>
                 'Kategori hambatan harus dipilih.',
 
@@ -134,7 +340,7 @@ class StoreLaporanRequest extends FormRequest
                 'Kecamatan tidak valid atau sedang nonaktif.',
 
             'latitude.required' =>
-                'Lokasi (latitude) harus ditentukan.',
+                'Lokasi latitude harus ditentukan.',
 
             'latitude.numeric' =>
                 'Latitude harus berupa angka.',
@@ -143,7 +349,7 @@ class StoreLaporanRequest extends FormRequest
                 'Nilai latitude tidak valid.',
 
             'longitude.required' =>
-                'Lokasi (longitude) harus ditentukan.',
+                'Lokasi longitude harus ditentukan.',
 
             'longitude.numeric' =>
                 'Longitude harus berupa angka.',
@@ -179,7 +385,7 @@ class StoreLaporanRequest extends FormRequest
                 'Minimal satu foto harus diunggah.',
 
             'foto.max' =>
-                'Maksimal ' . $maxFoto . ' foto dapat diunggah.',
+                "Maksimal {$maxFoto} foto dapat diunggah.",
 
             'foto.*.required' =>
                 'Setiap foto harus memiliki berkas.',

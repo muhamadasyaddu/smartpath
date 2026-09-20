@@ -2,101 +2,237 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\PengaturanPrioritas;
-use App\Models\Laporan;
-use App\Models\Audit;
 use App\Http\Requests\StorePengaturanPrioritasRequest;
 use App\Http\Requests\UpdatePengaturanPrioritasRequest;
+use App\Models\Audit;
+use App\Models\FasilitasPublik;
+use App\Models\Laporan;
+use App\Models\PengaturanPrioritas;
+use Illuminate\Support\Facades\DB;
 
 class PengaturanPrioritasController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Menampilkan seluruh konfigurasi prioritas.
      */
     public function index()
     {
-        $pengaturanPrioritas = PengaturanPrioritas::with('dibuatOleh')->orderByDesc('created_at')->paginate(15);
-        $aktif = PengaturanPrioritas::where('adalah_aktif', true)->first();
-        return view('admin.pengaturan-prioritas.index', compact('pengaturanPrioritas', 'aktif'));
+        $pengaturanPrioritas = PengaturanPrioritas::with('dibuatOleh')
+            ->orderByDesc('created_at')
+            ->paginate(15);
+
+        $aktif = PengaturanPrioritas::aktif()->first();
+
+        return view(
+            'Admin.pengaturan-prioritas.index',
+            compact('pengaturanPrioritas', 'aktif')
+        );
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Form tambah konfigurasi.
      */
     public function create()
     {
-        return view('admin.pengaturan-prioritas.create');
+        return view('Admin.pengaturan-prioritas.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Menyimpan konfigurasi baru.
      */
-    public function store(Request $request)
+    public function store(StorePengaturanPrioritasRequest $request)
     {
         $validated = $request->validated();
+
         $validated['dibuat_oleh_id'] = auth()->id();
+        $validated['adalah_aktif'] = $request->boolean('adalah_aktif');
 
-        $pengaturanPrioritas = PengaturanPrioritas::create($validated);
+        $pengaturanPrioritas = DB::transaction(function () use ($validated) {
 
-        Audit::log(auth()->id(), 'buat_pengaturan_prioritas', 'pengaturan_prioritas', $pengaturanPrioritas->id, null, $pengaturanPrioritas->toArray(), "Pengaturan prioritas baru: {$pengaturanPrioritas->label}");
+            if ($validated['adalah_aktif']) {
+                PengaturanPrioritas::where('adalah_aktif', true)
+                    ->update([
+                        'adalah_aktif' => false,
+                    ]);
 
-        return redirect()->route('admin.pengaturan-prioritas.index')->with('sukses', 'Pengaturan prioritas berhasil ditambahkan.');
+                $validated['berlaku_sejak']
+                    = $validated['berlaku_sejak'] ?? now();
+            }
+
+            return PengaturanPrioritas::create($validated);
+        });
+
+        Audit::log(
+            auth()->id(),
+            'buat_pengaturan_prioritas',
+            'pengaturan_prioritas',
+            $pengaturanPrioritas->id,
+            null,
+            $pengaturanPrioritas->toArray(),
+            "Pengaturan prioritas baru: {$pengaturanPrioritas->label}"
+        );
+
+        return redirect()
+            ->route('admin.pengaturan-prioritas.index')
+            ->with(
+                'sukses',
+                'Pengaturan prioritas berhasil ditambahkan.'
+            );
     }
 
     /**
-     * Display the specified resource.
+     * Resource show tidak diperlukan untuk modul ini.
      */
-    public function show(string $id)
+    public function show(PengaturanPrioritas $pengaturanPrioritas)
     {
-        //
+        return redirect()->route(
+            'admin.pengaturan-prioritas.edit',
+            $pengaturanPrioritas
+        );
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Form edit konfigurasi.
      */
-    public function edit(string $id)
+    public function edit(PengaturanPrioritas $pengaturanPrioritas)
     {
-        return view('admin.pengaturan-prioritas.edit', compact('pengaturanPrioritas'));
+        return view(
+            'Admin.pengaturan-prioritas.edit',
+            compact('pengaturanPrioritas')
+        );
     }
 
     /**
-     * Update the specified resource in storage.
+     * Memperbarui konfigurasi.
      */
-    public function update(Request $request, string $id)
-    {
-        $dataLama = $pengaturanPrioritas->toArray();
+    public function update(
+        UpdatePengaturanPrioritasRequest $request,
+        PengaturanPrioritas $pengaturanPrioritas
+    ) {
         $validated = $request->validated();
-        $pengaturanPrioritas->update($validated);
 
-        Audit::log(auth()->id(), 'ubah_pengaturan_prioritas', 'pengaturan_prioritas', $pengaturanPrioritas->id, $dataLama, $pengaturanPrioritas->fresh()->toArray(), "Pengaturan prioritas diubah: {$pengaturanPrioritas->label}");
+        $validated['adalah_aktif']
+            = $request->boolean('adalah_aktif');
 
-        return redirect()->route('admin.pengaturan-prioritas.index')->with('sukses', 'Pengaturan prioritas berhasil diperbarui.');
+        $dataLama = $pengaturanPrioritas->toArray();
+
+        DB::transaction(function () use (
+            $pengaturanPrioritas,
+            &$validated
+        ) {
+
+            if ($validated['adalah_aktif']) {
+
+                PengaturanPrioritas::where(
+                    'id',
+                    '!=',
+                    $pengaturanPrioritas->id
+                )
+                    ->where('adalah_aktif', true)
+                    ->update([
+                        'adalah_aktif' => false,
+                    ]);
+
+                $validated['berlaku_sejak']
+                    = $validated['berlaku_sejak']
+                    ?? $pengaturanPrioritas->berlaku_sejak
+                    ?? now();
+            }
+
+            $pengaturanPrioritas->update($validated);
+        });
+
+        Audit::log(
+            auth()->id(),
+            'ubah_pengaturan_prioritas',
+            'pengaturan_prioritas',
+            $pengaturanPrioritas->id,
+            $dataLama,
+            $pengaturanPrioritas->fresh()->toArray(),
+            "Pengaturan prioritas diubah: {$pengaturanPrioritas->label}"
+        );
+
+        return redirect()
+            ->route('admin.pengaturan-prioritas.index')
+            ->with(
+                'sukses',
+                'Pengaturan prioritas berhasil diperbarui.'
+            );
     }
+
+    /**
+     * Mengaktifkan satu konfigurasi dan menonaktifkan konfigurasi lain.
+     */
     public function activate(PengaturanPrioritas $pengaturanPrioritas)
     {
-        $pengaturanPrioritas->activate();
+        DB::transaction(function () use ($pengaturanPrioritas) {
 
-        Audit::log(auth()->id(), 'aktifkan_pengaturan_prioritas', 'pengaturan_prioritas', $pengaturanPrioritas->id, null, null, "Pengaturan prioritas diaktifkan: {$pengaturanPrioritas->label}");
+            PengaturanPrioritas::where('adalah_aktif', true)
+                ->where('id', '!=', $pengaturanPrioritas->id)
+                ->update([
+                    'adalah_aktif' => false,
+                ]);
 
-        return redirect()->route('admin.pengaturan-prioritas.index')->with('sukses', 'Pengaturan prioritas berhasil diaktifkan.');
+            $pengaturanPrioritas->update([
+                'adalah_aktif' => true,
+                'berlaku_sejak' => now(),
+            ]);
+        });
+
+        Audit::log(
+            auth()->id(),
+            'aktifkan_pengaturan_prioritas',
+            'pengaturan_prioritas',
+            $pengaturanPrioritas->id,
+            null,
+            null,
+            "Pengaturan prioritas diaktifkan: {$pengaturanPrioritas->label}"
+        );
+
+        return redirect()
+            ->route('admin.pengaturan-prioritas.index')
+            ->with(
+                'sukses',
+                'Pengaturan prioritas berhasil diaktifkan.'
+            );
     }
 
-      public function recalculate()
+    /**
+     * Hitung ulang skor laporan terverifikasi.
+     */
+    public function recalculate()
     {
-        $laporanList = Laporan::induk()->terverifikasi()->whereNotNull('skor_prioritas')->get();
+        $laporanList = Laporan::induk()
+            ->terverifikasi()
+            ->whereNotNull('skor_prioritas')
+            ->get();
+
         $count = 0;
 
         foreach ($laporanList as $laporan) {
-            $fasilitasTerdekat = \App\Models\FasilitasPublik::getNearest((float) $laporan->latitude, (float) $laporan->longitude, 500);
+
+            $fasilitasTerdekat = FasilitasPublik::getNearest(
+                (float) $laporan->latitude,
+                (float) $laporan->longitude,
+                500
+            );
 
             if ($fasilitasTerdekat) {
-                $jarak = $fasilitasTerdekat->calculateDistance((float) $laporan->latitude, (float) $laporan->longitude);
-                $laporan->fasilitas_terdekat_id = $fasilitasTerdekat->id;
-                $laporan->jarak_fasilitas_meter = round($jarak, 2);
+
+                $jarak = $fasilitasTerdekat->calculateDistance(
+                    (float) $laporan->latitude,
+                    (float) $laporan->longitude
+                );
+
+                $laporan->fasilitas_terdekat_id
+                    = $fasilitasTerdekat->id;
+
+                $laporan->jarak_fasilitas_meter
+                    = round($jarak, 2);
             }
 
             $skor = $laporan->calculatePriorityScore();
+
             $laporan->update([
                 'skor_keparahan' => $skor['skor_keparahan'],
                 'skor_pelapor' => $skor['skor_pelapor'],
@@ -104,26 +240,48 @@ class PengaturanPrioritasController extends Controller
                 'skor_prioritas' => $skor['skor_prioritas'],
                 'dihitung_pada' => now(),
             ]);
+
             $count++;
         }
 
-        Audit::log(auth()->id(), 'hitung_ulang_prioritas', 'laporan', null, null, null, "Hitung ulang skor prioritas untuk {$count} laporan");
+        Audit::log(
+            auth()->id(),
+            'hitung_ulang_prioritas',
+            'laporan',
+            null,
+            null,
+            null,
+            "Hitung ulang skor prioritas untuk {$count} laporan"
+        );
 
-        return redirect()->route('admin.pengaturan-prioritas.index')->with('sukses', "Skor prioritas berhasil dihitung ulang untuk {$count} laporan.");
+        return redirect()
+            ->route('admin.pengaturan-prioritas.index')
+            ->with(
+                'sukses',
+                "Skor prioritas berhasil dihitung ulang untuk {$count} laporan."
+            );
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Menghapus konfigurasi nonaktif.
      */
-    public function destroy(string $id)
+    public function destroy(PengaturanPrioritas $pengaturanPrioritas)
     {
         if ($pengaturanPrioritas->adalah_aktif) {
-            return back()->with('galat', 'Pengaturan yang aktif tidak dapat dihapus.');
+
+            return back()->with(
+                'galat',
+                'Pengaturan yang aktif tidak dapat dihapus. Aktifkan konfigurasi lain terlebih dahulu.'
+            );
         }
 
         $pengaturanPrioritas->delete();
-        return redirect()->route('admin.pengaturan-prioritas.index')->with('sukses', 'Pengaturan prioritas berhasil dihapus.');
-    }
- 
 
+        return redirect()
+            ->route('admin.pengaturan-prioritas.index')
+            ->with(
+                'sukses',
+                'Pengaturan prioritas berhasil dihapus.'
+            );
+    }
 }
