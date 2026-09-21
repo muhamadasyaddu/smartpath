@@ -290,7 +290,7 @@ Route::middleware(['auth', 'dinas'])
     ->name('peta.nearby');
 
     //navigasi
-   
+
     Route::get('/navigasi', [NavigasiController::class, 'index'])
     ->name('navigasi.index');
     //tujuan
@@ -299,6 +299,7 @@ Route::post('/navigasi/cari-tujuan', [NavigasiController::class, 'cariTujuan'])
     //rute
     Route::post('/navigasi/rute', [NavigasiController::class, 'rute'])
     ->name('navigasi.rute');
+    
     //cek hambatam
     Route::post('/navigasi/cek-hambatan', [NavigasiController::class, 'cekHambatanRute'])
     ->name('navigasi.cek-hambatan');
