@@ -47,6 +47,72 @@
                 <p class="text-slate-700 leading-relaxed">{{ $laporan->deskripsi }}</p>
             </div>
 
+                    @if($laporan->status === 'ditolak')
+
+            @php
+                $penolakan = $laporan->verifikasi
+                    ->where('keputusan', 'ditolak')
+                    ->sortByDesc('created_at')
+                    ->first();
+            @endphp
+
+            @if($penolakan)
+
+                <section
+                    class="rounded-xl border border-red-200 bg-red-50 p-6"
+                    role="alert"
+                    aria-live="polite"
+                >
+
+                    <div class="flex items-start gap-3">
+
+                        <div class="mt-0.5 shrink-0">
+
+                            <svg
+                                class="h-5 w-5 text-red-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 9v4m0 4h.01M10.29 3.86l-7.4 12.82A2 2 0 004.63 19.7h14.74a2 2 0 001.74-3.02L13.71 3.86a2 2 0 00-3.42 0z"
+                                />
+                            </svg>
+
+                        </div>
+
+
+                        <div>
+
+                            <h2 class="font-semibold text-red-800">
+                                Alasan Penolakan
+                            </h2>
+
+                            <p class="mt-2 text-sm leading-6 text-red-800">
+                                {{ $penolakan->catatan_admin }}
+                            </p>
+
+                            <p class="mt-3 text-xs text-red-600">
+
+                                Diverifikasi pada
+                                {{ $penolakan->created_at?->format('d M Y H:i') }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            @endif
+
+        @endif
+
             {{-- Photos --}}
             @if($laporan->fotoLaporan->count() > 0)
                 <div class="bg-white rounded-xl border border-slate-200 p-6">

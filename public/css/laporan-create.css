@@ -1,0 +1,109 @@
+/*
+|--------------------------------------------------------------------------
+| SmartPath - Laporan Create
+|--------------------------------------------------------------------------
+| Page-level styling only.
+| Layout utama tetap menggunakan Tailwind dari layouts.app.
+|--------------------------------------------------------------------------
+*/
+
+    #location-map {
+        width: 100%;
+        height: 360px;
+        min-height: 360px;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .photo-preview-item {
+        position: relative;
+    }
+
+    #drop-zone {
+        transition:
+            border-color 160ms ease,
+            background-color 160ms ease,
+            box-shadow 160ms ease;
+    }
+
+    #drop-zone.is-dragging {
+        border-color: #059669;
+        background-color: #ecfdf5;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.10);
+    }
+
+    #drop-zone:focus-visible {
+        outline: 2px solid #059669;
+        outline-offset: 3px;
+    }
+
+    #btn-locate {
+        transition:
+            color 160ms ease,
+            opacity 160ms ease;
+    }
+
+    #btn-locate:disabled {
+        cursor: wait;
+        opacity: 0.65;
+    }
+
+    .smartpath-location-status {
+        min-height: 1.25rem;
+    }
+
+    .smartpath-location-status.is-success {
+        color: #047857;
+    }
+
+    .smartpath-location-status.is-warning {
+        color: #b45309;
+    }
+
+    .smartpath-location-status.is-error {
+        color: #dc2626;
+    }
+
+    .smartpath-location-status.is-neutral {
+        color: #64748b;
+    }
+
+    .photo-preview-item img {
+        display: block;
+    }
+
+    .photo-remove-button {
+        position: absolute;
+        top: -0.375rem;
+        right: -0.375rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9999px;
+        background: #dc2626;
+        color: #ffffff;
+        font-size: 0.75rem;
+        line-height: 1;
+        opacity: 0;
+        transition: opacity 160ms ease;
+        z-index: 2;
+    }
+
+    .photo-preview-item:hover .photo-remove-button,
+    .photo-remove-button:focus-visible {
+        opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+        #location-map {
+            height: 320px;
+            min-height: 320px;
+        }
+
+        .photo-remove-button {
+            opacity: 1;
+        }
+    }

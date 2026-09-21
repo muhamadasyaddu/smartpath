@@ -31,6 +31,11 @@
         rel="stylesheet"
     >
 
+    <link
+    rel="stylesheet"
+    href="{{ asset('css/smartpath-admin-pages.css') }}"
+    >
+
 
     {{-- Tailwind CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -235,6 +240,11 @@
 
 
     @stack('scripts')
+
+    <script
+    src="{{ asset('js/smartpath-admin-pages.js') }}"
+    defer
+    ></script>
 
 </body>
 

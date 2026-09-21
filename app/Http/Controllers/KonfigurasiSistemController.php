@@ -2,47 +2,109 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\KonfigurasiSistem;
-use App\Models\Audit;
 use App\Http\Requests\StoreKonfigurasiSistemRequest;
+use App\Http\Requests\UpdateKonfigurasiSistemRequest;
+use App\Models\Audit;
+use App\Models\KonfigurasiSistem;
+
 class KonfigurasiSistemController extends Controller
 {
+    /**
+     * Menampilkan seluruh konfigurasi sistem.
+     */
     public function index()
     {
-        $konfigurasi = KonfigurasiSistem::orderBy('kunci')->paginate(20);
-        return view('admin.konfigurasi-sistem.index', compact('konfigurasi'));
+        $konfigurasi = KonfigurasiSistem::query()
+            ->orderBy('kunci')
+            ->paginate(20);
+
+        return view(
+            'Admin.konfigurasi-sistem.index',
+            compact('konfigurasi')
+        );
     }
 
+    /**
+     * Form edit konfigurasi.
+     */
     public function edit(KonfigurasiSistem $konfigurasiSistem)
     {
-        return view('admin.konfigurasi-sistem.edit', compact('konfigurasiSistem'));
+        abort_unless(
+            $konfigurasiSistem->dapat_diedit_ui,
+            403,
+            'Konfigurasi ini dikunci dari perubahan melalui antarmuka.'
+        );
+
+        return view(
+            'Admin.konfigurasi-sistem.edit',
+            compact('konfigurasiSistem')
+        );
     }
 
-     public function update(Request $request, KonfigurasiSistem $konfigurasiSistem)
-    {
-        $validated = $request->validate([
-            'nilai' => ['required', 'string'],
-            'keterangan' => ['nullable', 'string', 'max:255'],
-        ], [
-            'nilai.required' => 'Nilai konfigurasi harus diisi.',
-        ]);
+    /**
+     * Memperbarui konfigurasi.
+     */
+    public function update(
+        UpdateKonfigurasiSistemRequest $request,
+        KonfigurasiSistem $konfigurasiSistem
+    ) {
+        abort_unless(
+            $konfigurasiSistem->dapat_diedit_ui,
+            403,
+            'Konfigurasi ini dikunci dari perubahan melalui antarmuka.'
+        );
+
+        $validated = $request->validated();
 
         $dataLama = $konfigurasiSistem->toArray();
+
         $konfigurasiSistem->update($validated);
 
-        Audit::log(auth()->id(), 'ubah_konfigurasi_sistem', 'konfigurasi_sistem', $konfigurasiSistem->id, $dataLama, $konfigurasiSistem->fresh()->toArray(), "Konfigurasi diubah: {$konfigurasiSistem->kunci}");
+        Audit::log(
+            auth()->id(),
+            'ubah_konfigurasi_sistem',
+            'konfigurasi_sistem',
+            $konfigurasiSistem->id,
+            $dataLama,
+            $konfigurasiSistem->fresh()->toArray(),
+            "Konfigurasi diubah: {$konfigurasiSistem->kunci}"
+        );
 
-        return redirect()->route('admin.konfigurasi-sistem.index')->with('sukses', 'Konfigurasi berhasil diperbarui.');
+        return redirect()
+            ->route('admin.konfigurasi-sistem.index')
+            ->with(
+                'sukses',
+                'Konfigurasi berhasil diperbarui.'
+            );
     }
 
-      public function store(StoreKonfigurasiSistemRequest $request)
+    /**
+     * Menambahkan konfigurasi baru.
+     *
+     * Route tetap dipertahankan agar struktur resource
+     * yang sudah ada tidak rusak.
+     */
+    public function store(StoreKonfigurasiSistemRequest $request)
     {
-        $konfigurasiSistem = KonfigurasiSistem::create($request->validated());
+        $konfigurasiSistem = KonfigurasiSistem::create(
+            $request->validated()
+        );
 
-        Audit::log(auth()->id(), 'buat_konfigurasi_sistem', 'konfigurasi_sistem', $konfigurasiSistem->id, null, $konfigurasiSistem->toArray(), "Konfigurasi baru: {$konfigurasiSistem->kunci}");
+        Audit::log(
+            auth()->id(),
+            'buat_konfigurasi_sistem',
+            'konfigurasi_sistem',
+            $konfigurasiSistem->id,
+            null,
+            $konfigurasiSistem->toArray(),
+            "Konfigurasi baru: {$konfigurasiSistem->kunci}"
+        );
 
-        return redirect()->route('admin.konfigurasi-sistem.index')->with('sukses', 'Konfigurasi berhasil ditambahkan.');
+        return redirect()
+            ->route('admin.konfigurasi-sistem.index')
+            ->with(
+                'sukses',
+                'Konfigurasi berhasil ditambahkan.'
+            );
     }
-
 }
