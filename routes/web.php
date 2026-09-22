@@ -290,8 +290,8 @@ Route::middleware(['auth', 'dinas'])
     ->name('peta.nearby');
 
     //navigasi
-   
-    Route::get('/navigasi', [NavigasiController::class, 'index'])
+    //navigasi
+     Route::get('/navigasi', [NavigasiController::class, 'index'])
     ->name('navigasi.index');
     //tujuan
 Route::post('/navigasi/cari-tujuan', [NavigasiController::class, 'cariTujuan'])
@@ -302,6 +302,7 @@ Route::post('/navigasi/cari-tujuan', [NavigasiController::class, 'cariTujuan'])
     //cek hambatam
     Route::post('/navigasi/cek-hambatan', [NavigasiController::class, 'cekHambatanRute'])
     ->name('navigasi.cek-hambatan');
+   
 // ============================================
 // WARGA
 // ============================================
@@ -314,3 +315,5 @@ Route::middleware('auth')
             [DashboardController::class, 'indexWarga']
         )->name('dashboard');
     });
+
+   

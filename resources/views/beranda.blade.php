@@ -494,7 +494,8 @@
                         <div class="relative">
                             <div class="absolute z-[1001] top-3 left-3 right-3">
                                 <div class="max-w-[300px] bg-[#0b1822]/90 border border-white/15 rounded-lg px-3 py-2 flex items-center gap-2 backdrop-blur">
-                                    <input id="mapSearch" type="text" placeholder="Cari lokasi di peta..." class="w-full bg-transparent text-white text-[11px] outline-none placeholder:text-slate-400">
+                                    <input id="mapSearch" type="text" placeholder="Cari lokasi di 
+                                    ..." class="w-full bg-transparent text-white text-[11px] outline-none placeholder:text-slate-400">
                                     <i class="fa-solid fa-magnifying-glass text-slate-300 text-xs"></i>
                                 </div>
                             </div>
