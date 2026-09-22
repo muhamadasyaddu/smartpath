@@ -257,63 +257,113 @@ Route::middleware(['auth', 'admin'])
         )->name('audit.show');
     });
 
+
 // ============================================
 // DINAS
 // ============================================
+
 Route::middleware(['auth', 'dinas'])
     ->prefix('dinas')
     ->name('dinas.')
     ->group(function () {
-          Route::get('/dashboard', [DashboardController::class, 'indexDinas'])
-            ->name('dashboard');
 
-        Route::get('/laporan', [LaporanController::class, 'indexDinas'])
-            ->name('laporan.index');
+        Route::get(
+            '/dashboard',
+            [DashboardController::class, 'indexDinas']
+        )->name('dashboard');
 
-        Route::get('/laporan/unduh', [LaporanController::class, 'unduh'])
-            ->name('laporan.unduh');
-            Route::get(
-    '/laporan/{id}/pdf',
-    [LaporanController::class, 'unduhPdf']
-)->name('laporan.pdf');
+        Route::get(
+            '/laporan',
+            [LaporanController::class, 'indexDinas']
+        )->name('laporan.index');
 
+        Route::get(
+            '/laporan/unduh',
+            [LaporanController::class, 'unduh']
+        )->name('laporan.unduh');
+
+        Route::get(
+            '/laporan/{id}/pdf',
+            [LaporanController::class, 'unduhPdf']
+        )->name('laporan.pdf');
     });
 
-    //rencana perbaikan
-      Route::get(
-            '/rencana-perbaikan',
-            [RencanaPerbaikanController::class, 'index']
-        )->name('rencana perbaikan.index');
 
-        //nearby
-        Route::get('/peta/nearby', [PetaController::class, 'nearby'])
-    ->name('peta.nearby');
 
-    //navigasi
-    //navigasi
-     Route::get('/navigasi', [NavigasiController::class, 'index'])
-    ->name('navigasi.index');
-    //tujuan
-Route::post('/navigasi/cari-tujuan', [NavigasiController::class, 'cariTujuan'])
-    ->name('navigasi.cari-tujuan');
-    //rute
-    Route::post('/navigasi/rute', [NavigasiController::class, 'rute'])
-    ->name('navigasi.rute');
-    //cek hambatam
-    Route::post('/navigasi/cek-hambatan', [NavigasiController::class, 'cekHambatanRute'])
-    ->name('navigasi.cek-hambatan');
-   
+// ============================================
+// FITUR PENGGUNA TERAUTENTIKASI
+// ============================================
+
+Route::middleware('auth')->group(function () {
+
+    // Detail laporan
+    Route::get(
+        '/laporan/{laporan}/detail',
+        [LaporanController::class, 'showDetail']
+    )->name('laporan.detail');
+
+
+    // ========================================
+    // RENCANA PERBAIKAN
+    // ========================================
+
+    Route::get(
+        '/rencana-perbaikan',
+        [RencanaPerbaikanController::class, 'index']
+    )->name('rencana.perbaikan.index');
+
+
+    // ========================================
+    // NEARBY
+    // ========================================
+
+    Route::get(
+        '/peta/nearby',
+        [PetaController::class, 'nearby']
+    )->name('peta.nearby');
+
+
+    // ========================================
+    // NAVIGASI AKTIF
+    // ========================================
+
+    Route::get(
+        '/navigasi',
+        [NavigasiController::class, 'index']
+    )->name('navigasi.index');
+
+    // Cari tujuan
+    Route::post(
+        '/navigasi/cari-tujuan',
+        [NavigasiController::class, 'cariTujuan']
+    )->name('navigasi.cari-tujuan');
+
+    // Cari rute
+    Route::post(
+        '/navigasi/rute',
+        [NavigasiController::class, 'rute']
+    )->name('navigasi.rute');
+
+    // Cek hambatan di sepanjang rute
+    Route::post(
+        '/navigasi/cek-hambatan',
+        [NavigasiController::class, 'cekHambatanRute']
+    )->name('navigasi.cek-hambatan');
+});
+
+
 // ============================================
 // WARGA
 // ============================================
+
 Route::middleware('auth')
     ->prefix('warga')
     ->name('warga.')
     ->group(function () {
+
         Route::get(
             '/dashboard',
             [DashboardController::class, 'indexWarga']
         )->name('dashboard');
     });
 
-   

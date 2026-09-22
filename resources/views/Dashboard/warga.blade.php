@@ -77,125 +77,56 @@
                 </div>
             </div>
                         <!-- CARI RUTE -->
-            <div class="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50/70 dark:bg-emerald-500/5 p-4">
+           <div class="grid gap-6 md:grid-cols-2 mt-6">
 
-                <div class="flex items-center gap-2 mb-3">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-                        <i class="fa-solid fa-route text-white text-sm"></i>
-                    </div>
+    <!-- CARD NEARBY -->
+    <a href="{{ route('peta.nearby') }}"
+       class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0b1822] p-6 shadow-sm transition hover:border-emerald-500 hover:shadow-md">
 
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">
-                            Cari Rute
-                        </h3>
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10
+                    flex items-center justify-center text-emerald-600 mb-4">
+            <i class="fa-solid fa-location-dot"></i>
+        </div>
 
-                        <p class="text-[10px] text-slate-600 dark:text-slate-400">
-                            Tentukan tujuan untuk melihat rute dan hambatan di sepanjang perjalanan.
-                        </p>
-                    </div>
-                </div>
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+            Nearby
+        </h2>
 
-                <form id="wargaRouteForm" class="flex flex-col sm:flex-row gap-2">
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            Temukan hambatan aksesibilitas di sekitar lokasi Anda.
+        </p>
 
-                    <input
-                        id="wargaRouteDestination"
-                        type="text"
-                        placeholder="Contoh: Stasiun Depok Baru"
-                        required
-                        class="min-w-0 flex-1 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0b1822] px-3 py-2.5 text-xs text-slate-800 dark:text-white outline-none focus:border-emerald-500"
-                        aria-label="Tujuan perjalanan"
-                    >
+        <div class="mt-4 text-sm font-semibold text-emerald-600">
+            Lihat Nearby
+            <i class="fa-solid fa-arrow-right ml-1"></i>
+        </div>
+    </a>
 
-                    <button
-                        type="submit"
-                        id="wargaRouteButton"
-                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 transition"
-                    >
-                        <i class="fa-solid fa-route"></i>
-                        Cari Rute
-                    </button>
 
-                </form>
+    <!-- CARD NAVIGASI AKTIF -->
+    <a href="{{ route('navigasi.index') }}"
+       class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0b1822] p-6 shadow-sm transition hover:border-emerald-500 hover:shadow-md">
 
-                <!-- PILIHAN TUJUAN -->
-                <div
-                    id="wargaRouteChoices"
-                    class="hidden mt-3 space-y-2"
-                    aria-live="polite"
-                ></div>
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10
+                    flex items-center justify-center text-emerald-600 mb-4">
+            <i class="fa-solid fa-person-walking-with-cane"></i>
+        </div>
 
-                <!-- HASIL RUTE -->
-                <div
-                    id="wargaRouteResult"
-                    class="hidden mt-3 rounded-lg bg-white dark:bg-[#0b1822] border border-slate-200 dark:border-white/10 p-3"
-                    aria-live="polite"
-                >
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+            Navigasi Aktif
+        </h2>
 
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            Tentukan tujuan dan dapatkan panduan perjalanan serta peringatan hambatan.
+        </p>
 
-                        <div>
-                            <p class="text-[9px] text-slate-500 dark:text-slate-400">
-                                Tujuan
-                            </p>
+        <div class="mt-4 text-sm font-semibold text-emerald-600">
+            Mulai Navigasi
+            <i class="fa-solid fa-arrow-right ml-1"></i>
+        </div>
+    </a>
 
-                            <p
-                                id="wargaRouteName"
-                                class="text-sm font-bold text-slate-900 dark:text-white"
-                            >
-                                -
-                            </p>
-                            <p id="wargaRouteAddress" class="mt-1 text-[10px] text-slate-500 dark:text-slate-400" aria-label="Alamat tujuan">-</p>
-                        </div>
-
-                        <button
-                            type="button"
-                            id="wargaStartTrip"
-                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-[10px] font-bold text-white hover:bg-emerald-700 transition"
-                        >
-                            <i class="fa-solid fa-person-walking"></i>
-                            Mulai Perjalanan
-                        </button>
-
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 mt-3">
-
-                        <div class="rounded-lg bg-slate-50 dark:bg-white/5 p-3">
-                            <p class="text-[9px] text-slate-500 dark:text-slate-400">
-                                Jarak
-                            </p>
-
-                            <p
-                                id="wargaRouteDistance"
-                                class="text-sm font-bold text-slate-900 dark:text-white"
-                            >
-                                -
-                            </p>
-                        </div>
-
-                        <div class="rounded-lg bg-slate-50 dark:bg-white/5 p-3">
-                            <p class="text-[9px] text-slate-500 dark:text-slate-400">
-                                Estimasi waktu
-                            </p>
-
-                            <p
-                                id="wargaRouteDuration"
-                                class="text-sm font-bold text-slate-900 dark:text-white"
-                            >
-                                -
-                            </p>
-                        </div>
-
-                    </div>
-
-                    <div
-                        id="wargaRouteHazards"
-                        class="mt-3 text-[10px] text-slate-600 dark:text-slate-400"
-                    ></div>
-
-                </div>
-
-            </div>
+</div>
 
             <div class="flex flex-wrap items-center justify-between gap-3 pt-3">
                 <div class="flex flex-wrap gap-2">

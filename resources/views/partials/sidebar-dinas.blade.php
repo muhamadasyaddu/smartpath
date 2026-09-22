@@ -380,7 +380,7 @@
                         />
                     </svg>
 
-                    Logout
+                    Keluar
 
                 </button>
 
