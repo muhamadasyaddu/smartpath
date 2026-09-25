@@ -1,109 +1,462 @@
 /*
-|--------------------------------------------------------------------------
-| SmartPath - Laporan Create
-|--------------------------------------------------------------------------
-| Page-level styling only.
-| Layout utama tetap menggunakan Tailwind dari layouts.app.
-|--------------------------------------------------------------------------
-*/
+ * SmartPath - halaman Create Laporan
+ * Page-level CSS only.
+ *
+ * Layout utama tetap menggunakan layouts.app.
+ */
 
-    #location-map {
+.laporan-create-page {
+    color: #0f172a;
+}
+
+.sp-report-card {
+    background: #ffffff;
+    border: 1px solid #1e293b;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+@media (min-width: 640px) {
+    .sp-report-card {
+        padding: 24px;
+    }
+}
+
+.sp-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    color: #0f172a;
+}
+
+.sp-section-heading h2 {
+    margin: 0;
+    font-size: 0.98rem;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+.sp-section-number {
+    font-size: 0.98rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.sp-category-option {
+    display: block;
+    cursor: pointer;
+}
+
+.sp-category-card {
+    min-height: 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 12px 8px;
+    background: #ffffff;
+    transition:
+        border-color 150ms ease,
+        background-color 150ms ease,
+        box-shadow 150ms ease,
+        transform 150ms ease;
+}
+
+.sp-category-option:hover .sp-category-card {
+    border-color: #64748b;
+    background: #f8fafc;
+}
+
+.sp-category-option input:checked + .sp-category-card {
+    border-color: #059669;
+    background: #ecfdf5;
+    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.10);
+}
+
+.sp-category-option input:focus-visible + .sp-category-card {
+    outline: 2px solid #059669;
+    outline-offset: 2px;
+}
+
+.sp-category-dot {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 9999px;
+    border: 1.8px solid #0f172a;
+    background: #ffffff;
+    position: relative;
+}
+
+.sp-category-option input:checked + .sp-category-card .sp-category-dot::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 9999px;
+    background: var(--category-color, #059669);
+}
+
+.sp-category-label {
+    color: #334155;
+    font-size: 0.78rem;
+    line-height: 1.25;
+    font-weight: 600;
+    text-align: center;
+}
+
+.sp-label {
+    display: block;
+    margin-bottom: 6px;
+    color: #334155;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    font-weight: 600;
+}
+
+.sp-input {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid #94a3b8;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 9px 12px;
+    color: #0f172a;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    outline: none;
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease,
+        background-color 150ms ease;
+}
+
+.sp-input::placeholder {
+    color: #94a3b8;
+}
+
+.sp-input:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+.sp-input:disabled {
+    color: #475569;
+    background: #f8fafc;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+.sp-textarea {
+    min-height: 132px;
+    resize: vertical;
+}
+
+.sp-coordinate {
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        'Liberation Mono',
+        monospace;
+
+    letter-spacing: -0.01em;
+}
+
+.sp-field-error {
+    margin-top: 5px;
+    color: #dc2626;
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.sp-map {
+    width: 100%;
+    height: 360px;
+    min-height: 300px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #e2e8f0;
+    position: relative;
+    z-index: 1;
+}
+
+.sp-location-status {
+    min-height: 20px;
+    margin: 0;
+    color: #64748b;
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.sp-location-status.is-success {
+    color: #047857;
+}
+
+.sp-location-status.is-warning {
+    color: #b45309;
+}
+
+.sp-location-status.is-error {
+    color: #dc2626;
+}
+
+.sp-location-status.is-neutral {
+    color: #64748b;
+}
+
+.sp-location-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 8px 12px;
+    border-radius: 9px;
+    color: #047857;
+    background: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 700;
+
+    transition:
+        background-color 150ms ease,
+        color 150ms ease,
+        opacity 150ms ease;
+}
+
+.sp-location-button:hover {
+    color: #065f46;
+    background: #ecfdf5;
+}
+
+.sp-location-button:focus-visible {
+    outline: 2px solid #059669;
+    outline-offset: 2px;
+}
+
+.sp-location-button:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.sp-location-button svg {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+
+.sp-priority-preview {
+    font-weight: 600;
+}
+
+.sp-drop-zone {
+    min-height: 124px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    border: 1.5px dashed #64748b;
+    border-radius: 10px;
+
+    padding: 20px 16px;
+    text-align: center;
+
+    cursor: pointer;
+    background: #ffffff;
+
+    transition:
+        border-color 150ms ease,
+        background-color 150ms ease,
+        box-shadow 150ms ease;
+}
+
+.sp-drop-zone:hover,
+.sp-drop-zone.is-dragging {
+    border-color: #059669;
+    background: #ecfdf5;
+}
+
+.sp-drop-zone:focus-visible {
+    outline: 2px solid #059669;
+    outline-offset: 3px;
+}
+
+.sp-upload-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+    color: #64748b;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.photo-preview-item {
+    position: relative;
+}
+
+.photo-preview-item img {
+    display: block;
+}
+
+.photo-remove-button {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+
+    width: 24px;
+    height: 24px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+    border-radius: 9999px;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    font-size: 15px;
+    line-height: 1;
+
+    opacity: 0;
+    cursor: pointer;
+
+    transition: opacity 150ms ease;
+
+    z-index: 2;
+}
+
+.photo-preview-item:hover .photo-remove-button,
+.photo-remove-button:focus-visible {
+    opacity: 1;
+}
+
+.photo-remove-button:focus-visible {
+    outline: 2px solid #dc2626;
+    outline-offset: 2px;
+}
+
+.sp-cancel-button {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 42px;
+
+    color: #334155;
+    font-size: 0.875rem;
+    font-weight: 600;
+
+    border-radius: 8px;
+}
+
+.sp-cancel-button:hover {
+    color: #0f172a;
+}
+
+.sp-cancel-button:focus-visible {
+    outline: 2px solid #059669;
+    outline-offset: 3px;
+}
+
+.sp-submit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 44px;
+    padding: 9px 18px;
+
+    border: 1px solid #047857;
+    border-radius: 10px;
+
+    background: #059669;
+    color: #ffffff;
+
+    font-size: 0.875rem;
+    font-weight: 700;
+
+    transition:
+        background-color 150ms ease,
+        border-color 150ms ease,
+        opacity 150ms ease;
+}
+
+.sp-submit-button:hover {
+    background: #047857;
+    border-color: #065f46;
+}
+
+.sp-submit-button:focus-visible {
+    outline: 2px solid #059669;
+    outline-offset: 3px;
+}
+
+.sp-submit-button svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@media (max-width: 639px) {
+
+    .sp-report-card {
+        border-radius: 12px;
+        padding: 16px;
+    }
+
+    .sp-category-card {
+        min-height: 68px;
+        padding: 10px 6px;
+    }
+
+    .sp-map {
+        height: 330px;
+        min-height: 280px;
+        border-radius: 9px;
+    }
+
+    .sp-location-button {
         width: 100%;
-        height: 360px;
-        min-height: 360px;
-        border-radius: 0.75rem;
-        overflow: hidden;
-        z-index: 1;
+        justify-content: center;
+        border: 1px solid #cbd5e1;
     }
 
-    .photo-preview-item {
-        position: relative;
-    }
-
-    #drop-zone {
-        transition:
-            border-color 160ms ease,
-            background-color 160ms ease,
-            box-shadow 160ms ease;
-    }
-
-    #drop-zone.is-dragging {
-        border-color: #059669;
-        background-color: #ecfdf5;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.10);
-    }
-
-    #drop-zone:focus-visible {
-        outline: 2px solid #059669;
-        outline-offset: 3px;
-    }
-
-    #btn-locate {
-        transition:
-            color 160ms ease,
-            opacity 160ms ease;
-    }
-
-    #btn-locate:disabled {
-        cursor: wait;
-        opacity: 0.65;
-    }
-
-    .smartpath-location-status {
-        min-height: 1.25rem;
-    }
-
-    .smartpath-location-status.is-success {
-        color: #047857;
-    }
-
-    .smartpath-location-status.is-warning {
-        color: #b45309;
-    }
-
-    .smartpath-location-status.is-error {
-        color: #dc2626;
-    }
-
-    .smartpath-location-status.is-neutral {
-        color: #64748b;
-    }
-
-    .photo-preview-item img {
-        display: block;
+    .sp-submit-button {
+        min-width: 150px;
     }
 
     .photo-remove-button {
-        position: absolute;
-        top: -0.375rem;
-        right: -0.375rem;
-        width: 1.5rem;
-        height: 1.5rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 9999px;
-        background: #dc2626;
-        color: #ffffff;
-        font-size: 0.75rem;
-        line-height: 1;
-        opacity: 0;
-        transition: opacity 160ms ease;
-        z-index: 2;
-    }
-
-    .photo-preview-item:hover .photo-remove-button,
-    .photo-remove-button:focus-visible {
         opacity: 1;
     }
+}
 
-    @media (max-width: 640px) {
-        #location-map {
-            height: 320px;
-            min-height: 320px;
-        }
+@media (min-width: 1024px) {
 
-        .photo-remove-button {
-            opacity: 1;
-        }
+    .sp-map {
+        height: 380px;
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sp-category-card,
+    .sp-input,
+    .sp-location-button,
+    .sp-drop-zone,
+    .sp-submit-button,
+    .photo-remove-button {
+        transition: none;
+    }
+}
