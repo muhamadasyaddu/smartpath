@@ -4,13 +4,97 @@
 @section('page_title', 'Verifikasi Laporan')
 
 @push('styles')
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+>
+
 <style>
     #verifikasi-map {
+        width: 100%;
         height: 320px;
+        min-height: 320px;
         border-radius: 0.75rem;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        background: #f1f5f9;
         z-index: 1;
     }
+
+    #verifikasi-map .leaflet-control {
+        z-index: 500;
+    }
+
+    .verification-location-marker {
+        position: relative;
+        width: 34px;
+        height: 34px;
+    }
+
+    .verification-location-marker .pin {
+        position: absolute;
+        left: 50%;
+        top: 1px;
+        width: 28px;
+        height: 28px;
+        transform: translateX(-50%) rotate(-45deg);
+        border-radius: 50% 50% 50% 0;
+        background: #dc2626;
+        border: 3px solid #ffffff;
+        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.30);
+    }
+
+    .verification-location-marker .pin::after {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        left: 7px;
+        top: 7px;
+        border-radius: 50%;
+        background: #ffffff;
+    }
+
+    .verification-location-marker .pulse {
+        position: absolute;
+        left: 50%;
+        top: 10px;
+        width: 18px;
+        height: 18px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background: rgba(220, 38, 38, 0.18);
+        animation: verification-marker-pulse 2s ease-out infinite;
+    }
+
+    @keyframes verification-marker-pulse {
+        0% {
+            transform: translate(-50%, -50%) scale(0.8);
+            opacity: 0.8;
+        }
+
+        70% {
+            transform: translate(-50%, -50%) scale(2.2);
+            opacity: 0;
+        }
+
+        100% {
+            transform: translate(-50%, -50%) scale(2.2);
+            opacity: 0;
+        }
+    }
+
+    @media (max-width: 640px) {
+        #verifikasi-map {
+            height: 280px;
+            min-height: 280px;
+        }
+    }
 </style>
+
 @endpush
 
 @section('content')
@@ -403,65 +487,235 @@
 @endsection
 
 @push('scripts')
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const map = L.map('verifikasi-map', {
-        center: [
-            {{ (float) $laporan->latitude }},
-            {{ (float) $laporan->longitude }}
-        ],
-        zoom: 16
-    });
+    'use strict';
 
-    L.tileLayer(
+    const mapElement = document.getElementById('verifikasi-map');
+
+    if (!mapElement) {
+        return;
+    }
+
+    if (typeof window.L === 'undefined') {
+        console.error('SmartPath: Leaflet.js tidak tersedia.');
+        mapElement.innerHTML = `
+            <div class="flex h-full items-center justify-center bg-slate-50 p-6 text-center">
+                <div>
+                    <p class="font-semibold text-slate-700">
+                        Peta tidak dapat dimuat.
+                    </p>
+                    <p class="mt-1 text-sm text-slate-500">
+                        Periksa koneksi internet atau pemuatan Leaflet.
+                    </p>
+                </div>
+            </div>
+        `;
+
+        return;
+    }
+
+    const latitude = Number(@json((float) $laporan->latitude));
+    const longitude = Number(@json((float) $laporan->longitude));
+
+    if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude)
+    ) {
+        mapElement.innerHTML = `
+            <div class="flex h-full items-center justify-center bg-slate-50 p-6 text-center">
+                <div>
+                    <p class="font-semibold text-slate-700">
+                        Koordinat laporan tidak valid.
+                    </p>
+                    <p class="mt-1 text-sm text-slate-500">
+                        Periksa kembali data latitude dan longitude laporan.
+                    </p>
+                </div>
+            </div>
+        `;
+
+        return;
+    }
+
+    const map = window.L.map(
+        mapElement,
+        {
+            center: [
+                latitude,
+                longitude
+            ],
+            zoom: 17,
+            zoomControl: true,
+            scrollWheelZoom: true
+        }
+    );
+
+    window.L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
-            attribution: '&copy; OpenStreetMap',
-            maxZoom: 19
+            maxZoom: 19,
+            attribution:
+                '&copy; OpenStreetMap contributors'
         }
     ).addTo(map);
 
-    L.marker([
-        {{ (float) $laporan->latitude }},
-        {{ (float) $laporan->longitude }}
-    ])
-    .addTo(map)
-    .bindPopup(
-        @json($laporan->judul)
-    )
-    .openPopup();
+    const markerIcon = window.L.divIcon({
+        className: 'verification-location-marker-wrapper',
 
-    setTimeout(() => map.invalidateSize(), 300);
+        html: `
+            <div
+                class="verification-location-marker"
+                role="img"
+                aria-label="Lokasi hambatan laporan"
+            >
+                <span class="pulse"></span>
+                <span class="pin"></span>
+            </div>
+        `,
+
+        iconSize: [
+            34,
+            34
+        ],
+
+        iconAnchor: [
+            17,
+            33
+        ],
+
+        popupAnchor: [
+            0,
+            -30
+        ]
+    });
+
+    const marker = window.L.marker(
+        [
+            latitude,
+            longitude
+        ],
+        {
+            icon: markerIcon,
+            title: @json($laporan->judul),
+            alt: 'Lokasi hambatan'
+        }
+    ).addTo(map);
+
+    const popupContent = `
+        <div style="min-width:220px;max-width:280px;font-family:Inter,system-ui,sans-serif;">
+            <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:5px;">
+                ${escapeHtml(@json($laporan->judul))}
+            </div>
+
+            <div style="font-size:12px;line-height:1.6;color:#64748b;">
+                ${escapeHtml(@json($laporan->alamat_lengkap ?: 'Alamat tidak tersedia.'))}
+            </div>
+
+            <div style="margin-top:8px;font-size:11px;color:#94a3b8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">
+                ${latitude.toFixed(7)}, ${longitude.toFixed(7)}
+            </div>
+        </div>
+    `;
+
+    marker
+        .bindPopup(
+            popupContent,
+            {
+                maxWidth: 320,
+                closeButton: true
+            }
+        )
+        .openPopup();
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(
+            /[&<>'"]/g,
+            function (character) {
+                const entities = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#039;',
+                    '"': '&quot;'
+                };
+
+                return entities[character];
+            }
+        );
+    }
+
+    window.setTimeout(
+        function () {
+            map.invalidateSize();
+        },
+        250
+    );
+
+    window.addEventListener(
+        'resize',
+        function () {
+            map.invalidateSize();
+        },
+        {
+            passive: true
+        }
+    );
 });
 
+
 function submitVerification(action, isReject) {
-    const form = document.getElementById('verifikasi-form');
+    const form =
+        document.getElementById('verifikasi-form');
 
     if (!form) {
         return;
     }
 
     if (isReject) {
-        const note = document
-            .getElementById('catatan_admin')
-            .value
-            .trim();
+        const note =
+            document
+                .getElementById('catatan_admin')
+                .value
+                .trim();
 
         if (!note) {
             alert('Alasan penolakan wajib diisi.');
-            document.getElementById('catatan_admin').focus();
+
+            document
+                .getElementById('catatan_admin')
+                .focus();
+
             return;
         }
 
-        if (!confirm('Tolak laporan ini? Alasan penolakan akan disimpan dan dapat dilihat pelapor.')) {
+        if (
+            !confirm(
+                'Tolak laporan ini? Alasan penolakan akan disimpan dan dapat dilihat pelapor.'
+            )
+        ) {
             return;
         }
-    } else if (!confirm('Setujui laporan ini? Laporan akan menjadi terverifikasi dan diproses ke tahap prioritas.')) {
-        return;
+    } else {
+        if (
+            !confirm(
+                'Setujui laporan ini? Laporan akan menjadi terverifikasi dan diproses ke tahap prioritas.'
+            )
+        ) {
+            return;
+        }
     }
 
     form.action = action;
     form.submit();
 }
 </script>
+
 @endpush

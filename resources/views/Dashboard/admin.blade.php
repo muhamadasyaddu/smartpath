@@ -7,6 +7,7 @@
 
 <div
     id="admin-dashboard"
+    data-live-url="{{ route('admin.dashboard.live') }}"
     class="-m-6 min-h-full bg-slate-50 p-3 sm:p-4 lg:-m-8 lg:p-4"
 >
     <div class="mx-auto max-w-[1500px] space-y-3">
@@ -55,7 +56,10 @@
 
                     <div>
 
-                        <p class="sp-number">
+                        <p
+                            id="admin-kpi-total"
+                            class="sp-number"
+                        >
                             {{ number_format($statistik['total'] ?? 0) }}
                         </p>
 
@@ -147,7 +151,10 @@
 
                 <div class="mt-1">
 
-                    <p class="sp-number">
+                    <p
+                        id="admin-kpi-menunggu"
+                        class="sp-number"
+                    >
                         {{ number_format($statistik['menunggu'] ?? 0) }}
                     </p>
 
@@ -205,7 +212,10 @@
 
                 <div class="mt-1">
 
-                    <p class="sp-number">
+                    <p
+                        id="admin-kpi-diverifikasi"
+                        class="sp-number"
+                    >
                         {{ number_format($statistik['diverifikasi'] ?? 0) }}
                     </p>
 
@@ -261,7 +271,10 @@
 
                 <div class="mt-1">
 
-                    <p class="sp-number">
+                    <p
+                        id="admin-kpi-kritis"
+                        class="sp-number"
+                    >
                         {{ number_format($statistik['kritis'] ?? 0) }}
                     </p>
 
@@ -455,7 +468,10 @@
 
                         <div class="border-r border-slate-200 px-3 py-1.5">
 
-                            <span class="block font-semibold text-emerald-700">
+                            <span
+                                id="admin-map-total"
+                                class="block font-semibold text-emerald-700"
+                            >
                                 {{ count($petaLaporan) }}
                             </span>
 
@@ -468,7 +484,10 @@
 
                         <div class="border-r border-slate-200 px-3 py-1.5">
 
-                            <span class="block font-semibold text-teal-700">
+                            <span
+                                id="admin-map-area"
+                                class="block font-semibold text-teal-700"
+                            >
                                 {{ $areaDipantau }}
                             </span>
 

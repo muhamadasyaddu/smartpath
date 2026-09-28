@@ -399,6 +399,221 @@ class DashboardController extends Controller
         ]);
     }
 
+    
+    /**
+     * Data real-time Dashboard Administrator.
+     *
+     * Endpoint ini digunakan oleh AJAX polling setiap 60 detik.
+     * Tidak melakukan reload halaman.
+     */
+    public function live()
+    {
+        $laporanDasar = Laporan::query()
+            ->induk()
+            ->aktif();
+
+        $total =
+            (clone $laporanDasar)->count();
+
+        $menunggu =
+            (clone $laporanDasar)
+                ->status('menunggu_verifikasi')
+                ->count();
+
+        $diverifikasi =
+            (clone $laporanDasar)
+                ->status('diverifikasi')
+                ->count();
+
+        $dalamPerbaikan =
+            (clone $laporanDasar)
+                ->status('dalam_perbaikan')
+                ->count();
+
+        $selesai =
+            (clone $laporanDasar)
+                ->status('selesai')
+                ->count();
+
+        $prioritasTinggi =
+            (clone $laporanDasar)
+                ->whereNotNull('skor_prioritas')
+                ->where('skor_prioritas', '>=', 70)
+                ->count();
+
+        $areaDipantau =
+            (clone $laporanDasar)
+                ->whereNotNull('wilayah_id')
+                ->distinct()
+                ->count('wilayah_id');
+
+        $petaLaporan =
+            (clone $laporanDasar)
+                ->with([
+                    'kategoriHambatan',
+                    'wilayah',
+                    'foto',
+                ])
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->orderByDesc('skor_prioritas')
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(function (Laporan $laporan) {
+
+                    $fotoUtama =
+                        $laporan->foto
+                            ->firstWhere(
+                                'adalah_utama',
+                                true
+                            )
+                        ??
+                        $laporan->foto
+                            ->sortBy('urutan')
+                            ->first();
+
+                    return [
+                        'id' =>
+                            $laporan->id,
+
+                        'kode' =>
+                            $laporan->kode_laporan,
+
+                        'judul' =>
+                            $laporan->judul,
+
+                        'latitude' =>
+                            (float) $laporan->latitude,
+
+                        'longitude' =>
+                            (float) $laporan->longitude,
+
+                        'status' =>
+                            $laporan->status,
+
+                        'status_label' =>
+                            $laporan->status_label,
+
+                        'skor_prioritas' =>
+                            $laporan->skor_prioritas !== null
+                                ? (float) $laporan->skor_prioritas
+                                : null,
+
+                        'prioritas' =>
+                            $laporan->tingkat_prioritas,
+
+                        'kategori_id' =>
+                            $laporan->kategori_hambatan_id,
+
+                        'kategori' =>
+                            $laporan->kategoriHambatan?->nama,
+
+                        'warna' =>
+                            $laporan->kategoriHambatan?->warna_penanda
+                            ?? '#64748b',
+
+                        'alamat' =>
+                            $laporan->alamat_lengkap,
+
+                        'jumlah_pelapor' =>
+                            (int) $laporan->jumlah_pelapor,
+
+                        'foto_utama' =>
+                            $fotoUtama?->url,
+
+                        'created_at' =>
+                            $laporan->created_at?->toISOString(),
+                    ];
+                })
+                ->values();
+
+        $topPrioritas =
+            (clone $laporanDasar)
+                ->with([
+                    'kategoriHambatan',
+                    'wilayah',
+                    'foto',
+                ])
+                ->whereNotNull('skor_prioritas')
+                ->orderByDesc('skor_prioritas')
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get()
+                ->map(function (Laporan $laporan) {
+
+                    $fotoUtama =
+                        $laporan->foto
+                            ->firstWhere(
+                                'adalah_utama',
+                                true
+                            )
+                        ??
+                        $laporan->foto
+                            ->sortBy('urutan')
+                            ->first();
+
+                    return [
+                        'id' =>
+                            $laporan->id,
+
+                        'judul' =>
+                            $laporan->judul,
+
+                        'alamat' =>
+                            $laporan->alamat_lengkap
+                            ?:
+                            $laporan->wilayah?->nama,
+
+                        'skor' =>
+                            (float) $laporan->skor_prioritas,
+
+                        'jumlah_pelapor' =>
+                            (int) $laporan->jumlah_pelapor,
+
+                        'foto' =>
+                            $fotoUtama?->url,
+
+                        'kategori' =>
+                            $laporan->kategoriHambatan?->nama,
+                    ];
+                })
+                ->values();
+
+        return response()->json([
+            'generated_at' =>
+                now()->toISOString(),
+
+            'statistik' => [
+                'total' =>
+                    $total,
+
+                'menunggu' =>
+                    $menunggu,
+
+                'diverifikasi' =>
+                    $diverifikasi,
+
+                'dalam_perbaikan' =>
+                    $dalamPerbaikan,
+
+                'selesai' =>
+                    $selesai,
+
+                'kritis' =>
+                    $prioritasTinggi,
+            ],
+
+            'area_dipantau' =>
+                $areaDipantau,
+
+            'peta_laporan' =>
+                $petaLaporan,
+
+            'top_prioritas' =>
+                $topPrioritas,
+        ]);
+    }
+    
     /**
      * Dashboard DINAS.
      *

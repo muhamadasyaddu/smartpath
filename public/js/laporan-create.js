@@ -1,11 +1,17 @@
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
-    const form = document.getElementById('laporan-form');
-    const mapElement = document.getElementById('location-map');
+    const form =
+        document.getElementById('laporan-form');
 
-    const latInput = document.getElementById('latitude');
-    const lngInput = document.getElementById('longitude');
+    const mapElement =
+        document.getElementById('location-map');
+
+    const latInput =
+        document.getElementById('latitude');
+
+    const lngInput =
+        document.getElementById('longitude');
 
     const addressInput =
         document.getElementById('alamat_lengkap');
@@ -18,9 +24,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const locateButton =
         document.getElementById('btn-locate');
-
-    const wilayahSelect =
-        document.getElementById('wilayah_id');
 
     const dropZone =
         document.getElementById('drop-zone');
@@ -43,7 +46,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Validasi element
+    | CATATAN ARSITEKTUR
+    |--------------------------------------------------------------------------
+    |
+    | Kecamatan / wilayah_id TIDAK lagi dikelola oleh frontend.
+    |
+    | Browser hanya bertugas:
+    |
+    | 1. mendapatkan latitude;
+    | 2. mendapatkan longitude;
+    | 3. memungkinkan user menentukan titik melalui peta;
+    | 4. mengisi alamat berdasarkan koordinat;
+    | 5. mengirim data laporan.
+    |
+    | Penentuan wilayah_id dilakukan oleh backend berdasarkan koordinat.
+    |
+    | Jangan menambahkan kembali:
+    |
+    | - wilayahSelect
+    | - getNearestWilayah()
+    | - validateWilayahLocation()
+    | - haversine()
+    |
+    | karena Kecamatan bukan bagian dari UI Create Laporan.
+    |
+    */
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validasi element halaman
     |--------------------------------------------------------------------------
     */
 
@@ -55,7 +87,6 @@ document.addEventListener('DOMContentLoaded', function () {
         !sourceInput ||
         !locationStatus ||
         !locateButton ||
-        !wilayahSelect ||
         !dropZone ||
         !fotoInput ||
         !preview
@@ -113,10 +144,12 @@ document.addEventListener('DOMContentLoaded', function () {
             )
         );
 
+
     /*
-     * Akurasi ini tidak disimpan ke database.
-     * Hanya digunakan untuk memastikan GPS desktop
-     * yang terlalu buruk tidak langsung diterima.
+     * Akurasi GPS tidak disimpan ke database.
+     *
+     * Nilai ini hanya digunakan untuk membantu user
+     * menentukan apakah titik GPS cukup presisi.
      */
 
     const LOCATION_WARNING_ACCURACY = 100;
@@ -150,6 +183,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let addressWasAutoFilled = false;
 
+    let gpsFinished = false;
+
+    let isSubmitting = false;
+
 
     /*
     |--------------------------------------------------------------------------
@@ -157,15 +194,16 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     */
 
-    const map = L.map(
-        mapElement,
-        {
-            center: DEFAULT_CENTER,
-            zoom: DEFAULT_ZOOM,
-            zoomControl: true,
-            attributionControl: true
-        }
-    );
+    const map =
+        L.map(
+            mapElement,
+            {
+                center: DEFAULT_CENTER,
+                zoom: DEFAULT_ZOOM,
+                zoomControl: true,
+                attributionControl: true
+            }
+        );
 
 
     L.tileLayer(
@@ -197,320 +235,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         locationStatus.className =
             `sp-location-status is-${type}`;
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Haversine
-    |--------------------------------------------------------------------------
-    */
-
-    function haversine(
-        lat1,
-        lng1,
-        lat2,
-        lng2
-    ) {
-
-        const earthRadius =
-            6371000;
-
-        const toRad =
-            value =>
-                value * Math.PI / 180;
-
-        const dLat =
-            toRad(lat2 - lat1);
-
-        const dLng =
-            toRad(lng2 - lng1);
-
-        const a =
-            Math.sin(dLat / 2) ** 2
-            +
-            Math.cos(toRad(lat1))
-            *
-            Math.cos(toRad(lat2))
-            *
-            Math.sin(dLng / 2) ** 2;
-
-        const safeA =
-            Math.min(
-                1,
-                Math.max(0, a)
-            );
-
-        return (
-            earthRadius *
-            2 *
-            Math.atan2(
-                Math.sqrt(safeA),
-                Math.sqrt(1 - safeA)
-            )
-        );
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Kecamatan terdekat
-    |--------------------------------------------------------------------------
-    */
-
-    function getNearestWilayah(
-        latitude,
-        longitude
-    ) {
-
-        let nearest = null;
-
-        let nearestDistance =
-            Infinity;
-
-        Array.from(
-            wilayahSelect.options
-        ).forEach(
-            function (option) {
-
-                if (!option.value) {
-                    return;
-                }
-
-                const optionLatitude =
-                    Number.parseFloat(
-                        option.dataset.latitude
-                    );
-
-                const optionLongitude =
-                    Number.parseFloat(
-                        option.dataset.longitude
-                    );
-
-                if (
-                    !Number.isFinite(
-                        optionLatitude
-                    ) ||
-                    !Number.isFinite(
-                        optionLongitude
-                    )
-                ) {
-                    return;
-                }
-
-                const distance =
-                    haversine(
-                        latitude,
-                        longitude,
-                        optionLatitude,
-                        optionLongitude
-                    );
-
-                if (
-                    distance <
-                    nearestDistance
-                ) {
-
-                    nearestDistance =
-                        distance;
-
-                    nearest = {
-                        option,
-                        distance
-                    };
-                }
-            }
-        );
-
-        return nearest;
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validasi lokasi dengan Kecamatan
-    |--------------------------------------------------------------------------
-    |
-    | Catatan:
-    | MVP menggunakan reference point kecamatan.
-    | Bukan polygon administrasi resmi.
-    |
-    */
-
-    function validateWilayahLocation(
-        autoSelect = false,
-        showStatus = true
-    ) {
-
-        const latitude =
-            Number.parseFloat(
-                latInput.value
-            );
-
-        const longitude =
-            Number.parseFloat(
-                lngInput.value
-            );
-
-
-        if (
-            !Number.isFinite(latitude) ||
-            !Number.isFinite(longitude)
-        ) {
-
-            if (showStatus) {
-
-                setLocationStatus(
-                    'Lokasi belum ditentukan.',
-                    'neutral'
-                );
-            }
-
-            return false;
-        }
-
-
-        const nearest =
-            getNearestWilayah(
-                latitude,
-                longitude
-            );
-
-
-        if (!nearest) {
-
-            if (showStatus) {
-
-                setLocationStatus(
-                    'Data referensi kecamatan belum tersedia. Hubungi administrator.',
-                    'error'
-                );
-            }
-
-            return false;
-        }
-
-
-        if (
-            autoSelect &&
-            !wilayahSelect.value
-        ) {
-
-            wilayahSelect.value =
-                nearest.option.value;
-        }
-
-
-        const selected =
-            wilayahSelect.options[
-                wilayahSelect.selectedIndex
-            ];
-
-
-        if (
-            !selected ||
-            !selected.value
-        ) {
-
-            if (showStatus) {
-
-                setLocationStatus(
-                    `Lokasi terdeteksi di sekitar Kecamatan ${nearest.option.textContent.trim()}. Silakan pilih kecamatan.`,
-                    'warning'
-                );
-            }
-
-            return false;
-        }
-
-
-        const selectedLatitude =
-            Number.parseFloat(
-                selected.dataset.latitude
-            );
-
-        const selectedLongitude =
-            Number.parseFloat(
-                selected.dataset.longitude
-            );
-
-
-        if (
-            !Number.isFinite(
-                selectedLatitude
-            ) ||
-            !Number.isFinite(
-                selectedLongitude
-            )
-        ) {
-
-            if (showStatus) {
-
-                setLocationStatus(
-                    'Kecamatan yang dipilih belum memiliki titik referensi lokasi.',
-                    'error'
-                );
-            }
-
-            return false;
-        }
-
-
-        const selectedDistance =
-            haversine(
-                latitude,
-                longitude,
-                selectedLatitude,
-                selectedLongitude
-            );
-
-
-        /*
-         * Sama dengan StoreLaporanRequest.
-         *
-         * Minimum toleransi 1.500 meter.
-         * Reference point bukan polygon administratif.
-         */
-
-        const tolerance =
-            Math.max(
-                1500,
-                nearest.distance * 1.25
-            );
-
-
-        const mismatch =
-            nearest.option.value !==
-                selected.value
-            &&
-            selectedDistance >
-                tolerance;
-
-
-        if (mismatch) {
-
-            if (showStatus) {
-
-                setLocationStatus(
-                    `Lokasi lebih dekat ke Kecamatan ${nearest.option.textContent.trim()}. Pilihan "${selected.textContent.trim()}" tidak sesuai dengan titik laporan.`,
-                    'error'
-                );
-            }
-
-            return false;
-        }
-
-
-        if (showStatus) {
-
-            setLocationStatus(
-                `Lokasi konsisten dengan Kecamatan ${selected.textContent.trim()}.`,
-                'success'
-            );
-        }
-
-
-        return true;
     }
 
 
@@ -597,8 +321,9 @@ document.addEventListener('DOMContentLoaded', function () {
     | Reverse geocoding
     |--------------------------------------------------------------------------
     |
-    | Hanya fitur tambahan.
-    | Koordinat tetap menjadi sumber utama.
+    | Reverse geocoding hanya digunakan untuk membantu mengisi alamat.
+    |
+    | Koordinat tetap menjadi sumber utama lokasi laporan.
     |
     */
 
@@ -699,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                         /*
-                         * Jangan menimpa alamat manual.
+                         * Jangan menimpa alamat manual user.
                          */
 
                         if (
@@ -722,14 +447,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         /*
                          * Reverse geocoding adalah fitur tambahan.
-                         * Error tidak boleh menggagalkan laporan.
+                         *
+                         * Jika gagal, laporan tetap dapat dibuat.
                          */
 
                         if (
                             error.name !==
                             'AbortError'
                         ) {
-                            // intentionally ignored
+                            // Sengaja tidak menampilkan error.
                         }
                     }
 
@@ -750,7 +476,6 @@ document.addEventListener('DOMContentLoaded', function () {
         longitude,
         source = 'manual',
         zoom = 17,
-        autoSelectWilayah = true,
         accuracy = null
     ) {
 
@@ -845,12 +570,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-        validateWilayahLocation(
-            autoSelectWilayah,
-            true
-        );
-
-
         scheduleReverseGeocode(
             latitude,
             longitude
@@ -858,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         /*
-         * Marker manual.
+         * Marker dapat digeser manual.
          */
 
         marker.off(
@@ -882,22 +601,33 @@ document.addEventListener('DOMContentLoaded', function () {
                     position.lng.toFixed(7);
 
 
-                setSource(
-                    'manual'
-                );
+                /*
+                 * Setelah marker digeser manual,
+                 * GPS watch dihentikan agar hasil GPS berikutnya
+                 * tidak mengambil kembali posisi marker.
+                 */
+
+                stopGpsWatch();
+
+
+                locateButton.disabled =
+                    false;
+
+
+                gpsFinished =
+                    true;
 
 
                 bestGpsPosition =
                     null;
 
 
-                clearAccuracyCircle();
-
-
-                validateWilayahLocation(
-                    false,
-                    true
+                setSource(
+                    'manual'
                 );
+
+
+                clearAccuracyCircle();
 
 
                 scheduleReverseGeocode(
@@ -986,7 +716,17 @@ document.addEventListener('DOMContentLoaded', function () {
         bestPosition
     ) {
 
+        if (gpsFinished) {
+            return;
+        }
+
+
+        gpsFinished =
+            true;
+
+
         stopGpsWatch();
+
 
         locateButton.disabled =
             false;
@@ -1022,28 +762,15 @@ document.addEventListener('DOMContentLoaded', function () {
             longitude,
             'gps_otomatis',
             17,
-            true,
             accuracy
         );
 
 
-        const wilayahValid =
-            validateWilayahLocation(
-                false,
-                false
-            );
-
-
-        if (!wilayahValid) {
-
-            setLocationStatus(
-                'GPS berhasil diperoleh, tetapi pilihan kecamatan belum konsisten dengan titik tersebut. Periksa marker dan kecamatan.',
-                'warning'
-            );
-
-            return;
-        }
-
+        /*
+         * Akurasi > 500 meter tidak langsung ditolak.
+         *
+         * User masih dapat menggeser marker secara manual.
+         */
 
         if (
             Number.isFinite(
@@ -1118,6 +845,10 @@ document.addEventListener('DOMContentLoaded', function () {
             null;
 
 
+        gpsFinished =
+            false;
+
+
         locateButton.disabled =
             true;
 
@@ -1141,6 +872,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /*
          * Setiap hasil lokasi dibandingkan.
+         *
          * Hasil dengan accuracy terkecil yang dipertahankan.
          */
 
@@ -1148,6 +880,7 @@ document.addEventListener('DOMContentLoaded', function () {
             function (position) {
 
                 if (
+                    gpsFinished ||
                     !position ||
                     !position.coords
                 ) {
@@ -1207,7 +940,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 accuracy
                             ) &&
                             accuracy <
-                            currentBest
+                                currentBest
                         )
                     ) {
 
@@ -1218,8 +951,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                 /*
-                 * Kalau sudah sangat bagus,
-                 * jangan tunggu sampai timeout.
+                 * Jika sudah sangat bagus,
+                 * jangan tunggu timeout.
                  */
 
                 if (
@@ -1318,10 +1051,9 @@ document.addEventListener('DOMContentLoaded', function () {
         /*
          * Request berkelanjutan.
          *
-         * Ini penting pada smartphone:
-         * browser dapat memperoleh fix pertama
-         * yang belum stabil lalu memberikan fix
-         * yang lebih akurat beberapa detik kemudian.
+         * Browser dapat memperoleh fix pertama
+         * yang belum stabil kemudian memberikan
+         * fix yang lebih akurat beberapa detik kemudian.
          */
 
         gpsWatchId =
@@ -1351,6 +1083,11 @@ document.addEventListener('DOMContentLoaded', function () {
         gpsWatchTimer =
             window.setTimeout(
                 function () {
+
+                    if (gpsFinished) {
+                        return;
+                    }
+
 
                     if (
                         bestGpsPosition
@@ -1395,12 +1132,32 @@ document.addEventListener('DOMContentLoaded', function () {
         'click',
         function (event) {
 
+            /*
+             * Jika user memilih lokasi manual,
+             * hentikan proses GPS agar tidak menimpa
+             * titik yang baru dipilih.
+             */
+
+            stopGpsWatch();
+
+
+            locateButton.disabled =
+                false;
+
+
+            gpsFinished =
+                true;
+
+
+            bestGpsPosition =
+                null;
+
+
             placeMarker(
                 event.latlng.lat,
                 event.latlng.lng,
                 'manual',
                 17,
-                true,
                 null
             );
 
@@ -1408,24 +1165,6 @@ document.addEventListener('DOMContentLoaded', function () {
             setLocationStatus(
                 'Lokasi dipilih secara manual. Pastikan marker berada tepat di lokasi hambatan.',
                 'success'
-            );
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Kecamatan berubah
-    |--------------------------------------------------------------------------
-    */
-
-    wilayahSelect.addEventListener(
-        'change',
-        function () {
-
-            validateWilayahLocation(
-                false,
-                true
             );
         }
     );
@@ -1499,22 +1238,15 @@ document.addEventListener('DOMContentLoaded', function () {
             sourceInput.value ||
                 'manual',
             17,
-            false,
             null
-        );
-
-
-        validateWilayahLocation(
-            false,
-            true
         );
 
     } else {
 
         /*
-         * Sesuai proposal:
-         * lokasi otomatis dicoba ketika
-         * halaman dibuka.
+         * Proposal menjelaskan bahwa lokasi
+         * dapat diperoleh otomatis menggunakan
+         * Geolocation API.
          */
 
         useCurrentLocation();
@@ -1933,6 +1665,18 @@ document.addEventListener('DOMContentLoaded', function () {
         'submit',
         function (event) {
 
+            /*
+             * Cegah double submit.
+             */
+
+            if (isSubmitting) {
+
+                event.preventDefault();
+
+                return;
+            }
+
+
             syncInputFiles();
 
 
@@ -1983,7 +1727,7 @@ document.addEventListener('DOMContentLoaded', function () {
              * GPS dengan akurasi >500m tidak langsung
              * dianggap cukup presisi.
              *
-             * User dapat menggeser marker.
+             * User masih dapat menggeser marker.
              */
 
             if (
@@ -2019,29 +1763,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             /*
-             * Validasi kecamatan.
+             * PENTING:
+             *
+             * Tidak ada lagi:
+             *
+             * validateWilayahLocation()
+             * wilayahSelect.focus()
+             * validasi Kecamatan di browser
+             *
+             * Backend yang menentukan wilayah_id berdasarkan
+             * latitude dan longitude.
              */
-
-            if (
-                !validateWilayahLocation(
-                    false,
-                    true
-                )
-            ) {
-
-                event.preventDefault();
-
-
-                alert(
-                    'Kecamatan yang dipilih tidak sesuai dengan titik lokasi laporan. Silakan pilih kecamatan yang sesuai dengan marker GPS/peta.'
-                );
-
-
-                wilayahSelect.focus();
-
-
-                return;
-            }
 
 
             /*
@@ -2068,6 +1800,10 @@ document.addEventListener('DOMContentLoaded', function () {
              * Hindari double submission.
              */
 
+            isSubmitting =
+                true;
+
+
             if (submitButton) {
 
                 submitButton.disabled =
@@ -2082,5 +1818,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
     );
-
 });
