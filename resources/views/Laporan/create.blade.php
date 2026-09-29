@@ -259,9 +259,7 @@
                 </div>
 
                 <p class="text-sm text-slate-500 mb-2">
-                    Gunakan lokasi perangkat untuk mendapatkan titik otomatis.
-                    Anda tetap dapat menggeser marker atau memilih titik lain
-                    pada peta secara manual.
+                    Pilih lokasi pada peta atau geser marker untuk menentukan lokasi tepat
                 </p>
 
                 <p
@@ -398,68 +396,6 @@
                 </div>
 
 
-                {{-- Kecamatan tetap dipertahankan karena backend membutuhkannya --}}
-                <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-
-                    <label
-                        for="wilayah_id"
-                        class="sp-label mb-1.5"
-                    >
-                        Kecamatan
-                        <span
-                            class="text-red-500"
-                            aria-hidden="true"
-                        >
-                            *
-                        </span>
-                    </label>
-
-                    <p
-                        id="wilayah-help"
-                        class="text-xs leading-5 text-slate-500 mb-2"
-                    >
-                        Sistem memilih kecamatan terdekat berdasarkan titik laporan.
-                        Pilihan tetap dapat disesuaikan jika marker digeser secara manual.
-                    </p>
-
-                    <select
-                        id="wilayah_id"
-                        name="wilayah_id"
-                        class="sp-input"
-                        required
-                        aria-required="true"
-                        aria-describedby="wilayah-help"
-                    >
-
-                        <option value="">
-                            Pilih Kecamatan
-                        </option>
-
-                        @foreach($wilayahList as $wilayah)
-
-                            <option
-                                value="{{ $wilayah->id }}"
-                                data-latitude="{{ $wilayah->latitude }}"
-                                data-longitude="{{ $wilayah->longitude }}"
-                                {{ old('wilayah_id') == $wilayah->id ? 'selected' : '' }}
-                            >
-                                {{ $wilayah->nama }}
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-                    @error('wilayah_id')
-                        <p
-                            class="sp-field-error"
-                            role="alert"
-                        >
-                            {{ $message }}
-                        </p>
-                    @enderror
-
-                </div>
 
 
                 <button
@@ -554,13 +490,8 @@
                     id="prioritas-preview"
                     class="sp-input sp-priority-preview"
                     disabled
-                    aria-describedby="prioritas-help"
                 >
-
-                    <option>
-                        Ditentukan otomatis oleh sistem
-                    </option>
-
+                    <option>Pilih Prioritas</option>
                 </select>
 
                 <p
@@ -624,11 +555,11 @@
                     </svg>
 
                     <p class="text-sm text-slate-700 font-semibold">
-                        Klik untuk memilih foto atau seret ke sini
+                        Klik atau seret foto ke sini untuk upload
                     </p>
 
                     <p class="text-xs text-slate-400 mt-1">
-                        JPG, PNG, WEBP • Maks. 5MB per foto
+                        JPG, PNG, maksimal 5MB per foto
                     </p>
 
 

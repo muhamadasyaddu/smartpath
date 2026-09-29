@@ -165,6 +165,11 @@ Route::middleware(['auth', 'admin'])
             [DashboardController::class, 'getChartData']
         )->name('dashboard.chart');
 
+        Route::get(
+            '/dashboard/live',
+            [DashboardController::class, 'live']
+        )->name('dashboard.live');
+
         // Sprint 2: Verifikasi laporan
         Route::get(
             '/verifikasi',

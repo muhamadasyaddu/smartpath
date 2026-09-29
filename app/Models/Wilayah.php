@@ -69,6 +69,112 @@ class Wilayah extends Model
         return $this->hasMany(FasilitasPublik::class, 'wilayah_id');
     }
 
+
+
+    /**
+     * Menghitung jarak titik referensi wilayah
+     * terhadap koordinat laporan dalam meter.
+     */
+    public function distanceFrom(
+        float $latitude,
+        float $longitude
+    ): float {
+        $earthRadius = 6371000;
+
+        $latFrom = deg2rad(
+            (float) $this->latitude
+        );
+
+        $latTo = deg2rad(
+            $latitude
+        );
+
+        $lngFrom = deg2rad(
+            (float) $this->longitude
+        );
+
+        $lngTo = deg2rad(
+            $longitude
+        );
+
+        $latDelta =
+            $latTo - $latFrom;
+
+        $lngDelta =
+            $lngTo - $lngFrom;
+
+        $a =
+            sin($latDelta / 2) ** 2
+            +
+            cos($latFrom)
+            *
+            cos($latTo)
+            *
+            sin($lngDelta / 2) ** 2;
+
+        $a =
+            min(
+                1,
+                max(0, $a)
+            );
+
+        return $earthRadius
+            * 2
+            * atan2(
+                sqrt($a),
+                sqrt(1 - $a)
+            );
+    }
+
+
+    /**
+     * Menentukan Kecamatan referensi terdekat
+     * berdasarkan koordinat laporan.
+     *
+     * Nilai ini hanya digunakan sebagai data internal.
+     * Pengguna tidak memilih Kecamatan pada form laporan.
+     */
+    public static function nearestKecamatanByReferencePoint(
+        float $latitude,
+        float $longitude
+    ): ?self {
+
+        $wilayahList =
+            static::query()
+                ->aktif()
+                ->level('kecamatan')
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->get();
+
+        $nearest = null;
+
+        $nearestDistance = INF;
+
+        foreach ($wilayahList as $wilayah) {
+
+            $distance =
+                $wilayah->distanceFrom(
+                    $latitude,
+                    $longitude
+                );
+
+            if (
+                $distance <
+                $nearestDistance
+            ) {
+
+                $nearestDistance =
+                    $distance;
+
+                $nearest =
+                    $wilayah;
+            }
+        }
+
+        return $nearest;
+    }
+
     /**
      * Scope for active wilayah
      */

@@ -78,11 +78,6 @@ class LaporanController extends Controller
             ->urutTampil()
             ->get();
 
-        $wilayahList = Wilayah::aktif()
-            ->level('kecamatan')
-            ->orderBy('nama')
-            ->get();
-
         $maxFoto = (int) KonfigurasiSistem::getValue(
             'max_foto_per_laporan',
             5
@@ -90,7 +85,7 @@ class LaporanController extends Controller
 
         return view(
             'Laporan.create',
-            compact('kategoriHambatan', 'wilayahList', 'maxFoto')
+            compact('kategoriHambatan', 'maxFoto')
         );
     }
 

@@ -6,14 +6,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class SkorService extends Model
 {
-    public function hitungSkorPrioritas($keparahan, $jumlahpelapor, $fasilitasVital)
-    {
-        $bobotK = KonfigurasiSistem::getValue('skor_bobot_keparahan', 0.4);
-        $bobotP = KonfigurasiSistem::getValue('skor_bobot_pelapor', 0.35);
-        $bobotF = KonfigurasiSistem::getValue('skor_bobot_fasilitas', 0.25);
+    /**
+     * Hitung skor prioritas menggunakan tiga komponen
+     * yang sudah dinormalisasi ke skala 0-100.
+     *
+     * Catatan:
+     * normalisasi dilakukan sebelum method ini dipanggil.
+     */
+    public function hitungSkorPrioritas(
+        float $keparahan,
+        float $jumlahPelapor,
+        float $fasilitasVital
+    ): float {
+        $bobotKeparahan = 0.40;
+        $bobotPelapor = 0.35;
+        $bobotFasilitas = 0.25;
 
-        $skor = ($keparahan * $bobotK) + ($jumlahPelapor * $bobotP) + ($fasilitasVital * $bobotF);
-    return $skor;
+        return round(
+            (
+                ($keparahan * $bobotKeparahan)
+                +
+                ($jumlahPelapor * $bobotPelapor)
+                +
+                ($fasilitasVital * $bobotFasilitas)
+            ),
+            2
+        );
     }
-    
 }
