@@ -152,7 +152,7 @@
 
             {{-- RENCANA PERBAIKAN --}}
             <a
-                href="{{ route('rencana.perbaikan.index') }}"
+                href="{{ route('dinas.rencana-perbaikan.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
             >
                 <svg
@@ -180,7 +180,7 @@
             </a>
             {{-- KINERJA & ANGGARAN --}}
 <a
-    href="#"
+    href="{{ route('dinas.kinerja-anggaran.index') }}"
     class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
 >
     {{-- ICON KINERJA & ANGGARAN --}}

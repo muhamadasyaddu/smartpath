@@ -129,94 +129,108 @@
                         Realisasi Anggaran
                     </h2>
 
-                    <div class="space-y-6">
-                        @if(isset($dataAnggaran) && count($dataAnggaran) > 0)
-                            @foreach($dataAnggaran as $item)
-                                @php
-                                    $persen = $item->pagu > 0 ? min(100, round(($item->realisasi / $item->pagu) * 100)) : 0;
-                                @endphp
-                                <div>
-                                    <div class="flex justify-between items-center text-xs mb-1">
-                                        <span class="font-semibold text-slate-700">{{ $item->nama_kategori }}</span>
-                                        <span class="font-bold text-slate-900">{{ $persen }}%</span>
-                                    </div>
-                                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1">
-                                        <div class="bg-slate-700 h-2 rounded-full transition-all duration-300" style="width: {{ $persen }}%"></div>
-                                    </div>
-                                    <div class="flex justify-between text-[11px] text-slate-400">
-                                        <span>Rp {{ number_format($item->realisasi, 0, ',', '.') }}</span>
-                                        <span>Rp {{ number_format($item->pagu, 0, ',', '.') }}</span>
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div>
-                                <div class="flex justify-between items-center text-xs mb-1">
-                                    <span class="font-semibold text-slate-700">Trotoar & Pedestrian</span>
-                                    <span class="font-bold text-slate-900">78%</span>
-                                </div>
-                                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1">
-                                    <div class="bg-slate-700 h-2 rounded-full" style="width: 78%"></div>
-                                </div>
-                                <div class="flex justify-between text-[11px] text-slate-400">
-                                    <span>Rp 2.3M</span>
-                                    <span>Rp 3M</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center text-xs mb-1">
-                                    <span class="font-semibold text-slate-700">Ramp & Aksesibilitas</span>
-                                    <span class="font-bold text-slate-900">45%</span>
-                                </div>
-                                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1">
-                                    <div class="bg-slate-700 h-2 rounded-full" style="width: 45%"></div>
-                                </div>
-                                <div class="flex justify-between text-[11px] text-slate-400">
-                                    <span>Rp 900JT</span>
-                                    <span>Rp 2M</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center text-xs mb-1">
-                                    <span class="font-semibold text-slate-700">Fasilitas Publik</span>
-                                    <span class="font-bold text-slate-900">62%</span>
-                                </div>
-                                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1">
-                                    <div class="bg-slate-700 h-2 rounded-full" style="width: 62%"></div>
-                                </div>
-                                <div class="flex justify-between text-[11px] text-slate-400">
-                                    <span>Rp 3.1M</span>
-                                    <span>Rp 5M</span>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center text-xs mb-1">
-                                    <span class="font-semibold text-slate-700">Penerangan & Marka</span>
-                                    <span class="font-bold text-slate-900">90%</span>
-                                </div>
-                                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1">
-                                    <div class="bg-slate-700 h-2 rounded-full" style="width: 90%"></div>
-                                </div>
-                                <div class="flex justify-between text-[11px] text-slate-400">
-                                    <span>Rp 1.8M</span>
-                                    <span>Rp 2M</span>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
+                  <div class="space-y-6">
+
+    @if(isset($dataAnggaran) && $dataAnggaran->count() > 0)
+
+        @foreach($dataAnggaran as $item)
+
+            @php
+                $persen = $item->pagu > 0
+                    ? min(
+                        100,
+                        round(
+                            ($item->realisasi / $item->pagu) * 100
+                        )
+                    )
+                    : 0;
+            @endphp
+
+            <div>
+
+                <div class="flex justify-between items-center text-xs mb-1">
+
+                    <span class="font-semibold text-slate-700">
+                        {{ $item->nama_kategori }}
+                    </span>
+
+                    <span class="font-bold text-slate-900">
+                        {{ $persen }}%
+                    </span>
+
+                </div>
+
+
+                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1">
+
+                    <div
+                        class="bg-slate-700 h-2 rounded-full transition-all duration-300"
+                        style="width: {{ $persen }}%"
+                    ></div>
+
+                </div>
+
+
+                <div class="flex justify-between text-[11px] text-slate-400">
+
+                    <span>
+                        Rp {{ number_format($item->realisasi, 0, ',', '.') }}
+                    </span>
+
+                    <span>
+                        Rp {{ number_format($item->pagu, 0, ',', '.') }}
+                    </span>
+
+                </div>
+
+            </div>
+
+        @endforeach
+
+    @else
+
+        <div class="text-center py-6">
+
+            <p class="text-sm font-medium text-slate-500">
+                Belum ada data anggaran
+            </p>
+
+            <p class="text-xs text-slate-400 mt-1">
+                Data akan muncul setelah terdapat rencana perbaikan.
+            </p>
+
+        </div>
+
+    @endif
+
+</div>
                 </div>
 
                 {{-- Total Ringkasan Anggaran --}}
-                <div class="mt-4 pt-3 border-t border-slate-100 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                    <div class="flex justify-between font-semibold text-slate-700">
-                        <span>Total Anggaran:</span>
-                        <span>Rp 12M</span>
-                    </div>
-                    <div class="flex justify-between font-bold text-slate-900 mt-0.5">
-                        <span>Realisasi:</span>
-                        <span>Rp 8.1M (67.5%)</span>
-                    </div>
-                </div>
+               <div class="mt-4 pt-3 border-t border-slate-100 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+
+    <div class="flex justify-between font-semibold text-slate-700">
+
+        <span>Total Anggaran:</span>
+
+        <span>
+            Rp {{ number_format($totalAnggaran, 0, ',', '.') }}
+        </span>
+
+    </div>
+
+    <div class="flex justify-between font-bold text-slate-900 mt-0.5">
+
+        <span>Realisasi:</span>
+
+        <span>
+            Rp {{ number_format($totalRealisasi, 0, ',', '.') }}
+            ({{ $persentaseRealisasi }}%)
+        </span>
+
+    </div>
+
+</div>
             </div>
         </div>
     </div>

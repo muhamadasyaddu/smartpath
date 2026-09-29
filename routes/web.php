@@ -19,6 +19,7 @@ use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\RencanaPerbaikanController;
 use App\Http\Controllers\NavigasiController;
+use App\Http\Controllers\KinerjaAnggaranController;
 // ============================================
 // RUTE PUBLIK
 // ============================================
@@ -286,6 +287,46 @@ Route::middleware(['auth', 'dinas'])
             '/laporan/{id}/pdf',
             [LaporanController::class, 'unduhPdf']
         )->name('laporan.pdf');
+//rencana perbaikan
+         Route::get(
+        '/rencana-perbaikan',
+        [RencanaPerbaikanController::class, 'index']
+    )->name('dinas.rencana-perbaikan.index');
+
+
+        Route::get(
+            '/rencana-perbaikan',
+            [RencanaPerbaikanController::class, 'index']
+        )->name('rencana-perbaikan.index');
+
+        Route::get(
+    '/rencana-perbaikan/{laporan}/create',
+    [RencanaPerbaikanController::class, 'create']
+)->name('rencana-perbaikan.create');
+
+        Route::post(
+            '/rencana-perbaikan',
+            [RencanaPerbaikanController::class, 'store']
+        )->name('rencana-perbaikan.store');
+
+         Route::get(
+            '/rencana-perbaikan/{rencanaPerbaikan}/edit',
+            [RencanaPerbaikanController::class, 'edit']
+        )->name('rencana-perbaikan.edit');
+
+
+        Route::put(
+            '/rencana-perbaikan/{rencanaPerbaikan}',
+            [RencanaPerbaikanController::class, 'update']
+        )->name('rencana-perbaikan.update');
+
+        //kinerja anggaran
+  Route::get(
+            '/kinerja-anggaran',
+            [KinerjaAnggaranController::class, 'index']
+        )->name('kinerja-anggaran.index');
+
+
     });
 
 
@@ -307,11 +348,7 @@ Route::middleware('auth')->group(function () {
     // RENCANA PERBAIKAN
     // ========================================
 
-    Route::get(
-        '/rencana-perbaikan',
-        [RencanaPerbaikanController::class, 'index']
-    )->name('rencana.perbaikan.index');
-
+   
 
     // ========================================
     // NEARBY

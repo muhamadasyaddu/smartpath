@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             WilayahSeeder::class,
             UserSeeder::class,
             KategoriHambatanSeeder::class,
+            LaporanSeeder::class,
             FasilitasPublikSeeder::class,
             PengaturanPrioritasSeeder::class,
         ]);
