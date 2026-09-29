@@ -19,6 +19,7 @@ use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\RencanaPerbaikanController;
 use App\Http\Controllers\NavigasiController;
+
 // ============================================
 // RUTE PUBLIK
 // ============================================
@@ -153,6 +154,25 @@ Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+        // ======================================================
+        // NOTIFIKASI ADMINISTRATOR
+        // ======================================================
+
+        Route::get(
+            '/notifikasi',
+            [NotifikasiController::class, 'adminIndex']
+        )->name('notifikasi.index');
+
+        Route::post(
+            '/notifikasi/baca-semua',
+            [NotifikasiController::class, 'adminMarkAllAsRead']
+        )->name('notifikasi.read-all');
+
+        Route::post(
+            '/notifikasi/{notifikasi}/baca',
+            [NotifikasiController::class, 'adminMarkAsRead']
+        )->name('notifikasi.read');
         // Dashboard
         Route::get(
             '/dashboard',

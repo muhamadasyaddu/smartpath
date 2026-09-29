@@ -95,6 +95,11 @@
     {{-- Stack CSS dari halaman --}}
     @stack('styles')
 
+    <link
+    rel="stylesheet"
+    href="{{ asset('css/smartpath-admin.css') }}"
+    >
+
 
     <style>
 

@@ -25,7 +25,36 @@ class StoreLaporanRequest extends FormRequest
             5
         );
 
-        return max(1, min($maxFoto, 10));
+        return max(
+            1,
+            min($maxFoto, 10)
+        );
+    }
+
+    /**
+     * Mengecek apakah koordinat masih berada dalam
+     * geographic envelope wilayah uji coba SmartPath.
+     *
+     * Envelope ini bukan polygon administrasi.
+     * Fungsinya sebagai lapisan perlindungan pertama
+     * agar koordinat yang jelas berada di luar Depok
+     * tidak diklasifikasikan sebagai kecamatan Depok.
+     */
+    protected function isInsidePilotArea(
+        float $latitude,
+        float $longitude
+    ): bool {
+        $bounds = config(
+            'smartpath.pilot.bounds',
+            []
+        );
+
+        return (
+            $latitude >= (float) ($bounds['min_latitude'] ?? -90)
+            && $latitude <= (float) ($bounds['max_latitude'] ?? 90)
+            && $longitude >= (float) ($bounds['min_longitude'] ?? -180)
+            && $longitude <= (float) ($bounds['max_longitude'] ?? 180)
+        );
     }
 
     /**
@@ -33,6 +62,11 @@ class StoreLaporanRequest extends FormRequest
      * koordinat laporan.
      *
      * Browser tidak dipercaya untuk menentukan wilayah_id.
+     *
+     * Penting:
+     * koordinat harus lolos geographic sanity check
+     * terlebih dahulu sebelum sistem mencari kecamatan
+     * terdekat.
      */
     protected function prepareForValidation(): void
     {
@@ -48,15 +82,22 @@ class StoreLaporanRequest extends FormRequest
             FILTER_NULL_ON_FAILURE
         );
 
+        if (
+            $latitude === null
+            || $longitude === null
+        ) {
+            return;
+        }
+
         /*
-         * Jika koordinat belum valid, jangan mencoba
-         * menentukan wilayah.
-         *
-         * Validation rules akan menangani error koordinat.
+         * Jangan pernah mengklasifikasikan koordinat
+         * di luar wilayah pilot sebagai kecamatan Depok.
          */
         if (
-            $latitude === null ||
-            $longitude === null
+            !$this->isInsidePilotArea(
+                (float) $latitude,
+                (float) $longitude
+            )
         ) {
             return;
         }
@@ -67,16 +108,53 @@ class StoreLaporanRequest extends FormRequest
         );
 
         if ($wilayah) {
-
-            /*
-             * Nilai wilayah_id dari browser tidak digunakan.
-             *
-             * Server menentukan sendiri.
-             */
             $this->merge([
                 'wilayah_id' => $wilayah->id,
             ]);
         }
+    }
+
+    /**
+     * Validasi tambahan setelah seluruh field
+     * berhasil diproses oleh Laravel Validator.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+
+            $latitude = filter_var(
+                $this->input('latitude'),
+                FILTER_VALIDATE_FLOAT,
+                FILTER_NULL_ON_FAILURE
+            );
+
+            $longitude = filter_var(
+                $this->input('longitude'),
+                FILTER_VALIDATE_FLOAT,
+                FILTER_NULL_ON_FAILURE
+            );
+
+            if (
+                $latitude === null
+                || $longitude === null
+            ) {
+                return;
+            }
+
+            if (
+                !$this->isInsidePilotArea(
+                    (float) $latitude,
+                    (float) $longitude
+                )
+            ) {
+                $validator->errors()->add(
+                    'latitude',
+                    'Lokasi laporan berada di luar wilayah uji coba Kota Depok. Silakan pilih titik laporan yang berada di Kota Depok.'
+                );
+
+                return;
+            }
+        });
     }
 
     public function rules(): array
@@ -98,8 +176,7 @@ class StoreLaporanRequest extends FormRequest
             ],
 
             /*
-             * Tetap diperlukan oleh database/backend,
-             * tetapi tidak lagi berasal dari pilihan user.
+             * Wilayah tetap berasal dari backend.
              */
             'wilayah_id' => [
                 'required',
@@ -179,7 +256,7 @@ class StoreLaporanRequest extends FormRequest
                 'Kategori hambatan tidak valid atau sedang nonaktif.',
 
             'wilayah_id.required' =>
-                'Wilayah laporan tidak dapat ditentukan dari lokasi. Silakan tentukan kembali titik laporan pada peta.',
+                'Wilayah laporan tidak dapat ditentukan dari lokasi. Silakan pilih kembali titik laporan pada peta.',
 
             'wilayah_id.exists' =>
                 'Wilayah laporan tidak valid atau sedang nonaktif.',

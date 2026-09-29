@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\User;
 use Throwable;
 
 class LaporanController extends Controller
@@ -196,6 +197,38 @@ class LaporanController extends Controller
                     'pesan' => "Laporan {$laporan->kode_laporan} telah diterima dan menunggu verifikasi.",
                     'tautan' => route('laporan.show', $laporan),
                 ]);
+
+                /*
+                * Notifikasi administrator.
+                *
+                * Administrator perlu mengetahui bahwa ada
+                * laporan baru yang masuk ke antrean verifikasi.
+                */
+                $adminIds = User::query()
+                    ->whereIn('peran', [
+                        'administrator',
+                        'admin',
+                    ])
+                    ->where('aktif', true)
+                    ->pluck('id');
+
+                foreach ($adminIds as $adminId) {
+
+                    Notifikasi::create([
+                        'penerima_id' => $adminId,
+                        'laporan_id' => $laporan->id,
+                        'jenis' => 'sistem',
+                        'judul' => 'Laporan Baru Masuk',
+                        'pesan' =>
+                            "Laporan {$laporan->kode_laporan} "
+                            . "menunggu verifikasi administrator.",
+                        'tautan' =>
+                            route(
+                                'admin.verifikasi.show',
+                                $laporan
+                            ),
+                    ]);
+                }
 
                 if ($laporanInduk) {
                     Notifikasi::create([
@@ -450,12 +483,17 @@ public function unduhPdf($id)
         float $longitude,
         int $kategoriHambatanId
     ): ?Laporan {
-        $radiusMeter = (int) KonfigurasiSistem::getValue(
-            'radius_deduplikasi_meter',
-            50
+        $pengaturan = \App\Models\PengaturanPrioritas::getActive();
+
+        $radiusMeter = (int) (
+            $pengaturan?->radius_deduplikasi_m
+            ?? KonfigurasiSistem::getValue(
+                'radius_deduplikasi_meter',
+                50
+            )
         );
 
-        $latitudeDelta = $radiusMeter / 111320;
+                $latitudeDelta = $radiusMeter / 111320;
         $cosLatitude = max(
             cos(deg2rad($latitude)),
             0.01

@@ -211,10 +211,16 @@ class PengaturanPrioritasController extends Controller
 
         foreach ($laporanList as $laporan) {
 
+            $pengaturan = \App\Models\PengaturanPrioritas::getActive();
+
+            $radiusFasilitas = (int) (
+                $pengaturan?->radius_fasilitas_m ?? 500
+            );
+
             $fasilitasTerdekat = FasilitasPublik::getNearest(
                 (float) $laporan->latitude,
                 (float) $laporan->longitude,
-                500
+                $radiusFasilitas
             );
 
             if ($fasilitasTerdekat) {

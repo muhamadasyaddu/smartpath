@@ -69,13 +69,15 @@ class DashboardController extends Controller
             ->count();
 
         /*
-         * Terverifikasi mencakup:
-         * diverifikasi
-         * dalam_perbaikan
-         * selesai
-         */
+        * KPI mengikuti mock-up proposal:
+        * hanya laporan dengan status "diverifikasi"
+        * yang dihitung sebagai Laporan Diverifikasi.
+        *
+        * Dalam Perbaikan dan Selesai tetap menjadi
+        * kategori status terpisah pada Distribusi Status.
+        */
         $laporanTerverifikasi = (clone $laporanDasar)
-            ->terverifikasi()
+            ->status('diverifikasi')
             ->count();
 
         $dalamPerbaikan = (clone $laporanDasar)
@@ -133,18 +135,18 @@ class DashboardController extends Controller
          */
 
         $laporanPrioritasTinggi = (clone $laporanDasar)
-            ->with([
-                'kategoriHambatan',
-                'wilayah',
-                'pelapor',
-                'foto'
-            ])
-            ->whereNotNull('skor_prioritas')
-            ->where('skor_prioritas', '>=', 70)
-            ->orderByDesc('skor_prioritas')
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
+        ->with([
+            'kategoriHambatan',
+            'wilayah',
+            'pelapor',
+            'foto',
+            'fasilitasTerdekat',
+        ])
+        ->whereNotNull('skor_prioritas')
+        ->orderByDesc('skor_prioritas')
+        ->orderByDesc('created_at')
+        ->limit(5)
+        ->get();
 
         /*
          * ==========================================================
@@ -245,55 +247,93 @@ class DashboardController extends Controller
          */
 
         $petaLaporan = (clone $laporanDasar)
-            ->with([
-                'kategoriHambatan',
-                'wilayah',
-                'foto'
-            ])
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get()
-            ->map(function (Laporan $laporan) {
+        ->with([
+            'kategoriHambatan',
+            'wilayah',
+            'foto',
+        ])
+        ->whereNotNull('latitude')
+        ->whereNotNull('longitude')
+        ->get()
+        ->map(function (Laporan $laporan) {
 
-                return [
-                    'id' => $laporan->id,
+            $fotoUtama =
+                $laporan->foto->firstWhere(
+                    'adalah_utama',
+                    true
+                )
+                ??
+                $laporan->foto->sortBy('urutan')->first();
 
-                    'kode' => $laporan->kode_laporan,
+            return [
+                'id' =>
+                    $laporan->id,
 
-                    'judul' => $laporan->judul,
+                'kode' =>
+                    $laporan->kode_laporan,
 
-                    'latitude' => (float) $laporan->latitude,
+                'judul' =>
+                    $laporan->judul,
 
-                    'longitude' => (float) $laporan->longitude,
+                'latitude' =>
+                    (float) $laporan->latitude,
 
-                    'status' => $laporan->status,
+                'longitude' =>
+                    (float) $laporan->longitude,
 
-                    'status_label' => $laporan->status_label,
+                'status' =>
+                    $laporan->status,
 
-                    'prioritas' => $laporan->tingkat_prioritas,
+                'status_label' =>
+                    $laporan->status_label,
 
-                    'skor_prioritas' =>
-                        $laporan->skor_prioritas !== null
-                            ? (float) $laporan->skor_prioritas
-                            : null,
+                'prioritas' =>
+                    $laporan->tingkat_prioritas,
 
-                    'kategori_id' =>
-                        $laporan->kategori_hambatan_id,
+                'skor_prioritas' =>
+                    $laporan->skor_prioritas !== null
+                        ? (float) $laporan->skor_prioritas
+                        : null,
 
-                    'kategori' =>
-                        $laporan->kategoriHambatan?->nama,
+                'kategori_id' =>
+                    $laporan->kategori_hambatan_id,
 
-                    'warna' =>
-                        $laporan->kategoriHambatan?->warna_penanda,
+                'kategori' =>
+                    $laporan->kategoriHambatan?->nama,
 
-                    'alamat' =>
-                        $laporan->alamat_lengkap,
+                'warna' =>
+                    $laporan->kategoriHambatan?->warna_penanda
+                    ?? '#64748b',
 
-                    'created_at' =>
-                        $laporan->created_at?->toISOString(),
-                ];
-            })
-            ->values();
+                'alamat' =>
+                    $laporan->alamat_lengkap
+                    ?: $laporan->wilayah?->nama,
+
+                'wilayah' =>
+                    $laporan->wilayah?->nama,
+
+                'jumlah_pelapor' =>
+                    (int) $laporan->jumlah_pelapor,
+
+                'jarak_fasilitas_meter' =>
+                    $laporan->jarak_fasilitas_meter !== null
+                        ? (float) $laporan->jarak_fasilitas_meter
+                        : null,
+
+                'foto_utama' =>
+                    $fotoUtama?->url,
+
+                'detail_url' =>
+                    route(
+                        'admin.verifikasi.show',
+                        $laporan
+                    ),
+
+                'created_at' =>
+                    $laporan->created_at?->toISOString(),
+            ];
+        })
+        ->values();
 
         /*
          * ==========================================================
@@ -421,9 +461,9 @@ class DashboardController extends Controller
                 ->count();
 
         $diverifikasi =
-            (clone $laporanDasar)
-                ->status('diverifikasi')
-                ->count();
+        (clone $laporanDasar)
+            ->terverifikasi()
+            ->count();
 
         $dalamPerbaikan =
             (clone $laporanDasar)

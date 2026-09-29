@@ -268,13 +268,15 @@
                     role="status"
                     aria-live="polite"
                 >
-                    Menyiapkan lokasi perangkat...
+                    Memeriksa lokasi perangkat...
                 </p>
 
 
                 <div
                     id="location-map"
                     class="sp-map mb-4"
+                    data-pilot-bounds='@json(config("smartpath.pilot.bounds"))'
+                    data-pilot-center='@json(config("smartpath.pilot.center"))'
                     role="region"
                     aria-label="Peta pemilih lokasi. Klik peta atau geser marker untuk menentukan titik laporan."
                 ></div>

@@ -159,6 +159,94 @@ document.addEventListener('DOMContentLoaded', function () {
     const GPS_WATCH_TIMEOUT = 15000;
 
 
+        /*
+    |--------------------------------------------------------------------------
+    | Wilayah Pilot SmartPath
+    |--------------------------------------------------------------------------
+    |
+    | MVP SmartPath berfokus pada Kota Depok.
+    |
+    | Geographic envelope digunakan sebagai sanity check.
+    | Ini bukan polygon batas administrasi final.
+    |
+    */
+
+    let PILOT_BOUNDS = null;
+
+    try {
+        PILOT_BOUNDS =
+            JSON.parse(
+                mapElement.dataset.pilotBounds || '{}'
+            );
+    } catch (error) {
+        console.error(
+            'SmartPath: konfigurasi batas wilayah tidak valid.',
+            error
+        );
+    }
+
+    const PILOT_CENTER = (() => {
+        try {
+            return JSON.parse(
+                mapElement.dataset.pilotCenter || '{}'
+            );
+        } catch (error) {
+            return {
+                latitude: -6.4025,
+                longitude: 106.7942
+            };
+        }
+    })();
+
+    function isInsidePilotArea(
+        latitude,
+        longitude
+    ) {
+        if (!PILOT_BOUNDS) {
+            return false;
+        }
+
+        return (
+            latitude >=
+                Number(PILOT_BOUNDS.min_latitude)
+
+            && latitude <=
+                Number(PILOT_BOUNDS.max_latitude)
+
+            && longitude >=
+                Number(PILOT_BOUNDS.min_longitude)
+
+            && longitude <=
+                Number(PILOT_BOUNDS.max_longitude)
+        );
+    }
+
+    function resetToPilotArea() {
+        clearAccuracyCircle();
+
+        if (marker) {
+            map.removeLayer(marker);
+            marker = null;
+        }
+
+        latInput.value = '';
+        lngInput.value = '';
+
+        setSource('manual');
+
+        map.setView(
+            [
+                Number(PILOT_CENTER.latitude),
+                Number(PILOT_CENTER.longitude)
+            ],
+            DEFAULT_ZOOM,
+            {
+                animate: true
+            }
+        );
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | State
@@ -592,6 +680,43 @@ document.addEventListener('DOMContentLoaded', function () {
                 const position =
                     event.target.getLatLng();
 
+                        if (
+                    !isInsidePilotArea(
+                        position.lat,
+                        position.lng
+                    )
+                ) {
+                    /*
+                     * Kembalikan marker ke posisi sebelumnya.
+                     */
+                    const previousLat =
+                        Number.parseFloat(
+                            latInput.value
+                        );
+
+                    const previousLng =
+                        Number.parseFloat(
+                            lngInput.value
+                        );
+
+                    if (
+                        Number.isFinite(previousLat) &&
+                        Number.isFinite(previousLng)
+                    ) {
+                        event.target.setLatLng([
+                            previousLat,
+                            previousLng
+                        ]);
+                    }
+
+                    setLocationStatus(
+                        'Marker tidak dapat dipindahkan ke luar wilayah uji coba Kota Depok.',
+                        'warning'
+                    );
+
+                    return;
+                }
+
 
                 latInput.value =
                     position.lat.toFixed(7);
@@ -748,6 +873,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const longitude =
             bestPosition.coords.longitude;
+
+                if (
+            !isInsidePilotArea(
+                Number(latitude),
+                Number(longitude)
+            )
+        ) {
+            resetToPilotArea();
+
+            setLocationStatus(
+                'Lokasi perangkat terdeteksi di luar wilayah uji coba Kota Depok. Sistem tidak menyimpan lokasi tersebut. Pilih titik laporan secara manual pada peta.',
+                'warning'
+            );
+
+            return;
+        }
 
         const accuracy =
             Number.isFinite(
@@ -914,6 +1055,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 ) {
                     return;
                 }
+
+                            /*
+                 * Jangan menerima hasil lokasi yang secara jelas
+                 * berada di luar wilayah pilot SmartPath.
+                 *
+                 * Ini penting terutama pada desktop tanpa GPS
+                 * yang dapat menerima estimasi berbasis IP/Wi-Fi.
+                 */
+                if (
+                    !isInsidePilotArea(
+                        latitude,
+                        longitude
+                    )
+                ) {
+                    setLocationStatus(
+                        'Lokasi perangkat terdeteksi di luar wilayah uji coba Kota Depok. Sistem tidak menggunakan koordinat tersebut. Anda dapat memilih titik laporan secara manual pada peta.',
+                        'warning'
+                    );
+
+                    return;
+                }
+
+
 
 
                 if (!bestGpsPosition) {
@@ -1138,6 +1302,20 @@ document.addEventListener('DOMContentLoaded', function () {
              * titik yang baru dipilih.
              */
 
+                    if (
+                !isInsidePilotArea(
+                    event.latlng.lat,
+                    event.latlng.lng
+                )
+            ) {
+                setLocationStatus(
+                    'Titik yang dipilih berada di luar wilayah uji coba Kota Depok. Silakan pilih titik di dalam area Depok.',
+                    'warning'
+                );
+
+                return;
+            }
+
             stopGpsWatch();
 
 
@@ -1224,12 +1402,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     if (
-        Number.isFinite(
-            oldLatitude
-        ) &&
-        Number.isFinite(
-            oldLongitude
-        )
+    Number.isFinite(oldLatitude) &&
+    Number.isFinite(oldLongitude) &&
+    isInsidePilotArea(
+        oldLatitude,
+        oldLongitude
+    )
     ) {
 
         placeMarker(

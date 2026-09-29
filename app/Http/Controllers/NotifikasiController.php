@@ -2,62 +2,176 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Notifikasi;
+use Illuminate\Http\Request;
 
 class NotifikasiController extends Controller
 {
-     /**
-     * Daftar notifikasi pengguna.
+    /**
+     * Notifikasi umum untuk warga/dinas.
      */
     public function index(Request $request)
     {
-        $notifikasi = Notifikasi::where('penerima_id', auth()->id())
+        $notifikasi = Notifikasi::query()
+            ->where('penerima_id', auth()->id())
             ->with('laporan')
             ->orderByDesc('created_at')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
-        $belumDibaca = Notifikasi::where('penerima_id', auth()->id())
+        $belumDibaca = Notifikasi::query()
+            ->where('penerima_id', auth()->id())
             ->belumDibaca()
             ->count();
 
-        return view('notifikasi.index', compact('notifikasi', 'belumDibaca'));
+        return view(
+            'notifikasi.index',
+            compact(
+                'notifikasi',
+                'belumDibaca'
+            )
+        );
     }
 
     /**
-     * Tandai notifikasi sebagai dibaca.
+     * =====================================================
+     * ADMINISTRATOR
+     * =====================================================
      */
-    public function markAsRead(Notifikasi $notifikasi)
+
+    public function adminIndex(Request $request)
     {
-        if ($notifikasi->penerima_id !== auth()->id()) {
-            abort(403);
-        }
+        abort_unless(
+            auth()->user()->isAdmin(),
+            403
+        );
+
+        $notifikasi = Notifikasi::query()
+            ->where(
+                'penerima_id',
+                auth()->id()
+            )
+            ->with('laporan')
+            ->orderByDesc('created_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        $belumDibaca = Notifikasi::query()
+            ->where(
+                'penerima_id',
+                auth()->id()
+            )
+            ->belumDibaca()
+            ->count();
+
+        return view(
+            'Admin.notifikasi.index',
+            compact(
+                'notifikasi',
+                'belumDibaca'
+            )
+        );
+    }
+
+    public function adminMarkAsRead(
+        Notifikasi $notifikasi
+    ) {
+        abort_unless(
+            auth()->user()->isAdmin(),
+            403
+        );
+
+        abort_unless(
+            $notifikasi->penerima_id === auth()->id(),
+            403
+        );
 
         $notifikasi->markAsRead();
 
         if ($notifikasi->tautan) {
-            return redirect($notifikasi->tautan);
+            return redirect(
+                $notifikasi->tautan
+            );
         }
 
         return back();
     }
-     public function markAllAsRead()
-    {
-        Notifikasi::where('penerima_id', auth()->id())
-            ->belumDibaca()
-            ->each(fn($n) => $n->markAsRead());
 
-        return back()->with('sukses', 'Semua notifikasi telah ditandai sebagai dibaca.');
+    public function adminMarkAllAsRead()
+    {
+        abort_unless(
+            auth()->user()->isAdmin(),
+            403
+        );
+
+        Notifikasi::query()
+            ->where(
+                'penerima_id',
+                auth()->id()
+            )
+            ->belumDibaca()
+            ->update([
+                'sudah_dibaca' => true,
+                'dibaca_pada' => now(),
+            ]);
+
+        return back()->with(
+            'sukses',
+            'Semua notifikasi telah ditandai sebagai dibaca.'
+        );
     }
 
     /**
-     * API: hitung notifikasi belum dibaca.
+     * =====================================================
+     * NOTIFIKASI UMUM
+     * =====================================================
      */
+
+    public function markAsRead(
+        Notifikasi $notifikasi
+    ) {
+        abort_unless(
+            $notifikasi->penerima_id === auth()->id(),
+            403
+        );
+
+        $notifikasi->markAsRead();
+
+        if ($notifikasi->tautan) {
+            return redirect(
+                $notifikasi->tautan
+            );
+        }
+
+        return back();
+    }
+
+    public function markAllAsRead()
+    {
+        Notifikasi::query()
+            ->where(
+                'penerima_id',
+                auth()->id()
+            )
+            ->belumDibaca()
+            ->update([
+                'sudah_dibaca' => true,
+                'dibaca_pada' => now(),
+            ]);
+
+        return back()->with(
+            'sukses',
+            'Semua notifikasi telah ditandai sebagai dibaca.'
+        );
+    }
+
     public function unreadCount()
     {
         return response()->json([
-            'count' => auth()->user()->notifikasi_belum_dibaca_count,
+            'count' =>
+                auth()
+                    ->user()
+                    ->notifikasi_belum_dibaca_count,
         ]);
     }
-    
 }
