@@ -292,17 +292,18 @@ Route::middleware(['auth', 'dinas'])
             '/laporan/{id}/pdf',
             [LaporanController::class, 'unduhPdf']
         )->name('laporan.pdf');
+
+        Route::get(
+    '/laporan/{laporan}/detail',
+    [LaporanController::class, 'showDetail']
+)->name('laporan.detail');
+
+
 //rencana perbaikan
          Route::get(
         '/rencana-perbaikan',
         [RencanaPerbaikanController::class, 'index']
-    )->name('dinas.rencana-perbaikan.index');
-
-
-        Route::get(
-            '/rencana-perbaikan',
-            [RencanaPerbaikanController::class, 'index']
-        )->name('rencana-perbaikan.index');
+    )->name('rencana-perbaikan.index');
 
         Route::get(
     '/rencana-perbaikan/{laporan}/create',

@@ -92,7 +92,7 @@
     ========================================================== --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         
-        {{-- PETA INTERAKTIF (Kiri - 2/3 Lebar) --}}
+        {{-- PETA INTERAKTIF (Kiri -  Lebar) --}}
         <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm lg:col-span-2 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between mb-4">
@@ -164,7 +164,7 @@
                 <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1">
 
                     <div
-                        class="bg-slate-700 h-2 rounded-full transition-all duration-300"
+                        class="bg-emerald-700 h-2 rounded-full transition-all duration-300"
                         style="width: {{ $persen }}%"
                     ></div>
 
@@ -241,8 +241,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         
         {{-- WIDGET: PRIORITAS PERBAIKAN --}}
-        <div class="lg:col-span-1 bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col justify-between">
-            <div>
+<div class="lg:col-span-1 bg-white rounded-xl border border-slate-200 p-4 shadow-sm h-fit self-start">            <div>
                 <h2 class="font-semibold text-slate-900 mb-3 flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
