@@ -1457,13 +1457,13 @@
 <script
     id="smartpath-map-data"
     type="application/json"
->{{ json_encode(
+>{!! json_encode(
     $petaLaporan,
     JSON_HEX_TAG
     | JSON_HEX_AMP
     | JSON_HEX_APOS
     | JSON_HEX_QUOT
-) }}</script>
+) !!}</script>
 
 
 <script
