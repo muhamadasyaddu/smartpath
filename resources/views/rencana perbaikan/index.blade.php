@@ -4,151 +4,346 @@
 
 @section('content')
 
-<div class="p-6">
+@php
+
+    $formatRupiah =
+        function ($value) {
+
+            return 'Rp ' .
+                number_format(
+                    (float) $value,
+                    0,
+                    ',',
+                    '.'
+                );
+
+        };
+
+@endphp
+
+
+<div class="space-y-6">
+
 
     {{-- ==========================================================
          HEADER
     =========================================================== --}}
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-slate-800">
-            Rencana Perbaikan
-        </h1>
+    <div
+        class="flex flex-col gap-4
+               lg:flex-row
+               lg:items-end
+               lg:justify-between"
+    >
 
-        <p class="text-sm text-slate-500 mt-1">
-            Daftar laporan terverifikasi yang menjadi bahan pertimbangan
-            dalam perencanaan perbaikan infrastruktur.
-        </p>
+        <div>
+
+            <div
+                class="mb-2 flex items-center gap-2
+                       text-xs font-medium
+                       text-slate-500"
+            >
+
+                <span>
+                    Pemerintah
+                </span>
+
+                <span aria-hidden="true">
+                    /
+                </span>
+
+                <span class="text-emerald-700">
+                    Rencana Perbaikan
+                </span>
+
+            </div>
+
+
+            <h1
+                class="text-2xl font-bold
+                       tracking-tight
+                       text-slate-900"
+            >
+                Rencana Perbaikan
+            </h1>
+
+
+            <p
+                class="mt-1 max-w-3xl
+                       text-sm leading-6
+                       text-slate-500"
+            >
+                Kelola rencana penanganan berdasarkan laporan
+                terverifikasi dan skor prioritas SmartPath.
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ route('dinas.peta') }}"
+            class="inline-flex w-fit
+                   items-center gap-2
+                   rounded-lg
+                   border border-slate-200
+                   bg-white
+                   px-4 py-2.5
+                   text-xs font-semibold
+                   text-slate-700
+                   shadow-sm
+                   transition
+                   hover:bg-slate-50
+                   focus:outline-none
+                   focus:ring-2
+                   focus:ring-emerald-500/30"
+        >
+
+            <i
+                class="fa-solid fa-map-location-dot
+                       text-emerald-700"
+                aria-hidden="true"
+            ></i>
+
+            Buka Peta Infrastruktur
+
+        </a>
+
     </div>
 
 
     {{-- ==========================================================
          STATISTIK
     =========================================================== --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+    <section
+        class="grid grid-cols-1
+               gap-4
+               sm:grid-cols-2
+               xl:grid-cols-5"
+        aria-label="Ringkasan rencana perbaikan"
+    >
 
-        {{-- Total Rencana --}}
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500">
-                        Total Rencana
-                    </p>
+        @foreach([
 
-                    <h2 class="text-2xl font-bold text-slate-800 mt-1">
-                        {{ $totalRencana }}
-                    </h2>
+            [
+                'label' => 'Perlu Ditindaklanjuti',
+                'value' => $totalLaporan,
+                'note' => 'laporan terverifikasi',
+                'icon' => 'fa-list-check',
+                'box' => 'bg-slate-100',
+                'iconColor' => 'text-slate-700'
+            ],
+
+            [
+                'label' => 'Belum Ada Rencana',
+                'value' => $belumAdaRencana,
+                'note' => 'menunggu penjadwalan',
+                'icon' => 'fa-clipboard-question',
+                'box' => 'bg-amber-50',
+                'iconColor' => 'text-amber-600'
+            ],
+
+            [
+                'label' => 'Dalam Perbaikan',
+                'value' => $dalamPerbaikan,
+                'note' => 'sedang ditangani',
+                'icon' => 'fa-screwdriver-wrench',
+                'box' => 'bg-blue-50',
+                'iconColor' => 'text-blue-600'
+            ],
+
+            [
+                'label' => 'Terlambat',
+                'value' => $terlambat,
+                'note' => 'melewati target',
+                'icon' => 'fa-clock',
+                'box' => 'bg-red-50',
+                'iconColor' => 'text-red-600'
+            ],
+
+            [
+                'label' => 'Selesai',
+                'value' => $selesai,
+                'note' => 'penanganan selesai',
+                'icon' => 'fa-circle-check',
+                'box' => 'bg-emerald-50',
+                'iconColor' => 'text-emerald-600'
+            ]
+
+        ] as $card)
+
+            <div
+                class="rounded-xl
+                       border border-slate-200
+                       bg-white
+                       p-4
+                       shadow-sm"
+            >
+
+                <div
+                    class="flex items-start
+                           justify-between gap-3"
+                >
+
+                    <div>
+
+                        <p
+                            class="text-xs
+                                   font-medium
+                                   text-slate-500"
+                        >
+                            {{ $card['label'] }}
+                        </p>
+
+                        <p
+                            class="mt-2
+                                   text-2xl font-bold
+                                   text-slate-900"
+                        >
+                            {{ $card['value'] }}
+                        </p>
+
+                        <p
+                            class="mt-1
+                                   text-[11px]
+                                   text-slate-500"
+                        >
+                            {{ $card['note'] }}
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        class="flex h-9 w-9
+                               shrink-0
+                               items-center
+                               justify-center
+                               rounded-lg
+                               {{ $card['box'] }}
+                               {{ $card['iconColor'] }}"
+                    >
+
+                        <i
+                            class="fa-solid
+                                   {{ $card['icon'] }}"
+                            aria-hidden="true"
+                        ></i>
+
+                    </span>
+
                 </div>
 
-                <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center">
-                    <i
-                        class="fa-solid fa-clipboard-list text-emerald-500 text-lg"
-                        aria-hidden="true"
-                    ></i>
-                </div>
             </div>
-        </div>
 
+        @endforeach
 
-        {{-- Belum Dimulai --}}
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500">
-                        Belum Dimulai
-                    </p>
-
-                    <h2 class="text-2xl font-bold text-slate-800 mt-1">
-                        {{ $belumDimulai }}
-                    </h2>
-                </div>
-
-                <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center">
-                    <i
-                        class="fa-solid fa-clock text-amber-500 text-lg"
-                        aria-hidden="true"
-                    ></i>
-                </div>
-            </div>
-        </div>
-
-
-        {{-- Dalam Perbaikan --}}
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500">
-                        Dalam Perbaikan
-                    </p>
-
-                    <h2 class="text-2xl font-bold text-slate-800 mt-1">
-                        {{ $dalamPerbaikan }}
-                    </h2>
-                </div>
-
-                <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <i
-                        class="fa-solid fa-screwdriver-wrench text-blue-500 text-lg"
-                        aria-hidden="true"
-                    ></i>
-                </div>
-            </div>
-        </div>
-
-
-        {{-- Selesai --}}
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500">
-                        Selesai
-                    </p>
-
-                    <h2 class="text-2xl font-bold text-slate-800 mt-1">
-                        {{ $selesai }}
-                    </h2>
-                </div>
-
-                <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center">
-                    <i
-                        class="fa-solid fa-circle-check text-emerald-500 text-lg"
-                        aria-hidden="true"
-                    ></i>
-                </div>
-            </div>
-        </div>
-
-    </div>
+    </section>
 
 
     {{-- ==========================================================
-         DAFTAR LAPORAN
+         TABLE
     =========================================================== --}}
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div
+        class="rounded-xl
+               border border-slate-200
+               bg-white
+               shadow-sm"
+    >
 
-        {{-- Header --}}
-        <div class="px-6 py-5 border-b border-slate-200">
+        <div
+            class="border-b
+                   border-slate-100
+                   px-5 py-5"
+        >
 
-            <h2 class="text-lg font-semibold text-slate-800">
-                Daftar Laporan dan Rencana Perbaikan
-            </h2>
-
-            <p class="text-sm text-slate-500 mt-1">
-                Laporan yang telah diverifikasi dan memiliki skor prioritas.
-            </p>
-
-
-            {{-- Filter Status --}}
-            <form
-                method="GET"
-                action="{{ route('dinas.rencana-perbaikan.index') }}"
-                class="mt-4 flex flex-col sm:flex-row sm:items-center gap-3"
+            <div
+                class="flex flex-col gap-4
+                       xl:flex-row
+                       xl:items-end
+                       xl:justify-between"
             >
 
-                <div class="w-full sm:w-64">
+                <div>
+
+                    <h2
+                        class="text-sm
+                               font-bold
+                               text-slate-900"
+                    >
+                        Antrian Perbaikan Infrastruktur
+                    </h2>
+
+                    <p
+                        class="mt-1
+                               text-xs
+                               leading-5
+                               text-slate-500"
+                    >
+                        Urutan utama mengikuti skor prioritas
+                        WSM yang telah dihitung sistem.
+                    </p>
+
+                </div>
+
+
+                {{-- FILTER --}}
+                <form
+                    method="GET"
+                    action="{{ route('dinas.rencana-perbaikan.index') }}"
+                    class="grid grid-cols-1
+                           gap-2
+                           sm:grid-cols-[minmax(220px,1fr)_190px_auto]"
+                >
 
                     <label
-                        for="status"
                         class="sr-only"
+                        for="q"
+                    >
+                        Cari laporan
+                    </label>
+
+                    <div
+                        class="relative"
+                    >
+
+                        <i
+                            class="fa-solid
+                                   fa-magnifying-glass
+                                   pointer-events-none
+                                   absolute
+                                   left-3 top-1/2
+                                   -translate-y-1/2
+                                   text-xs
+                                   text-slate-400"
+                            aria-hidden="true"
+                        ></i>
+
+                        <input
+                            id="q"
+                            name="q"
+                            value="{{ $search }}"
+                            type="search"
+                            maxlength="100"
+                            placeholder="Cari kode, judul, kategori…"
+                            class="w-full
+                                   rounded-lg
+                                   border border-slate-200
+                                   bg-white
+                                   py-2.5 pl-9 pr-3
+                                   text-xs
+                                   text-slate-700
+                                   outline-none
+                                   transition
+                                   focus:border-emerald-500
+                                   focus:ring-2
+                                   focus:ring-emerald-500/20"
+                        >
+
+                    </div>
+
+
+                    <label
+                        class="sr-only"
+                        for="status"
                     >
                         Filter status
                     </label>
@@ -156,423 +351,863 @@
                     <select
                         id="status"
                         name="status"
-                        onchange="this.form.submit()"
-                        class="w-full px-4 py-3
+                        class="rounded-lg
                                border border-slate-200
-                               rounded-xl
                                bg-white
-                               text-sm text-slate-700
-                               focus:outline-none
+                               px-3 py-2.5
+                               text-xs
+                               text-slate-700
+                               outline-none
+                               focus:border-emerald-500
                                focus:ring-2
-                               focus:ring-emerald-500
-                               focus:border-emerald-500"
+                               focus:ring-emerald-500/20"
                     >
 
                         <option value="">
-                            Semua Status
+                            Semua status
                         </option>
 
                         <option
                             value="belum_ada_rencana"
-                            {{ request('status') === 'belum_ada_rencana' ? 'selected' : '' }}
+                            @selected(
+                                $statusFilter ===
+                                'belum_ada_rencana'
+                            )
                         >
                             Belum Ada Rencana
                         </option>
 
                         <option
                             value="belum_dimulai"
-                            {{ request('status') === 'belum_dimulai' ? 'selected' : '' }}
+                            @selected(
+                                $statusFilter ===
+                                'belum_dimulai'
+                            )
                         >
                             Belum Dimulai
                         </option>
 
                         <option
                             value="dalam_perbaikan"
-                            {{ request('status') === 'dalam_perbaikan' ? 'selected' : '' }}
+                            @selected(
+                                $statusFilter ===
+                                'dalam_perbaikan'
+                            )
                         >
                             Dalam Perbaikan
                         </option>
 
                         <option
                             value="terlambat"
-                            {{ request('status') === 'terlambat' ? 'selected' : '' }}
+                            @selected(
+                                $statusFilter ===
+                                'terlambat'
+                            )
                         >
                             Terlambat
                         </option>
 
                         <option
                             value="selesai"
-                            {{ request('status') === 'selesai' ? 'selected' : '' }}
+                            @selected(
+                                $statusFilter ===
+                                'selesai'
+                            )
                         >
                             Selesai
                         </option>
 
                     </select>
 
-                </div>
+
+                    <div class="flex gap-2">
+
+                        <button
+                            type="submit"
+                            class="inline-flex
+                                   items-center
+                                   justify-center
+                                   gap-2
+                                   rounded-lg
+                                   bg-emerald-700
+                                   px-4 py-2.5
+                                   text-xs
+                                   font-semibold
+                                   text-white
+                                   transition
+                                   hover:bg-emerald-800
+                                   focus:outline-none
+                                   focus:ring-2
+                                   focus:ring-emerald-500/30"
+                        >
+
+                            <i
+                                class="fa-solid fa-filter"
+                                aria-hidden="true"
+                            ></i>
+
+                            Filter
+
+                        </button>
 
 
-                {{-- Reset Filter --}}
-                @if(request('status'))
+                        @if(
+                            $search !== '' ||
+                            $statusFilter
+                        )
 
-                    <a
-                        href="{{ route('dinas.rencana-perbaikan.index') }}"
-                        class="inline-flex items-center justify-center gap-2
-                               px-4 py-3
-                               rounded-xl
-                               border border-slate-200
-                               bg-white
-                               text-sm font-medium
-                               text-slate-600
-                               hover:bg-slate-50
-                               transition"
-                    >
-                        <i
-                            class="fa-solid fa-rotate-left"
-                            aria-hidden="true"
-                        ></i>
+                            <a
+                                href="{{ route('dinas.rencana-perbaikan.index') }}"
+                                class="inline-flex
+                                       items-center
+                                       justify-center
+                                       rounded-lg
+                                       border border-slate-200
+                                       px-3 py-2.5
+                                       text-xs
+                                       font-semibold
+                                       text-slate-600
+                                       hover:bg-slate-50"
+                            >
+                                Reset
+                            </a>
 
-                        Reset
-                    </a>
+                        @endif
 
-                @endif
+                    </div>
 
-            </form>
+                </form>
+
+            </div>
 
         </div>
 
 
-        {{-- ======================================================
-             TABEL
-        ======================================================= --}}
-        <div class="overflow-x-auto">
+        {{-- TABLE --}}
+        <div
+            class="overflow-x-auto"
+        >
 
-            <table class="w-full text-sm">
+            <table
+                class="min-w-[1120px]
+                       w-full
+                       text-left text-xs"
+                aria-label="Daftar rencana perbaikan"
+            >
 
-                <thead class="bg-slate-50 border-b border-slate-200">
+                <thead
+                    class="border-b
+                           border-slate-100
+                           bg-slate-50
+                           text-[10px]
+                           uppercase
+                           tracking-wider
+                           text-slate-500"
+                >
+
                     <tr>
 
-                        <th class="px-5 py-4 text-left font-semibold text-slate-600">
-                            No
-                        </th>
-
-                        <th class="px-5 py-4 text-left font-semibold text-slate-600">
-                            Kode
-                        </th>
-
-                        <th class="px-5 py-4 text-left font-semibold text-slate-600">
+                        <th
+                            class="px-5 py-3
+                                   font-semibold"
+                        >
                             Laporan
                         </th>
 
-                        <th class="px-5 py-4 text-left font-semibold text-slate-600">
-                            Kategori
+                        <th
+                            class="px-5 py-3
+                                   font-semibold"
+                        >
+                            Lokasi
                         </th>
 
-                        <th class="px-5 py-4 text-left font-semibold text-slate-600">
+                        <th
+                            class="px-5 py-3
+                                   text-center
+                                   font-semibold"
+                        >
                             Prioritas
                         </th>
 
-                        <th class="px-5 py-4 text-left font-semibold text-slate-600">
-                            Jadwal Perbaikan
+                        <th
+                            class="px-5 py-3
+                                   font-semibold"
+                        >
+                            Rencana & Jadwal
                         </th>
 
-                        <th class="px-5 py-4 text-left font-semibold text-slate-600">
-                            Status Rencana
+                        <th
+                            class="px-5 py-3
+                                   font-semibold"
+                        >
+                            Anggaran
                         </th>
 
-                        <th class="px-5 py-4 text-center font-semibold text-slate-600">
+                        <th
+                            class="px-5 py-3
+                                   font-semibold"
+                        >
+                            Status
+                        </th>
+
+                        <th
+                            class="px-5 py-3
+                                   text-center
+                                   font-semibold"
+                        >
                             Aksi
                         </th>
 
                     </tr>
+
                 </thead>
 
 
-                <tbody class="divide-y divide-slate-100">
+                <tbody
+                    class="divide-y
+                           divide-slate-100"
+                >
 
-                    @forelse($laporan as $index => $item)
+                @forelse($laporan as $item)
 
-                        @php
-                            $skor = (float) $item->skor_prioritas;
-                            $rencana = $item->rencanaPerbaikan;
+                    @php
 
-                            $status = $rencana->status_otomatis ?? null;
-                            $terlambat = $rencana->terlambat ?? false;
+                        $rencana =
+                            $item->rencanaPerbaikan;
 
-                            if ($skor >= 70) {
-                                $labelPrioritas = 'Tinggi';
-                                $prioritasClass = 'bg-red-50 text-red-600';
-                            } elseif ($skor >= 40) {
-                                $labelPrioritas = 'Sedang';
-                                $prioritasClass = 'bg-amber-50 text-amber-600';
-                            } else {
-                                $labelPrioritas = 'Rendah';
-                                $prioritasClass = 'bg-emerald-50 text-emerald-600';
-                            }
-
-                            /*
-                            |--------------------------------------------------
-                            | Status tampilan
-                            |--------------------------------------------------
-                            | Terlambat hanya indikator tampilan.
-                            | Status database tetap dalam_perbaikan.
-                            */
-                            if (!$rencana) {
-                                $statusLabel = 'Belum Ada Rencana';
-                                $statusClass = 'bg-slate-100 text-slate-600';
-                                $statusIcon = 'fa-regular fa-folder-open';
-                            } elseif ($terlambat) {
-                                $statusLabel = 'Terlambat';
-                                $statusClass = 'bg-red-50 text-red-600';
-                                $statusIcon = 'fa-solid fa-triangle-exclamation';
-                            } elseif ($status === 'belum_dimulai') {
-                                $statusLabel = 'Belum Dimulai';
-                                $statusClass = 'bg-amber-50 text-amber-600';
-                                $statusIcon = 'fa-solid fa-clock';
-                            } elseif ($status === 'dalam_perbaikan') {
-                                $statusLabel = 'Dalam Perbaikan';
-                                $statusClass = 'bg-blue-50 text-blue-600';
-                                $statusIcon = 'fa-solid fa-screwdriver-wrench';
-                            } elseif ($status === 'selesai') {
-                                $statusLabel = 'Selesai';
-                                $statusClass = 'bg-emerald-50 text-emerald-600';
-                                $statusIcon = 'fa-solid fa-circle-check';
-                            } else {
-                                $statusLabel = '-';
-                                $statusClass = 'bg-slate-100 text-slate-500';
-                                $statusIcon = 'fa-solid fa-minus';
-                            }
-                        @endphp
+                        $score =
+                            (float)
+                            $item->skor_prioritas;
 
 
-                        <tr class="hover:bg-slate-50 transition align-top">
+                        if ($score >= 70) {
 
-                            {{-- No --}}
-                            <td class="px-5 py-5 text-slate-700">
-                                {{ $laporan->firstItem() + $index }}
-                            </td>
+                            $priorityLabel =
+                                'Tinggi';
 
+                            $priorityClass =
+                                'bg-red-50 text-red-700 border-red-100';
 
-                            {{-- Kode --}}
-                            <td class="px-5 py-5">
-                                <span class="font-medium text-slate-800 whitespace-nowrap">
-                                    {{ $item->kode_laporan }}
-                                </span>
-                            </td>
+                        } elseif ($score >= 40) {
 
+                            $priorityLabel =
+                                'Sedang';
 
-                            {{-- Laporan --}}
-                            <td class="px-5 py-5">
-                                <div class="max-w-sm">
+                            $priorityClass =
+                                'bg-amber-50 text-amber-700 border-amber-100';
 
-                                    <p class="font-medium text-slate-800">
-                                        {{ $item->judul }}
-                                    </p>
+                        } else {
 
-                                    <p class="text-xs text-slate-500 mt-1">
-                                        {{ $item->alamat_lengkap ?? 'Lokasi tidak tersedia' }}
-                                    </p>
+                            $priorityLabel =
+                                'Rendah';
 
-                                </div>
-                            </td>
+                            $priorityClass =
+                                'bg-emerald-50 text-emerald-700 border-emerald-100';
+
+                        }
 
 
-                            {{-- Kategori --}}
-                            <td class="px-5 py-5 text-slate-700">
-                                {{ $item->kategoriHambatan?->nama ?? '-' }}
-                            </td>
+                        if (!$rencana) {
+
+                            $statusLabel =
+                                'Belum Ada Rencana';
+
+                            $statusClass =
+                                'bg-slate-100 text-slate-600 border-slate-200';
+
+                            $statusIcon =
+                                'fa-clipboard-question';
+
+                        } elseif (
+                            $rencana->terlambat
+                        ) {
+
+                            $statusLabel =
+                                'Terlambat';
+
+                            $statusClass =
+                                'bg-red-50 text-red-700 border-red-100';
+
+                            $statusIcon =
+                                'fa-clock';
+
+                        } else {
+
+                            $statusLabel =
+                                $rencana->statusLabel;
 
 
-                            {{-- Prioritas --}}
-                            <td class="px-5 py-5">
+                            $statusClass =
+                                match (
+                                    $rencana->status_otomatis
+                                ) {
 
-                                <span
-                                    class="inline-flex items-center px-2.5 py-1
-                                           rounded-full text-xs font-semibold
-                                           {{ $prioritasClass }}"
-                                >
-                                    {{ $labelPrioritas }}
-                                </span>
+                                    'dalam_perbaikan' =>
+                                        'bg-blue-50 text-blue-700 border-blue-100',
 
-                                <p class="text-xs text-slate-500 mt-1">
-                                    Skor:
-                                    {{ number_format($skor, 2) }}
-                                </p>
+                                    'selesai' =>
+                                        'bg-emerald-50 text-emerald-700 border-emerald-100',
 
-                            </td>
+                                    default =>
+                                        'bg-amber-50 text-amber-700 border-amber-100',
+
+                                };
 
 
-                            {{-- Jadwal Perbaikan --}}
-                            <td class="px-5 py-5">
+                            $statusIcon =
+                                match (
+                                    $rencana->status_otomatis
+                                ) {
 
-                                @if($rencana)
+                                    'dalam_perbaikan' =>
+                                        'fa-screwdriver-wrench',
 
-                                    <div class="space-y-1 text-xs">
+                                    'selesai' =>
+                                        'fa-circle-check',
 
-                                        <div>
-                                            <span class="text-slate-500">
-                                                Mulai:
-                                            </span>
+                                    default =>
+                                        'fa-clock',
 
-                                            <span class="font-medium text-slate-700">
-                                                {{ $rencana->tanggal_mulai
-                                                    ? $rencana->tanggal_mulai->format('d M Y')
-                                                    : '-' }}
-                                            </span>
-                                        </div>
+                                };
 
-                                        <div>
-                                            <span class="text-slate-500">
-                                                Target:
-                                            </span>
+                        }
 
-                                            <span class="font-medium text-slate-700">
-                                                {{ $rencana->target_selesai
-                                                    ? $rencana->target_selesai->format('d M Y')
-                                                    : '-' }}
-                                            </span>
-                                        </div>
-
-                                        <div>
-                                            <span class="text-slate-500">
-                                                Selesai:
-                                            </span>
-
-                                            <span class="font-medium text-slate-700">
-                                                {{ $rencana->tanggal_selesai
-                                                    ? $rencana->tanggal_selesai->format('d M Y')
-                                                    : '-' }}
-                                            </span>
-                                        </div>
-
-                                    </div>
-
-                                @else
-
-                                    <span class="text-slate-400">
-                                        Belum ada jadwal
-                                    </span>
-
-                                @endif
-
-                            </td>
+                    @endphp
 
 
-                            {{-- Status Rencana --}}
-                            <td class="px-5 py-5">
+                    <tr
+                        class="align-top
+                               transition
+                               hover:bg-slate-50/80"
+                    >
+
+                        {{-- LAPORAN --}}
+                        <td class="px-5 py-4">
+
+                            <div
+                                class="flex
+                                       min-w-[250px]
+                                       items-start
+                                       gap-3"
+                            >
 
                                 <span
-                                    class="inline-flex items-center gap-1.5
-                                           px-2.5 py-1
-                                           rounded-full
-                                           text-xs font-medium
-                                           {{ $statusClass }}"
+                                    class="mt-0.5
+                                           flex h-9 w-9
+                                           shrink-0
+                                           items-center
+                                           justify-center
+                                           rounded-lg
+                                           bg-slate-100
+                                           text-slate-600"
                                 >
+
                                     <i
-                                        class="{{ $statusIcon }}"
+                                        class="fa-solid
+                                               fa-location-dot"
                                         aria-hidden="true"
                                     ></i>
 
-                                    {{ $statusLabel }}
                                 </span>
 
-                            </td>
+
+                                <div
+                                    class="min-w-0"
+                                >
+
+                                    <p
+                                        class="font-mono
+                                               text-[10px]
+                                               font-bold
+                                               text-slate-500"
+                                    >
+                                        {{ $item->kode_laporan }}
+                                    </p>
 
 
-                            {{-- Aksi --}}
-                            <td class="px-5 py-5">
+                                    <p
+                                        class="mt-1
+                                               font-semibold
+                                               leading-5
+                                               text-slate-800"
+                                    >
+                                        {{ $item->judul }}
+                                    </p>
 
-                                <div class="flex items-center justify-center">
 
-                                    @if($rencana)
+                                    <p
+                                        class="mt-1
+                                               text-[11px]
+                                               text-slate-500"
+                                    >
+                                        {{
+                                            $item->kategoriHambatan?->nama
+                                            ??
+                                            'Kategori tidak tersedia'
+                                        }}
+                                    </p>
 
-                                        <a
-                                            href="{{ route(
-                                                'dinas.rencana-perbaikan.edit',
-                                                $rencana->id
-                                            ) }}"
-                                            class="inline-flex items-center gap-2
-                                                   px-3 py-2
-                                                   rounded-lg
-                                                   bg-emerald-700
-                                                   text-white
-                                                   text-xs font-medium
-                                                   hover:bg-emerald-800
-                                                   transition"
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        {{-- LOKASI --}}
+                        <td class="px-5 py-4">
+
+                            <p
+                                class="max-w-[210px]
+                                       leading-5
+                                       text-slate-700"
+                            >
+                                {{
+                                    $item->alamat_lengkap
+                                    ?:
+                                    'Alamat tidak tersedia'
+                                }}
+                            </p>
+
+
+                            <p
+                                class="mt-1
+                                       text-[11px]
+                                       text-slate-400"
+                            >
+                                {{
+                                    $item->wilayah?->nama
+                                    ??
+                                    'Wilayah tidak tersedia'
+                                }}
+                            </p>
+
+                        </td>
+
+
+                        {{-- PRIORITAS --}}
+                        <td
+                            class="px-5 py-4
+                                   text-center"
+                        >
+
+                            <span
+                                class="inline-flex
+                                       items-center
+                                       rounded-full
+                                       border
+                                       px-2.5 py-1
+                                       text-[10px]
+                                       font-bold
+                                       {{ $priorityClass }}"
+                            >
+                                {{ $priorityLabel }}
+                            </span>
+
+
+                            <p
+                                class="mt-1
+                                       font-semibold
+                                       text-slate-700"
+                            >
+                                {{ number_format(
+                                    $score,
+                                    2
+                                ) }}
+                            </p>
+
+                        </td>
+
+
+                        {{-- RENCANA --}}
+                        <td class="px-5 py-4">
+
+                            @if($rencana)
+
+                                <p
+                                    class="max-w-[260px]
+                                           font-medium
+                                           leading-5
+                                           text-slate-800"
+                                >
+                                    {{
+                                        \Illuminate\Support\Str::limit(
+                                            $rencana->tindakan,
+                                            80
+                                        )
+                                    }}
+                                </p>
+
+
+                                <div
+                                    class="mt-2
+                                           space-y-1
+                                           text-[11px]
+                                           text-slate-500"
+                                >
+
+                                    <p>
+                                        Mulai:
+
+                                        <span
+                                            class="font-medium
+                                                   text-slate-700"
                                         >
-                                            <i
-                                                class="fa-solid fa-pen"
-                                                aria-hidden="true"
-                                            ></i>
+                                            {{
+                                                $rencana
+                                                    ->tanggal_mulai
+                                                    ?->format(
+                                                        'd M Y'
+                                                    )
+                                                ??
+                                                '-'
+                                            }}
+                                        </span>
+                                    </p>
 
-                                            Edit
-                                        </a>
 
-                                    @else
+                                    <p>
+                                        Target:
 
-                                        <a
-                                            href="{{ route(
-                                                'dinas.rencana-perbaikan.create',
-                                                $item->id
-                                            ) }}"
-                                            class="inline-flex items-center gap-2
-                                                   px-3 py-2
-                                                   rounded-lg
-                                                   bg-emerald-600
-                                                   text-white
-                                                   text-xs font-medium
-                                                   hover:bg-emerald-700
-                                                   transition"
+                                        <span
+                                            class="font-medium
+                                            {{
+                                                $rencana->terlambat
+                                                    ? 'text-red-700'
+                                                    : 'text-slate-700'
+                                            }}"
                                         >
-                                            <i
-                                                class="fa-solid fa-plus"
-                                                aria-hidden="true"
-                                            ></i>
+                                            {{
+                                                $rencana
+                                                    ->target_selesai
+                                                    ?->format(
+                                                        'd M Y'
+                                                    )
+                                                ??
+                                                '-'
+                                            }}
+                                        </span>
+                                    </p>
 
-                                            Buat Rencana
-                                        </a>
+
+                                    @if(
+                                        $rencana->tanggal_selesai
+                                    )
+
+                                        <p>
+
+                                            Selesai:
+
+                                            <span
+                                                class="font-medium
+                                                       text-emerald-700"
+                                            >
+                                                {{
+                                                    $rencana
+                                                        ->tanggal_selesai
+                                                        ->format(
+                                                            'd M Y'
+                                                        )
+                                                }}
+                                            </span>
+
+                                        </p>
 
                                     @endif
 
                                 </div>
 
-                            </td>
+                            @else
 
-                        </tr>
+                                <p
+                                    class="text-slate-400"
+                                >
+                                    Belum ada rencana
+                                    penanganan.
+                                </p>
 
-                    @empty
+                                <p
+                                    class="mt-1
+                                           text-[11px]
+                                           text-slate-400"
+                                >
+                                    Laporan tersedia untuk
+                                    dibuatkan jadwal.
+                                </p>
 
-                        <tr>
+                            @endif
 
-                            <td
-                                colspan="8"
-                                class="px-5 py-12 text-center text-slate-500"
-                            >
+                        </td>
 
-                                <div class="flex flex-col items-center">
 
-                                    <i
-                                        class="fa-regular fa-folder-open
-                                               text-4xl text-slate-300 mb-3"
-                                        aria-hidden="true"
-                                    ></i>
+                        {{-- ANGGARAN --}}
+                        <td class="px-5 py-4">
 
-                                    <p class="font-medium">
-                                        Belum ada laporan yang sesuai.
-                                    </p>
+                            @if($rencana)
 
-                                    <p class="text-xs mt-1">
-                                        Coba ubah filter status atau tunggu
-                                        hingga tersedia laporan terverifikasi.
-                                    </p>
+                                <p
+                                    class="font-semibold
+                                           text-slate-800"
+                                >
+                                    {{
+                                        $formatRupiah(
+                                            $rencana
+                                                ->estimasi_anggaran
+                                        )
+                                    }}
+                                </p>
+
+
+                                <p
+                                    class="mt-1
+                                           text-[11px]
+                                           text-slate-500"
+                                >
+                                    Realisasi:
+
+                                    {{
+                                        $formatRupiah(
+                                            $rencana
+                                                ->realisasi_anggaran
+                                        )
+                                    }}
+                                </p>
+
+
+                                @php
+
+                                    $persentaseAnggaran =
+                                        $rencana->estimasi_anggaran > 0
+
+                                            ? min(
+                                                100,
+                                                round(
+                                                    (
+                                                        (float)
+                                                        $rencana
+                                                            ->realisasi_anggaran
+
+                                                        /
+
+                                                        (float)
+                                                        $rencana
+                                                            ->estimasi_anggaran
+                                                    )
+                                                    * 100
+                                                )
+                                            )
+
+                                            : 0;
+
+                                @endphp
+
+
+                                <div
+                                    class="mt-2
+                                           h-1.5
+                                           w-28
+                                           overflow-hidden
+                                           rounded-full
+                                           bg-slate-100"
+                                >
+
+                                    <span
+                                        class="block
+                                               h-full
+                                               rounded-full
+                                               bg-emerald-600"
+                                        style="
+                                            width:
+                                            {{ $persentaseAnggaran }}%
+                                        "
+                                    ></span>
 
                                 </div>
 
-                            </td>
+                            @else
 
-                        </tr>
+                                <span
+                                    class="text-slate-400"
+                                >
+                                    Belum ditetapkan
+                                </span>
 
-                    @endforelse
+                            @endif
+
+                        </td>
+
+
+                        {{-- STATUS --}}
+                        <td class="px-5 py-4">
+
+                            <span
+                                class="inline-flex
+                                       items-center
+                                       gap-1.5
+                                       rounded-full
+                                       border
+                                       px-2.5 py-1
+                                       text-[10px]
+                                       font-semibold
+                                       {{ $statusClass }}"
+                            >
+
+                                <i
+                                    class="fa-solid
+                                           {{ $statusIcon }}"
+                                    aria-hidden="true"
+                                ></i>
+
+                                {{ $statusLabel }}
+
+                            </span>
+
+                        </td>
+
+
+                        {{-- AKSI --}}
+                        <td
+                            class="px-5 py-4
+                                   text-center"
+                        >
+
+                            @if($rencana)
+
+                                <a
+                                    href="{{
+                                        route(
+                                            'dinas.rencana-perbaikan.edit',
+                                            $rencana->id
+                                        )
+                                    }}"
+                                    class="inline-flex
+                                           items-center
+                                           gap-2
+                                           rounded-lg
+                                           bg-emerald-700
+                                           px-3 py-2
+                                           text-[11px]
+                                           font-semibold
+                                           text-white
+                                           transition
+                                           hover:bg-emerald-800
+                                           focus:outline-none
+                                           focus:ring-2
+                                           focus:ring-emerald-500/30"
+                                >
+
+                                    <i
+                                        class="fa-solid fa-pen"
+                                        aria-hidden="true"
+                                    ></i>
+
+                                    Edit
+
+                                </a>
+
+                            @else
+
+                                <a
+                                    href="{{
+                                        route(
+                                            'dinas.rencana-perbaikan.create',
+                                            $item->id
+                                        )
+                                    }}"
+                                    class="inline-flex
+                                           items-center
+                                           gap-2
+                                           rounded-lg
+                                           bg-emerald-600
+                                           px-3 py-2
+                                           text-[11px]
+                                           font-semibold
+                                           text-white
+                                           transition
+                                           hover:bg-emerald-700
+                                           focus:outline-none
+                                           focus:ring-2
+                                           focus:ring-emerald-500/30"
+                                >
+
+                                    <i
+                                        class="fa-solid fa-plus"
+                                        aria-hidden="true"
+                                    ></i>
+
+                                    Buat Rencana
+
+                                </a>
+
+                            @endif
+
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="px-5 py-14
+                                   text-center"
+                        >
+
+                            <div
+                                class="mx-auto
+                                       flex max-w-sm
+                                       flex-col
+                                       items-center"
+                            >
+
+                                <span
+                                    class="flex h-12 w-12
+                                           items-center
+                                           justify-center
+                                           rounded-xl
+                                           bg-slate-100
+                                           text-slate-400"
+                                >
+
+                                    <i
+                                        class="fa-regular
+                                               fa-folder-open"
+                                        aria-hidden="true"
+                                    ></i>
+
+                                </span>
+
+
+                                <p
+                                    class="mt-3
+                                           text-sm
+                                           font-semibold
+                                           text-slate-700"
+                                >
+                                    Tidak ada data yang sesuai
+                                </p>
+
+
+                                <p
+                                    class="mt-1
+                                           text-xs
+                                           leading-5
+                                           text-slate-500"
+                                >
+                                    Ubah kata kunci atau filter
+                                    status untuk melihat laporan
+                                    lainnya.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                @endforelse
 
                 </tbody>
 
@@ -581,13 +1216,17 @@
         </div>
 
 
-        {{-- ==========================================================
-             PAGINATION
-        =========================================================== --}}
+        {{-- PAGINATION --}}
         @if($laporan->hasPages())
 
-            <div class="px-5 py-4 border-t border-slate-200">
+            <div
+                class="border-t
+                       border-slate-100
+                       px-5 py-4"
+            >
+
                 {{ $laporan->links() }}
+
             </div>
 
         @endif

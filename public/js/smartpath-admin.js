@@ -33,26 +33,41 @@
 
     let reports = [];
 
+async function loadHomeReports() {
+
     try {
 
-        const parsed =
-            JSON.parse(
-                dataElement?.textContent || '[]'
+        const response =
+            await fetch(
+                '{{ route("peta.data") }}',
+                {
+                    headers: {
+                        'Accept':
+                            'application/json'
+                    }
+                }
             );
 
+        if (!response.ok) {
+            throw new Error(
+                'Gagal mengambil data laporan.'
+            );
+        }
+
         reports =
-            Array.isArray(parsed)
-                ? parsed
-                : [];
+            await response.json();
+
+        renderHomeMarkers();
 
     } catch (error) {
 
         console.error(
-            'SmartPath: data peta tidak valid.',
+            'SmartPath Home Map:',
             error
         );
 
     }
+}
 
 
     const escapeHtml = (value) => {

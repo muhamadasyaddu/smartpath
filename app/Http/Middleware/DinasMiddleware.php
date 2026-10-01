@@ -9,18 +9,23 @@ use Symfony\Component\HttpFoundation\Response;
 class DinasMiddleware
 {
     /**
-     * Memastikan hanya administrator dan dinas yang dapat mengakses rute ini.
+     * Memastikan hanya petugas Dinas
+     * yang dapat mengakses area Dinas.
      */
-    public function handle(Request $request, Closure $next): Response
-    {
+    public function handle(
+        Request $request,
+        Closure $next
+    ): Response {
+
         if (!auth()->check()) {
             return redirect()->route('login');
         }
 
-        $user = auth()->user();
-
-        if (!$user->isAdmin() && !$user->isDinas()) {
-            abort(403, 'Akses ditolak. Hanya administrator dan dinas yang diizinkan.');
+        if (!auth()->user()->isDinas()) {
+            abort(
+                403,
+                'Akses ditolak. Halaman ini khusus untuk petugas Dinas.'
+            );
         }
 
         return $next($request);

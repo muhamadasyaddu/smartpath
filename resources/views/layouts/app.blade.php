@@ -16,6 +16,8 @@
     <!-- Leaflet CSS (Wajib dipanggil di Head agar peta tidak pecah/berantakan) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
+    <link rel="stylesheet" href="{{ asset('css/smartpath-accessibility.css') }}">
+
     <!-- Tailwind CSS (CDN Standalone) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>

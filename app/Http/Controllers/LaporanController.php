@@ -444,13 +444,20 @@ public function unduhPdf($id)
 
         $dataLama = $laporan->toArray();
 
+        /*
+        * Simpan ID parent sebelum soft delete.
+        * Ini penting karena setelah delete(), model tetap memiliki
+        * nilai atribut tetapi kita tidak perlu bergantung pada relasi.
+        */
+        $laporanIndukId = $laporan->laporan_induk_id;
+
         $laporan->delete();
 
         /*
-         * Jika child dihapus, jumlah pelapor parent harus disinkronkan.
-         */
-        if ($laporan->laporan_induk_id) {
-            $parent = Laporan::find($laporan->laporan_induk_id);
+        * Jika child dihapus, jumlah pelapor parent harus disinkronkan.
+        */
+        if ($laporanIndukId) {
+            $parent = Laporan::find($laporanIndukId);
 
             if ($parent) {
                 $this->syncParentReporterCount($parent);
@@ -471,6 +478,41 @@ public function unduhPdf($id)
             ->route('laporan.index')
             ->with('sukses', 'Laporan berhasil dihapus.');
     }
+
+    /**
+     * Detail laporan untuk kebutuhan operasional.
+     *
+     * Digunakan oleh:
+     * - Administrator
+     * - Dinas
+     * - Pemilik laporan
+     *
+     * Endpoint tetap menggunakan authorization agar
+     * pengguna biasa tidak dapat melihat laporan milik orang lain.
+     */
+    public function showDetail(Laporan $laporan)
+    {
+        $this->authorizeView($laporan);
+
+        $laporan->load([
+            'kategoriHambatan',
+            'pelapor',
+            'wilayah',
+            'fotoLaporan',
+            'verifikasi.admin',
+            'riwayatStatus.diubahOleh',
+            'laporanInduk',
+            'laporanAnak.pelapor',
+            'fasilitasTerdekat',
+            'rencanaPerbaikan',
+        ]);
+
+        return view(
+            'Dinas.laporan-detail',
+            compact('laporan')
+        );
+    }
+
 
     /**
      * Cari parent aktif dengan kategori sama dalam radius deduplikasi.
@@ -614,6 +656,9 @@ public function unduhPdf($id)
             abort(403, 'Anda tidak memiliki izin untuk melihat laporan ini.');
         }
     }
+
+
+
 
     /**
      * Hanya pemilik atau admin yang boleh mengubah laporan.

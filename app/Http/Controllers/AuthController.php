@@ -33,7 +33,7 @@ class AuthController extends Controller
          * Nama view disesuaikan dengan struktur folder
          * project yang sekarang.
          */
-        return view('auth.login');
+        return view('Auth.login');
     }
 
     /**
@@ -144,7 +144,7 @@ class AuthController extends Controller
             );
         }
 
-        return view('auth.register');
+        return view('Auth.register');
     }
 
     /**

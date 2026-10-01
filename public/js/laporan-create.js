@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const LOCATION_WARNING_ACCURACY = 100;
 
-    const LOCATION_MANUAL_RECOMMENDED = 500;
+    const LOCATION_MANUAL_RECOMMENDED = 50;
 
     const GPS_WATCH_TIMEOUT = 15000;
 

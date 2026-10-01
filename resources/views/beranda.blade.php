@@ -584,19 +584,19 @@
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-7">
                         <div class="flex items-center gap-4">
                             <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="1245">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Laporan Masuk<br>di wilayah Depok</p></div>
+                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="{{ $totalLaporan }}">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Laporan Masuk<br>di wilayah Depok</p></div>
                         </div>
                         <div class="flex items-center gap-4">
                             <div class="stat-icon"><i class="fa-solid fa-shield-halved text-emerald-300"></i></div>
-                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="876">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Laporan Diverifikasi<br>oleh tim SmartPath</p></div>
+                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="{{ $totalTerverifikasi }}">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Laporan Diverifikasi<br>oleh tim SmartPath</p></div>
                         </div>
                         <div class="flex items-center gap-4">
                             <div class="stat-icon"><i class="fa-solid fa-chart-column text-sky-300"></i></div>
-                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="342">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Lokasi dalam Proses<br>Perbaikan</p></div>
+                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="{{ $totalDalamPerbaikan }}">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Lokasi dalam Proses<br>Perbaikan</p></div>
                         </div>
                         <div class="flex items-center gap-4">
                             <div class="stat-icon"><i class="fa-solid fa-circle-check text-emerald-300"></i></div>
-                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="210">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Lokasi Selesai<br>Diperbaiki</p></div>
+                            <div><p class="text-2xl font-extrabold"><span class="animated-counter" data-target="{{ $totalSelesai }}">0</span>+</p><p class="text-[9px] text-slate-300 mt-1">Lokasi Selesai<br>Diperbaiki</p></div>
                         </div>
                     </div>
                 </div>
@@ -687,7 +687,7 @@
                         <li><a href="#beranda" class="hover:text-emerald-400 transition">Beranda</a></li>
                         <li><a href="{{ route('tentang') }}" class="hover:text-emerald-400 transition">Tentang</a></li>
                         <li><a href="#fitur" class="hover:text-emerald-400 transition">Fitur</a></li>
-                        <li><a href="{{ route('peta.fasilitas') }}" class="hover:text-emerald-400 transition">Peta</a></li>
+                        <li><a href="{{ route('peta.index') }}" class="hover:text-emerald-400 transition">Peta</a></li>
                         <li><a href="#cara-kerja" class="hover:text-emerald-400 transition">Cara Kerja</a></li>
                         <li><a href="#kontak" class="hover:text-emerald-400 transition">Kontak</a></li>
                     </ul>
@@ -841,19 +841,7 @@
         }).addTo(map);
 
         const reports = [
-            {lat:-6.4025,lng:106.7942,title:'Trotoar Rusak',location:'Jl. Margonda Raya, Depok',status:'Pending',color:'#f59e0b',time:'2 jam lalu'},
-            {lat:-6.4100,lng:106.8000,title:'Guiding Block Rusak',location:'Jl. Ciliwung, Depok',status:'Pending',color:'#f59e0b',time:'4 jam lalu'},
-            {lat:-6.3950,lng:106.7880,title:'Ramp Tidak Tersedia',location:'Jl. Kalimantan, Depok',status:'Pending',color:'#f59e0b',time:'6 jam lalu'},
-            {lat:-6.3915,lng:106.8218,title:'Akses Kursi Roda',location:'Jl. Juanda, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'5 jam lalu'},
-            {lat:-6.3800,lng:106.8100,title:'Trotoar Rusak',location:'Jl. Sumatra, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'1 hari lalu'},
-            {lat:-6.4180,lng:106.8250,title:'Guiding Block Rusak',location:'Jl. Papua, Depok',status:'Diverifikasi',color:'#2dd4bf',time:'2 hari lalu'},
-            {lat:-6.4280,lng:106.8050,title:'Ramp Tidak Tersedia',location:'Jl. Kartini, Depok',status:'Dalam Perbaikan',color:'#60a5fa',time:'2 hari lalu'},
-            {lat:-6.4120,lng:106.7920,title:'Trotoar Rusak',location:'Jl. Pahlawan, Depok',status:'Dalam Perbaikan',color:'#60a5fa',time:'3 hari lalu'},
-            {lat:-6.3855,lng:106.7920,title:'Guiding Block Rusak',location:'Jl. Nusantara, Depok',status:'Selesai',color:'#34d399',time:'3 hari lalu'},
-            {lat:-6.4050,lng:106.8150,title:'Akses Kursi Roda',location:'Jl. Diponegoro, Depok',status:'Selesai',color:'#34d399',time:'5 hari lalu'},
-            {lat:-6.4170,lng:106.8320,title:'Trotoar Rusak',location:'Jl. Raya Sawangan, Depok',status:'Ditolak',color:'#ef4444',time:'1 hari lalu'},
-            {lat:-6.3980,lng:106.8200,title:'Ramp Tidak Tersedia',location:'Jl. Merdeka, Depok',status:'Ditolak',color:'#ef4444',time:'2 hari lalu'}
-        ];
+        {{ route('peta.data') }}];
 
         reports.forEach(report => {
             const marker = L.marker([report.lat, report.lng], { icon: L.divIcon({

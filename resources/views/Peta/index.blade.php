@@ -781,6 +781,7 @@
             <div
                 id="nearby-list"
                 class="nearby-list"
+                 aria-label="Daftar hambatan aksesibilitas terdekat"
             >
 
                 <div
@@ -1145,8 +1146,62 @@ document.addEventListener('DOMContentLoaded', function () {
                 laporanLayer.addLayer(
                     marker
                 );
+
+
+                const markerElement =
+                    marker.getElement();
+
+                if (markerElement) {
+
+                    const priority =
+                        getPriority(
+                            report.skor_prioritas
+                        );
+
+                    markerElement.setAttribute(
+                        'role',
+                        'button'
+                    );
+
+                    markerElement.setAttribute(
+                        'tabindex',
+                        '0'
+                    );
+
+                    markerElement.setAttribute(
+                        'aria-label',
+                        `Laporan ${
+                            report.judul || 'hambatan aksesibilitas'
+                        }. Prioritas ${
+                            priority.label
+                        }. Skor ${
+                            report.skor_prioritas ?? 'belum dinilai'
+                        }.`
+                    );
+
+                    markerElement.addEventListener(
+                        'keydown',
+                        function (event) {
+
+                            if (
+                                event.key === 'Enter'
+                                ||
+                                event.key === ' '
+                            ) {
+
+                                event.preventDefault();
+
+                                marker.openPopup();
+
+                            }
+
+                        }
+                    );
+                }
             }
         );
+
+
 
 
         const highCount =
@@ -1458,7 +1513,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             position.coords.longitude;
 
                         const radius =
-                            500;
+                            50;
 
                         const nearby =
                             laporanData

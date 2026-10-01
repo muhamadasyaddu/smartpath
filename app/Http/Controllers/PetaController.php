@@ -30,6 +30,31 @@ class PetaController extends Controller
     }
 
     /**
+     * Halaman Peta Infrastruktur untuk role Dinas.
+     *
+     * Halaman ini menggunakan endpoint data peta yang sudah ada
+     * sehingga tidak terjadi duplikasi logika antara peta publik
+     * dan peta pemerintah.
+     */
+    public function indexDinas()
+    {
+        abort_unless(
+            auth()->check() && auth()->user()->isDinas(),
+            403
+        );
+
+        $kategoriHambatan = KategoriHambatan::query()
+            ->aktif()
+            ->urutTampil()
+            ->get();
+
+        return view(
+            'Dinas.peta',
+            compact('kategoriHambatan')
+        );
+    }
+
+    /**
      * Data laporan untuk Peta Interaktif.
      *
      * Endpoint publik hanya mengembalikan:
@@ -152,6 +177,9 @@ class PetaController extends Controller
                     'kategori_id' =>
                         $item->kategori_hambatan_id,
 
+                    'wilayah_id' =>
+                        $item->wilayah_id,
+
                     'kategori' =>
                         $item->kategoriHambatan?->nama,
 
@@ -257,8 +285,14 @@ class PetaController extends Controller
                     'alamat' =>
                         $fasilitas->alamat,
 
+                    'wilayah_id' =>
+                        $fasilitas->wilayah_id,
+
                     'wilayah' =>
                         $fasilitas->wilayah?->nama,
+
+                    'sumber_data' =>
+                        $fasilitas->sumber_data,
                 ];
             })
             ->values();

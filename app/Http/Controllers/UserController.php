@@ -23,7 +23,7 @@ class UserController extends Controller
         }
 
         $users = $query->orderBy('created_at', 'desc')->paginate(15);
-        return view('admin.user.index', compact('users'));
+        return view('Admin.user.index', compact('users'));
     }
 
     public function create()
@@ -42,7 +42,7 @@ class UserController extends Controller
 
         Audit::log(auth()->id(), 'buat_user', 'users', $user->id, null, ['nama_lengkap' => $user->nama_lengkap, 'email' => $user->email, 'peran' => $user->peran], "User baru: {$user->nama_lengkap}");
 
-        return redirect()->route('admin.user.index')->with('sukses', 'Pengguna berhasil ditambahkan.');
+        return redirect()->route('Admin.user.index')->with('sukses', 'Pengguna berhasil ditambahkan.');
     }
 
     public function show(User $user)
@@ -71,7 +71,7 @@ class UserController extends Controller
 
         Audit::log(auth()->id(), 'ubah_user', 'users', $user->id, $dataLama, ['nama_lengkap' => $user->nama_lengkap, 'email' => $user->email, 'peran' => $user->peran], "User diubah: {$user->nama_lengkap}");
 
-        return redirect()->route('admin.user.index')->with('sukses', 'Pengguna berhasil diperbarui.');
+        return redirect()->route('Admin.user.index')->with('sukses', 'Pengguna berhasil diperbarui.');
     }
 
     public function destroy(User $user)
@@ -81,6 +81,6 @@ class UserController extends Controller
         }
 
         $user->delete();
-        return redirect()->route('admin.user.index')->with('sukses', 'Pengguna berhasil dihapus.');
+        return redirect()->route('Admin.user.index')->with('sukses', 'Pengguna berhasil dihapus.');
     }
 }

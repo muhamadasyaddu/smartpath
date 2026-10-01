@@ -317,9 +317,9 @@ class DashboardController extends Controller
                     (int) $laporan->jumlah_pelapor,
 
                 'jarak_fasilitas_meter' =>
-                    $laporan->jarak_fasilitas_meter !== null
-                        ? (float) $laporan->jarak_fasilitas_meter
-                        : null,
+                $laporan->jarak_fasilitas_meter !== null
+                    ? (float) $laporan->jarak_fasilitas_meter
+                    : null,
 
                 'foto_utama' =>
                     $fotoUtama?->url,
@@ -620,40 +620,87 @@ class DashboardController extends Controller
                 })
                 ->values();
 
-        return response()->json([
-            'generated_at' =>
-                now()->toISOString(),
+                $statusChart = [
+            'menunggu_verifikasi' =>
+                (clone $laporanDasar)
+                    ->status('menunggu_verifikasi')
+                    ->count(),
 
-            'statistik' => [
-                'total' =>
-                    $total,
+            'diverifikasi' =>
+                (clone $laporanDasar)
+                    ->status('diverifikasi')
+                    ->count(),
 
-                'menunggu' =>
-                    $menunggu,
+            'dalam_perbaikan' =>
+                (clone $laporanDasar)
+                    ->status('dalam_perbaikan')
+                    ->count(),
 
-                'diverifikasi' =>
-                    $diverifikasi,
+            'selesai' =>
+                (clone $laporanDasar)
+                    ->status('selesai')
+                    ->count(),
 
-                'dalam_perbaikan' =>
-                    $dalamPerbaikan,
+            'ditolak' =>
+                (clone $laporanDasar)
+                    ->status('ditolak')
+                    ->count(),
+        ];
 
-                'selesai' =>
-                    $selesai,
+        $perKategori = KategoriHambatan::query()
+            ->aktif()
+            ->urutTampil()
+            ->withCount([
+                'laporan' => fn ($query) =>
+                    $query
+                        ->induk()
+                        ->aktif(),
+            ])
+            ->get()
+            ->sortByDesc('laporan_count')
+            ->take(5)
+            ->values();
 
-                'kritis' =>
-                    $prioritasTinggi,
-            ],
+        $trenRaw = (clone $laporanDasar)
+            ->where(
+                'created_at',
+                '>=',
+                now()->startOfDay()->subDays(6)
+            )
+            ->selectRaw(
+                'DATE(created_at) as tanggal, COUNT(*) as jumlah'
+            )
+            ->groupByRaw('DATE(created_at)')
+            ->orderBy('tanggal')
+            ->pluck(
+                'jumlah',
+                'tanggal'
+            );
 
-            'area_dipantau' =>
-                $areaDipantau,
+        $tren7Hari = collect(range(6, 0))
+            ->map(function ($daysAgo) use ($trenRaw) {
 
-            'peta_laporan' =>
-                $petaLaporan,
+                $date =
+                    now()
+                        ->startOfDay()
+                        ->subDays($daysAgo);
 
-            'top_prioritas' =>
-                $topPrioritas,
-        ]);
-    }
+                $key =
+                    $date->format('Y-m-d');
+
+                return [
+                    'tanggal' => $key,
+                    'label' =>
+                        $date->format('d M'),
+                    'jumlah' =>
+                        (int) (
+                            $trenRaw[$key] ?? 0
+                        ),
+                ];
+            })
+            ->values();
+
+        return response()->json([ 'generated_at' => now()->toISOString(), 'statistik' => [ 'total' => $total, 'menunggu' => $menunggu, 'diverifikasi' => $diverifikasi, 'dalam_perbaikan' => $dalamPerbaikan, 'selesai' => $selesai, 'kritis' => $prioritasTinggi, ], 'area_dipantau' => $areaDipantau, 'peta_laporan' => $petaLaporan, 'top_prioritas' => $topPrioritas, ]); }
     
     /**
      * Dashboard DINAS.

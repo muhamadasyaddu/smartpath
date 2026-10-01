@@ -298,6 +298,11 @@ Route::middleware(['auth', 'dinas'])
         )->name('dashboard');
 
         Route::get(
+            '/peta',
+            [PetaController::class, 'indexDinas']
+        )->name('peta');
+
+        Route::get(
             '/laporan',
             [LaporanController::class, 'indexDinas']
         )->name('laporan.index');

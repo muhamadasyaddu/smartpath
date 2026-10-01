@@ -183,7 +183,7 @@
                     request()->routeIs(
                         'admin.kategori-hambatan.*',
                         'admin.fasilitas-publik.*',
-                        'admin.wilayah.*',
+                        'Admin.wilayah.*',
                         'admin.user.*'
                     )
                     ? 'sp-nav-active'

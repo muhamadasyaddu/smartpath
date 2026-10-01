@@ -37,7 +37,7 @@ class ForgotPasswordController extends Controller
     // Tampilkan form ubah password baru
     public function showResetForm(Request $request, $token)
     {
-        return view('auth.reset-password', [
+        return view('Auth.reset-password', [
             'token' => $token,
             'email' => $request->email
         ]);

@@ -54,114 +54,378 @@ class RencanaPerbaikanController extends Controller
     }
 
 
-    /**
-     * Halaman Rencana Perbaikan.
-     */
     public function index(Request $request)
-    {
-        abort_unless(auth()->user()->isDinas(), 403);
+{
+    abort_unless(
+        auth()->user()->isDinas(),
+        403
+    );
 
-        $statusOptions = [
-            'belum_ada_rencana',
-            'belum_dimulai',
-            'dalam_perbaikan',
-            'terlambat',
-            'selesai',
-        ];
+    $statusOptions = [
+        'belum_ada_rencana',
+        'belum_dimulai',
+        'dalam_perbaikan',
+        'terlambat',
+        'selesai',
+    ];
 
-        $statusFilter = $request->input('status');
+    $statusFilter =
+        $request->input('status');
 
-        if (!in_array($statusFilter, $statusOptions, true)) {
-            $statusFilter = null;
-        }
+    if (
+        !in_array(
+            $statusFilter,
+            $statusOptions,
+            true
+        )
+    ) {
+        $statusFilter = null;
+    }
+
+    $search =
+        trim(
+            (string) $request->input(
+                'q',
+                ''
+            )
+        );
 
 
-        $laporan = Laporan::query()
+    /*
+     * ==========================================================
+     * DATA LAPORAN YANG MEMANG RELEVAN UNTUK DINAS
+     * ==========================================================
+     */
+    $laporan =
+        Laporan::query()
             ->induk()
-            ->whereIn('status', [
-                'diverifikasi',
-                'dalam_perbaikan',
-                'selesai',
-            ])
-            ->whereNotNull('skor_prioritas')
+            ->whereIn(
+                'status',
+                [
+                    'diverifikasi',
+                    'dalam_perbaikan',
+                    'selesai',
+                ]
+            )
+            ->whereNotNull(
+                'skor_prioritas'
+            )
             ->with([
                 'kategoriHambatan',
                 'wilayah',
                 'rencanaPerbaikan',
             ])
-            ->orderByDesc('skor_prioritas')
+            ->orderByDesc(
+                'skor_prioritas'
+            )
+            ->orderByDesc(
+                'created_at'
+            )
             ->get();
 
 
-        foreach ($laporan as $item) {
+    /*
+     * ==========================================================
+     * HITUNG STATUS RENCANA SECARA OTOMATIS
+     * ==========================================================
+     */
+    foreach ($laporan as $item) {
 
-            $rencana = $item->rencanaPerbaikan;
+        $rencana =
+            $item->rencanaPerbaikan;
 
-            if (!$rencana) {
-                continue;
-            }
 
-            $rencana->status_otomatis =
-                $this->tentukanStatus(
-                    $rencana->tanggal_mulai,
-                    $rencana->tanggal_selesai
-                );
-
-            $rencana->terlambat =
-                $this->isTerlambat(
-                    $rencana->target_selesai,
-                    $rencana->tanggal_selesai
-                );
+        /*
+         * Jangan skip laporan tanpa rencana.
+         *
+         * Ini penting agar filter:
+         * "Belum Ada Rencana"
+         * benar-benar bekerja.
+         */
+        if (!$rencana) {
+            continue;
         }
 
 
-        if ($statusFilter !== null) {
-
-            $laporan = $laporan
-                ->filter(function ($item) use ($statusFilter) {
-
-                    $rencana =
-                        $item->rencanaPerbaikan;
+        $rencana->status_otomatis =
+            $this->tentukanStatus(
+                $rencana->tanggal_mulai,
+                $rencana->tanggal_selesai
+            );
 
 
-                    if ($statusFilter === 'belum_ada_rencana') {
-                        return !$rencana;
+        $rencana->terlambat =
+            $this->isTerlambat(
+                $rencana->target_selesai,
+                $rencana->tanggal_selesai
+            );
+    }
+
+
+    /*
+     * ==========================================================
+     * PENCARIAN
+     * ==========================================================
+     */
+    if ($search !== '') {
+
+        $needle =
+            mb_strtolower(
+                $search
+            );
+
+
+        $laporan =
+            $laporan
+                ->filter(
+                    function ($item) use ($needle) {
+
+                        $haystack =
+                            mb_strtolower(
+                                implode(
+                                    ' ',
+                                    array_filter(
+                                        [
+                                            $item->kode_laporan,
+                                            $item->judul,
+                                            $item->kategoriHambatan?->nama,
+                                            $item->wilayah?->nama,
+                                            $item->alamat_lengkap,
+                                        ]
+                                    )
+                                )
+                            );
+
+
+                        return str_contains(
+                            $haystack,
+                            $needle
+                        );
+
                     }
-
-
-                    if (!$rencana) {
-                        return false;
-                    }
-
-
-                    if ($statusFilter === 'terlambat') {
-                        return $rencana->terlambat === true;
-                    }
-
-
-                    return $rencana->status_otomatis === $statusFilter;
-                })
+                )
                 ->values();
+    }
+
+
+    /*
+     * ==========================================================
+     * FILTER STATUS
+     * ==========================================================
+     */
+    if ($statusFilter !== null) {
+
+        $laporan =
+            $laporan
+                ->filter(
+                    function ($item) use ($statusFilter) {
+
+                        $rencana =
+                            $item->rencanaPerbaikan;
+
+
+                        /*
+                         * Inilah filter yang sebelumnya
+                         * tidak pernah dapat bekerja.
+                         */
+                        if (
+                            $statusFilter ===
+                            'belum_ada_rencana'
+                        ) {
+
+                            return !$rencana;
+                        }
+
+
+                        if (!$rencana) {
+                            return false;
+                        }
+
+
+                        if (
+                            $statusFilter ===
+                            'terlambat'
+                        ) {
+
+                            return
+                                $rencana->terlambat === true;
+                        }
+
+
+                        return
+                            $rencana->status_otomatis ===
+                            $statusFilter;
+                    }
+                )
+                ->values();
+    }
+
+
+    /*
+     * ==========================================================
+     * DATA STATISTIK
+     *
+     * Gunakan scope laporan yang sama.
+     * ==========================================================
+     */
+    $semuaLaporan =
+        Laporan::query()
+            ->induk()
+            ->whereIn(
+                'status',
+                [
+                    'diverifikasi',
+                    'dalam_perbaikan',
+                    'selesai',
+                ]
+            )
+            ->whereNotNull(
+                'skor_prioritas'
+            )
+            ->with(
+                'rencanaPerbaikan'
+            )
+            ->get();
+
+
+    foreach (
+        $semuaLaporan as $item
+    ) {
+
+        if (
+            !$item->rencanaPerbaikan
+        ) {
+            continue;
         }
 
 
-        $perPage = 10;
+        $item
+            ->rencanaPerbaikan
+            ->status_otomatis =
+                $this->tentukanStatus(
+                    $item->rencanaPerbaikan
+                        ->tanggal_mulai,
+                    $item->rencanaPerbaikan
+                        ->tanggal_selesai
+                );
 
-        $currentPage =
-            LengthAwarePaginator::resolveCurrentPage('page');
 
-        $items = $laporan
-            ->forPage($currentPage, $perPage)
+        $item
+            ->rencanaPerbaikan
+            ->terlambat =
+                $this->isTerlambat(
+                    $item->rencanaPerbaikan
+                        ->target_selesai,
+                    $item->rencanaPerbaikan
+                        ->tanggal_selesai
+                );
+    }
+
+
+    $totalLaporan =
+        $semuaLaporan->count();
+
+
+    $belumAdaRencana =
+        $semuaLaporan
+            ->filter(
+                fn ($item) =>
+                    !$item->rencanaPerbaikan
+            )
+            ->count();
+
+
+    $totalRencana =
+        $totalLaporan -
+        $belumAdaRencana;
+
+
+    $belumDimulai =
+        $semuaLaporan
+            ->filter(
+                fn ($item) =>
+                    $item->rencanaPerbaikan?->status_otomatis
+                    ===
+                    'belum_dimulai'
+            )
+            ->count();
+
+
+    $dalamPerbaikan =
+        $semuaLaporan
+            ->filter(
+                fn ($item) =>
+                    $item->rencanaPerbaikan?->status_otomatis
+                    ===
+                    'dalam_perbaikan'
+            )
+            ->count();
+
+
+    $selesai =
+        $semuaLaporan
+            ->filter(
+                fn ($item) =>
+                    $item->rencanaPerbaikan?->status_otomatis
+                    ===
+                    'selesai'
+            )
+            ->count();
+
+
+    $terlambat =
+        $semuaLaporan
+            ->filter(
+                fn ($item) =>
+                    $item->rencanaPerbaikan?->terlambat
+                    === true
+            )
+            ->count();
+
+
+    $prioritasKritis =
+        $semuaLaporan
+            ->filter(
+                fn ($item) =>
+                    (float)
+                    $item->skor_prioritas >= 70
+            )
+            ->count();
+
+
+    /*
+     * ==========================================================
+     * PAGINATION
+     * ==========================================================
+     */
+    $perPage = 10;
+
+
+    $currentPage =
+        LengthAwarePaginator::resolveCurrentPage(
+            'page'
+        );
+
+
+    $items =
+        $laporan
+            ->forPage(
+                $currentPage,
+                $perPage
+            )
             ->values();
 
-        $laporan = new LengthAwarePaginator(
+
+    $laporan =
+        new LengthAwarePaginator(
             $items,
             $laporan->count(),
             $perPage,
             $currentPage,
             [
                 'path' =>
-                    LengthAwarePaginator::resolveCurrentPath(),
+                    LengthAwarePaginator
+                        ::resolveCurrentPath(),
 
                 'query' =>
                     $request->query(),
@@ -169,85 +433,23 @@ class RencanaPerbaikanController extends Controller
         );
 
 
-        /**
-         * Statistik keseluruhan.
-         */
-        $semuaRencana = RencanaPerbaikan::query()
-            ->get([
-                'id',
-                'tanggal_mulai',
-                'tanggal_selesai',
-                'target_selesai',
-            ]);
-
-        $totalRencana =
-            $semuaRencana->count();
-
-
-        $belumDimulai =
-            $semuaRencana
-                ->filter(function ($rencana) {
-
-                    return $this->tentukanStatus(
-                        $rencana->tanggal_mulai,
-                        $rencana->tanggal_selesai
-                    ) === 'belum_dimulai';
-
-                })
-                ->count();
-
-
-        $dalamPerbaikan =
-            $semuaRencana
-                ->filter(function ($rencana) {
-
-                    return $this->tentukanStatus(
-                        $rencana->tanggal_mulai,
-                        $rencana->tanggal_selesai
-                    ) === 'dalam_perbaikan';
-
-                })
-                ->count();
-
-
-        $selesai =
-            $semuaRencana
-                ->filter(function ($rencana) {
-
-                    return $this->tentukanStatus(
-                        $rencana->tanggal_mulai,
-                        $rencana->tanggal_selesai
-                    ) === 'selesai';
-
-                })
-                ->count();
-
-
-        $prioritasKritis = Laporan::query()
-            ->induk()
-            ->whereNotNull('skor_prioritas')
-            ->where('skor_prioritas', '>=', 70)
-            ->whereIn('status', [
-                'diverifikasi',
-                'dalam_perbaikan',
-                'selesai',
-            ])
-            ->count();
-
-
-        return view(
-            'rencana perbaikan.index',
-            compact(
-                'laporan',
-                'totalRencana',
-                'belumDimulai',
-                'dalamPerbaikan',
-                'selesai',
-                'prioritasKritis',
-                'statusFilter'
-            )
-        );
-    }
+    return view(
+        'rencana perbaikan.index',
+        compact(
+            'laporan',
+            'totalLaporan',
+            'totalRencana',
+            'belumAdaRencana',
+            'belumDimulai',
+            'dalamPerbaikan',
+            'selesai',
+            'terlambat',
+            'prioritasKritis',
+            'statusFilter',
+            'search'
+        )
+    );
+}
 
 
     /**
