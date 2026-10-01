@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Audit;
 use App\Models\KategoriHambatan;
 use App\Models\Laporan;
+use App\Models\RencanaPerbaikan;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -660,93 +661,242 @@ class DashboardController extends Controller
      * Jangan diarahkan ke index() karena index()
      * sekarang khusus administrator.
      */
-    public function indexDinas()
-    {
-        $laporanDasar = Laporan::query()
-            ->induk()
-            ->aktif();
+   /**
+ * Dashboard DINAS.
+ *
+ * Dashboard Dinas menampilkan:
+ * - statistik laporan
+ * - laporan prioritas tinggi
+ * - laporan terbaru
+ * - peta sebaran laporan
+ * - ringkasan realisasi anggaran dari rencana perbaikan
+ *
+ * Data anggaran bukan anggaran resmi pemerintah.
+ * Data berasal dari data simulasi/prototype pada rencana_perbaikan.
+ */
+public function indexDinas()
+{
+    /*
+    |--------------------------------------------------------------------------
+    | DATA DASAR LAPORAN
+    |--------------------------------------------------------------------------
+    */
 
-        $statistik = [
+    $laporanDasar = Laporan::query()
+        ->induk()
+        ->aktif();
 
-            'total' =>
-                (clone $laporanDasar)->count(),
 
-            'menunggu' =>
-                (clone $laporanDasar)
-                    ->status('menunggu_verifikasi')
-                    ->count(),
+    /*
+    |--------------------------------------------------------------------------
+    | STATISTIK DASHBOARD DINAS
+    |--------------------------------------------------------------------------
+    */
 
-            'dalam_perbaikan' =>
-                (clone $laporanDasar)
-                    ->status('dalam_perbaikan')
-                    ->count(),
+    $statistik = [
 
-            'selesai' =>
-                (clone $laporanDasar)
-                    ->status('selesai')
-                    ->count(),
+        'total' =>
+            (clone $laporanDasar)
+                ->count(),
 
-            'kritis' =>
-                (clone $laporanDasar)
-                    ->where('skor_prioritas', '>=', 70)
-                    ->count(),
-        ];
+        'menunggu' =>
+            (clone $laporanDasar)
+                ->status('menunggu_verifikasi')
+                ->count(),
 
-        $laporanPrioritasTinggi = (clone $laporanDasar)
-            ->with([
-                'kategoriHambatan',
-                'wilayah',
-                'pelapor',
-                'foto',
-                'fasilitasTerdekat'
-            ])
-            ->where('skor_prioritas', '>=', 70)
-            ->orderByDesc('skor_prioritas')
-            ->limit(10)
-            ->get();
+        'dalam_perbaikan' =>
+            (clone $laporanDasar)
+                ->status('dalam_perbaikan')
+                ->count(),
 
-        $laporanTerbaru = (clone $laporanDasar)
-            ->with([
-                'kategoriHambatan',
-                'pelapor',
-                'wilayah',
-                'foto'
-            ])
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
+        'selesai' =>
+            (clone $laporanDasar)
+                ->status('selesai')
+                ->count(),
 
-        $petaLaporan = (clone $laporanDasar)
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get([
-                'id',
-                'kode_laporan',
-                'judul',
-                'latitude',
-                'longitude',
-                'status',
-                'skor_prioritas',
-            ]);
+        'kritis' =>
+            (clone $laporanDasar)
+                ->whereNotNull('skor_prioritas')
+                ->where('skor_prioritas', '>=', 70)
+                ->count(),
+    ];
 
-        /*
-         * Belum ada tabel anggaran dalam schema SmartPath.
-         * Gunakan collection kosong agar Dashboard Dinas
-         * menggunakan fallback yang sudah tersedia di view.
-         */
-        $dataAnggaran = collect();
 
-        return view(
-            'Dashboard.dinas',
-            compact(
-                'statistik',
-                'laporanPrioritasTinggi',
-                'laporanTerbaru',
-                'petaLaporan',
-                'dataAnggaran'
-            )
-        );
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | LAPORAN PRIORITAS TINGGI
+    |--------------------------------------------------------------------------
+    */
+
+    $laporanPrioritasTinggi = (clone $laporanDasar)
+        ->with([
+            'kategoriHambatan',
+            'wilayah',
+            'pelapor',
+            'foto',
+            'fasilitasTerdekat',
+        ])
+        ->whereNotNull('skor_prioritas')
+        ->where('skor_prioritas', '>=', 70)
+        ->orderByDesc('skor_prioritas')
+        ->orderByDesc('created_at')
+        ->limit(10)
+        ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LAPORAN TERBARU
+    |--------------------------------------------------------------------------
+    */
+
+    $laporanTerbaru = (clone $laporanDasar)
+        ->with([
+            'kategoriHambatan',
+            'pelapor',
+            'wilayah',
+            'foto',
+        ])
+        ->orderByDesc('created_at')
+        ->limit(10)
+        ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA PETA
+    |--------------------------------------------------------------------------
+    */
+
+    $petaLaporan = (clone $laporanDasar)
+        ->whereNotNull('latitude')
+        ->whereNotNull('longitude')
+        ->get([
+            'id',
+            'kode_laporan',
+            'judul',
+            'latitude',
+            'longitude',
+            'status',
+            'skor_prioritas',
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA REALISASI ANGGARAN
+    |--------------------------------------------------------------------------
+    |
+    | Sumber:
+    | rencana_perbaikan
+    |
+    | estimasi_anggaran   = nilai estimasi/pagu prototype
+    | realisasi_anggaran  = nilai realisasi prototype
+    |
+    | Data dikelompokkan berdasarkan kategori hambatan.
+    |
+    */
+
+    $rencanaAnggaran = RencanaPerbaikan::query()
+        ->with([
+            'laporan.kategoriHambatan',
+        ])
+        ->whereHas('laporan', function ($query) {
+
+            $query
+                ->induk()
+                ->aktif();
+
+        })
+        ->get([
+            'id',
+            'laporan_id',
+            'estimasi_anggaran',
+            'realisasi_anggaran',
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KELOMPOKKAN BERDASARKAN KATEGORI
+    |--------------------------------------------------------------------------
+    */
+
+    $dataAnggaran = $rencanaAnggaran
+        ->groupBy(function ($rencana) {
+
+            return optional(
+                optional($rencana->laporan)
+                    ->kategoriHambatan
+            )->nama ?? 'Kategori Lainnya';
+
+        })
+        ->map(function ($items, $namaKategori) {
+
+            $pagu = (float) $items
+                ->sum('estimasi_anggaran');
+
+            $realisasi = (float) $items
+                ->sum('realisasi_anggaran');
+
+            return (object) [
+
+                'nama_kategori' =>
+                    $namaKategori,
+
+                'pagu' =>
+                    $pagu,
+
+                'realisasi' =>
+                    $realisasi,
+            ];
+
+        })
+        ->values();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL ANGGARAN
+    |--------------------------------------------------------------------------
+    */
+
+    $totalAnggaran = (float) $dataAnggaran
+        ->sum('pagu');
+
+
+    $totalRealisasi = (float) $dataAnggaran
+        ->sum('realisasi');
+
+
+    $persentaseRealisasi = $totalAnggaran > 0
+        ? round(
+            ($totalRealisasi / $totalAnggaran) * 100,
+            1
+        )
+        : 0;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KIRIM DATA KE VIEW
+    |--------------------------------------------------------------------------
+    */
+
+    return view(
+        'Dashboard.dinas',
+        compact(
+            'statistik',
+            'laporanPrioritasTinggi',
+            'laporanTerbaru',
+            'petaLaporan',
+            'dataAnggaran',
+            'totalAnggaran',
+            'totalRealisasi',
+            'persentaseRealisasi'
+        )
+    );
+}
 
     /**
      * Dashboard warga.

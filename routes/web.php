@@ -19,10 +19,10 @@ use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\RencanaPerbaikanController;
 use App\Http\Controllers\NavigasiController;
+use App\Http\Controllers\KinerjaAnggaranController;
 
 // ============================================
 // RUTE PUBLIK
-// ============================================
 Route::get('/', [BerandaController::class, 'index'])->name('beranda');
 Route::get('/tentang', [BerandaController::class, 'tentang'])->name('tentang');
 
@@ -311,6 +311,47 @@ Route::middleware(['auth', 'dinas'])
             '/laporan/{id}/pdf',
             [LaporanController::class, 'unduhPdf']
         )->name('laporan.pdf');
+
+        Route::get(
+    '/laporan/{laporan}/detail',
+    [LaporanController::class, 'showDetail']
+)->name('laporan.detail');
+
+
+//rencana perbaikan
+         Route::get(
+        '/rencana-perbaikan',
+        [RencanaPerbaikanController::class, 'index']
+    )->name('rencana-perbaikan.index');
+
+        Route::get(
+    '/rencana-perbaikan/{laporan}/create',
+    [RencanaPerbaikanController::class, 'create']
+)->name('rencana-perbaikan.create');
+
+        Route::post(
+            '/rencana-perbaikan',
+            [RencanaPerbaikanController::class, 'store']
+        )->name('rencana-perbaikan.store');
+
+         Route::get(
+            '/rencana-perbaikan/{rencanaPerbaikan}/edit',
+            [RencanaPerbaikanController::class, 'edit']
+        )->name('rencana-perbaikan.edit');
+
+
+        Route::put(
+            '/rencana-perbaikan/{rencanaPerbaikan}',
+            [RencanaPerbaikanController::class, 'update']
+        )->name('rencana-perbaikan.update');
+
+        //kinerja anggaran
+  Route::get(
+            '/kinerja-anggaran',
+            [KinerjaAnggaranController::class, 'index']
+        )->name('kinerja-anggaran.index');
+
+
     });
 
 
@@ -326,21 +367,6 @@ Route::middleware('auth')->group(function () {
         '/laporan/{laporan}/detail',
         [LaporanController::class, 'showDetail']
     )->name('laporan.detail');
-
-
-    // ========================================
-    // RENCANA PERBAIKAN
-    // ========================================
-
-    Route::get(
-        '/rencana-perbaikan',
-        [RencanaPerbaikanController::class, 'index']
-    )->name('rencana.perbaikan.index');
-
-
-    // ========================================
-    // NEARBY
-    // ========================================
 
     Route::get(
         '/peta/nearby',
@@ -391,4 +417,3 @@ Route::middleware('auth')
             [DashboardController::class, 'indexWarga']
         )->name('dashboard');
     });
-
