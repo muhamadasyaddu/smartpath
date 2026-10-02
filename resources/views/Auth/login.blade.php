@@ -45,20 +45,20 @@
                     </div>
                 </div>
 
-                {{-- SCREEN READER BUTTON --}}
+                {{-- DENGAR PANDUAN BUTTON (Disesuaikan seperti gambar) --}}
                 <button
                     type="button"
                     id="btn-read-page"
-                    class="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    class="flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50/60 px-4 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     title="Dengarkan isi halaman ini"
-                    aria-label="Bacakan isi halaman ini"
+                    aria-label="Dengar Panduan"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="h-4 w-4 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
                         <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
                         <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
                     </svg>
-                    <span>Bacakan</span>
+                    <span>Dengar Panduan</span>
                 </button>
             </div>
 
@@ -97,25 +97,9 @@
 
                 {{-- FIELD EMAIL --}}
                 <div>
-                    <div class="mb-2 flex items-center justify-between">
-                        <label for="email" class="text-sm font-bold text-slate-800">
-                            Email
-                        </label>
-                        {{-- Voice Button --}}
-                        <button
-                            type="button"
-                            class="btn-voice flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 focus:outline-none"
-                            data-target="email"
-                            aria-label="Mulai bicara untuk mengisi email"
-                        >
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                                <line x1="12" y1="19" x2="12" y2="22"/>
-                            </svg>
-                            <span>Dikte</span>
-                        </button>
-                    </div>
+                    <label for="email" class="mb-2 block text-sm font-bold text-slate-800">
+                        Email
+                    </label>
                     <div class="relative">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                             <svg class="h-5 w-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -132,8 +116,22 @@
                             autocomplete="email"
                             required
                             aria-describedby="email-error"
-                            class="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-4 text-sm text-slate-900 shadow-[0_2px_8px_rgba(15,23,42,0.03)] outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                            class="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-12 text-sm text-slate-900 shadow-[0_2px_8px_rgba(15,23,42,0.03)] outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                         >
+                        {{-- Voice Microphone Button di dalam Input (Kanan) --}}
+                        <button
+                            type="button"
+                            class="btn-voice absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-2xl text-slate-400 transition hover:text-emerald-600 focus:outline-none"
+                            data-target="email"
+                            aria-label="Mulai bicara untuk mengisi email"
+                            title="Bicara untuk mengisi"
+                        >
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="22"/>
+                            </svg>
+                        </button>
                     </div>
                     @if($errors->has('email'))
                         <p id="email-error" class="mt-2 text-xs font-semibold text-red-600" role="alert">
@@ -144,25 +142,9 @@
 
                 {{-- FIELD KATA SANDI --}}
                 <div>
-                    <div class="mb-2 flex items-center justify-between">
-                        <label for="kata_sandi" class="text-sm font-bold text-slate-800">
-                            Kata Sandi
-                        </label>
-                        {{-- Voice Button --}}
-                        <button
-                            type="button"
-                            class="btn-voice flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-700 focus:outline-none"
-                            data-target="kata_sandi"
-                            aria-label="Mulai bicara untuk mengisi kata sandi"
-                        >
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                                <line x1="12" y1="19" x2="12" y2="22"/>
-                            </svg>
-                            <span>Dikte</span>
-                        </button>
-                    </div>
+                    <label for="kata_sandi" class="mb-2 block text-sm font-bold text-slate-800">
+                        Kata Sandi
+                    </label>
                     <div class="relative">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                             <svg class="h-5 w-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -178,20 +160,36 @@
                             autocomplete="current-password"
                             required
                             aria-describedby="password-error"
-                            class="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-14 text-sm text-slate-900 shadow-[0_2px_8px_rgba(15,23,42,0.03)] outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                            class="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-20 text-sm text-slate-900 shadow-[0_2px_8px_rgba(15,23,42,0.03)] outline-none transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
                         >
-                        {{-- Toggle Password --}}
-                        <button
-                            type="button"
-                            id="toggle-password"
-                            class="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-2xl text-slate-400 transition hover:text-emerald-600 focus:outline-none"
-                            aria-label="Tampilkan kata sandi"
-                        >
-                            <svg id="password-eye" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
-                                <circle cx="12" cy="12" r="2.5"/>
-                            </svg>
-                        </button>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-2">
+                            {{-- Voice Microphone Button --}}
+                            <button
+                                type="button"
+                                class="btn-voice flex h-10 w-10 items-center justify-center text-slate-400 transition hover:text-emerald-600 focus:outline-none"
+                                data-target="kata_sandi"
+                                aria-label="Mulai bicara untuk mengisi kata sandi"
+                                title="Bicara untuk mengisi"
+                            >
+                                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="22"/>
+                                </svg>
+                            </button>
+                            {{-- Toggle Password Button --}}
+                            <button
+                                type="button"
+                                id="toggle-password"
+                                class="flex h-10 w-10 items-center justify-center text-slate-400 transition hover:text-emerald-600 focus:outline-none"
+                                aria-label="Tampilkan kata sandi"
+                            >
+                                <svg id="password-eye" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
+                                    <circle cx="12" cy="12" r="2.5"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                     @if($errors->has('kata_sandi'))
                         <p id="password-error" class="mt-2 text-xs font-semibold text-red-600" role="alert">
@@ -280,13 +278,11 @@
 
 </div>
 
-{{-- SCRIPT ACCESSIBILITY (SAMA DENGAN REGISTER) --}}
+{{-- SCRIPT ACCESSIBILITY --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     
-    // ==========================================
     // 1. TOGGLE PASSWORD
-    // ==========================================
     const toggleButton = document.getElementById('toggle-password');
     const passwordInput = document.getElementById('kata_sandi');
     const eyeIcon = document.getElementById('password-eye');
@@ -312,9 +308,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ==========================================
     // 2. VOICE TO TEXT (SPEECH RECOGNITION)
-    // ==========================================
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognition) {
@@ -331,21 +325,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 const targetInput = document.getElementById(targetId);
 
                 recognition.start();
-                this.classList.add('animate-pulse', 'text-red-600');
+                this.classList.add('animate-pulse', 'text-red-500');
 
                 recognition.onresult = function (event) {
                     const transcript = event.results[0][0].transcript;
-                    // Hapus spasi agar cocok untuk email/password
                     targetInput.value = transcript.replace(/\s+/g, '').toLowerCase();
                 };
 
                 recognition.onspeechend = function () {
                     recognition.stop();
-                    button.classList.remove('animate-pulse', 'text-red-600');
+                    button.classList.remove('animate-pulse', 'text-red-500');
                 };
 
                 recognition.onerror = function () {
-                    button.classList.remove('animate-pulse', 'text-red-600');
+                    button.classList.remove('animate-pulse', 'text-red-500');
                     alert('Suara tidak terdeteksi atau mikrofon tidak diizinkan.');
                 };
             });
@@ -354,14 +347,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.btn-voice').forEach(btn => btn.style.display = 'none');
     }
 
-    // ==========================================
-    // 3. SCREEN READER (TEXT TO SPEECH FIX)
-    // ==========================================
+    // 3. SCREEN READER (DENGAR PANDUAN)
     const btnReadPage = document.getElementById('btn-read-page');
 
     if ('speechSynthesis' in window && btnReadPage) {
-        
-        // Memuat daftar suara browser
         let voices = [];
         function loadVoices() {
             voices = window.speechSynthesis.getVoices();
@@ -374,14 +363,13 @@ document.addEventListener('DOMContentLoaded', function () {
         btnReadPage.addEventListener('click', function () {
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
-                btnReadPage.querySelector('span').innerText = 'Bacakan';
+                btnReadPage.querySelector('span').innerText = 'Dengar Panduan';
                 return;
             }
 
             const pageText = `Selamat datang kembali di SmartPath. Masuk untuk melanjutkan perjalanan menuju kota yang lebih aksesibel. Silakan masukkan Email dan Kata Sandi Anda.`;
             const utterance = new SpeechSynthesisUtterance(pageText);
 
-            // Cari suara Bahasa Indonesia, jika tidak ada gunakan default
             const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
             if (idVoice) {
                 utterance.voice = idVoice;
@@ -394,11 +382,11 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             utterance.onend = function () {
-                btnReadPage.querySelector('span').innerText = 'Bacakan';
+                btnReadPage.querySelector('span').innerText = 'Dengar Panduan';
             };
 
             utterance.onerror = function () {
-                btnReadPage.querySelector('span').innerText = 'Bacakan';
+                btnReadPage.querySelector('span').innerText = 'Dengar Panduan';
             };
 
             window.speechSynthesis.speak(utterance);

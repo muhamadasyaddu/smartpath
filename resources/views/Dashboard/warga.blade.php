@@ -20,16 +20,16 @@
                 <p class="mt-2 text-slate-600">Kelola laporan aksesibilitas dan pantau perkembangannya di sini.</p>
             </div>
 
-            {{-- TOMBOL SCREEN READER (DENGAR PANDUAN) --}}
+            {{-- TOMBOL SCREEN READER --}}
             <div>
                 <button
                     type="button"
-                    id="btn-read-dashboard"
-                    class="flex items-center gap-2 rounded-2xl border border-emerald-300 bg-emerald-50/50 px-4 py-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm"
+                    id="btn-read-page"
+                    class="flex items-center gap-2 rounded-2xl border border-emerald-300 bg-emerald-50/60 px-4 py-2.5 text-xs font-bold text-emerald-700 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition"
                     title="Dengarkan panduan halaman ini"
-                    aria-label="Dengarkan panduan halaman ini"
+                    aria-label="Dengar Panduan"
                 >
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="h-4 w-4 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
                         <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
                         <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
@@ -82,9 +82,9 @@
     {{-- SCRIPT DENGAR PANDUAN --}}
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const btnReadDashboard = document.getElementById('btn-read-dashboard');
+        const btnReadPage = document.getElementById('btn-read-page');
 
-        if ('speechSynthesis' in window && btnReadDashboard) {
+        if ('speechSynthesis' in window && btnReadPage) {
             let voices = [];
             function loadVoices() {
                 voices = window.speechSynthesis.getVoices();
@@ -94,10 +94,10 @@
                 window.speechSynthesis.onvoiceschanged = loadVoices;
             }
 
-            btnReadDashboard.addEventListener('click', function () {
+            btnReadPage.addEventListener('click', function () {
                 if (window.speechSynthesis.speaking) {
                     window.speechSynthesis.cancel();
-                    btnReadDashboard.querySelector('span').innerText = 'Dengar Panduan';
+                    btnReadPage.querySelector('span').innerText = 'Dengar Panduan';
                     return;
                 }
 
@@ -112,21 +112,39 @@
                 utterance.rate = 0.9;
 
                 utterance.onstart = function () {
-                    btnReadDashboard.querySelector('span').innerText = 'Berhenti';
+                    btnReadPage.querySelector('span').innerText = 'Berhenti';
                 };
 
                 utterance.onend = function () {
-                    btnReadDashboard.querySelector('span').innerText = 'Dengar Panduan';
+                    btnReadPage.querySelector('span').innerText = 'Dengar Panduan';
                 };
 
                 utterance.onerror = function () {
-                    btnReadDashboard.querySelector('span').innerText = 'Dengar Panduan';
+                    btnReadPage.querySelector('span').innerText = 'Dengar Panduan';
                 };
 
                 window.speechSynthesis.speak(utterance);
             });
-        } else if (btnReadDashboard) {
-            btnReadDashboard.style.display = 'none';
+
+            // Shortcut Spasi
+            window.focus();
+            window.addEventListener('keydown', function (e) {
+                if (e.code === 'Space' || e.key === ' ' || e.keyCode === 32) {
+                    const activeElem = document.activeElement;
+                    const isTyping = activeElem && (
+                        activeElem.tagName === 'INPUT' || 
+                        activeElem.tagName === 'TEXTAREA' || 
+                        activeElem.isContentEditable
+                    );
+
+                    if (!isTyping) {
+                        e.preventDefault();
+                        btnReadPage.click();
+                    }
+                }
+            });
+        } else if (btnReadPage) {
+            btnReadPage.style.display = 'none';
         }
     });
     </script>
