@@ -8,70 +8,42 @@
     .smartpath-map-page {
         min-height: 100vh;
         background: #f8fafc;
+        overflow-x: hidden;
     }
 
+    /* Layout utama: daftar hambatan + ringkasan di atas,
+       lalu sidebar filter + peta di bawah. */
     .smartpath-map-shell {
         display: grid;
         grid-template-columns: 270px minmax(0, 1fr);
-        min-height: calc(100vh - 64px);
+        width: 100%;
+        min-height: 650px;
+        background: #f8fafc;
     }
 
     .smartpath-map-sidebar {
         background: #ffffff;
         border-right: 1px solid #e2e8f0;
-        overflow-y: auto;
+        overflow: hidden;
         z-index: 900;
+        min-height: 774px;
     }
 
     .smartpath-map-content {
         min-width: 0;
+        min-height: 774px;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        background: #f8fafc;
     }
 
     #map-container {
         width: 100%;
-        height: 650px;
+        height: auto;
         min-height: 500px;
         background: #e2e8f0;
-    }
-
-    .map-summary {
-        position: absolute;
-        right: 14px;
-        bottom: 14px;
-        z-index: 500;
-        display: grid;
-        grid-template-columns: repeat(3, minmax(80px, 1fr));
-        background: rgba(255, 255, 255, 0.96);
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
-        backdrop-filter: blur(8px);
-    }
-
-    .map-summary-item {
-        padding: 9px 12px;
-        text-align: center;
-        border-right: 1px solid #e2e8f0;
-    }
-
-    .map-summary-item:last-child {
-        border-right: 0;
-    }
-
-    .map-summary-number {
-        display: block;
-        color: #047857;
-        font-size: 15px;
-        font-weight: 700;
-    }
-
-    .map-summary-label {
-        display: block;
-        margin-top: 2px;
-        color: #64748b;
-        font-size: 10px;
+        flex: 1 1 auto;
     }
 
     .map-filter-section {
@@ -259,6 +231,13 @@
         margin: 12px 14px;
     }
 
+    /* Keep Leaflet controls clear of the summary cards. */
+    .leaflet-top.leaflet-left {
+        top: 88px;
+        left: 8px;
+    }
+
+
     .smartpath-popup {
         width: 250px;
         font-family: Inter, sans-serif;
@@ -315,134 +294,22 @@
         font-size: 10px;
     }
 
-    .nearby-section {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 24px 18px 50px;
-    }
-
-    .nearby-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .nearby-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 15px;
-        padding: 15px 17px;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .nearby-title {
-        margin: 0;
-        color: #0f172a;
-        font-size: 14px;
-        font-weight: 700;
-    }
-
-    .nearby-description {
-        margin-top: 3px;
-        color: #64748b;
-        font-size: 11px;
-    }
-
-    .nearby-button {
-        border: 1px solid #a7f3d0;
-        background: #ecfdf5;
-        color: #047857;
-        border-radius: 8px;
-        padding: 8px 11px;
-        font-size: 11px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .nearby-button:hover {
-        background: #d1fae5;
-    }
-
-    .nearby-button:disabled {
-        opacity: .65;
-        cursor: wait;
-    }
-
-    .nearby-list {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .nearby-item {
-        padding: 13px;
-        border-right: 1px solid #e2e8f0;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .nearby-item:nth-child(3n) {
-        border-right: 0;
-    }
-
-    .nearby-item-title {
-        color: #0f172a;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .nearby-item-category {
-        margin-top: 4px;
-        color: #059669;
-        font-size: 10px;
-        font-weight: 600;
-    }
-
-    .nearby-item-address {
-        margin-top: 5px;
-        color: #64748b;
-        font-size: 10px;
-        line-height: 1.5;
-    }
-
-    .nearby-item-distance {
-        margin-top: 7px;
-        color: #475569;
-        font-size: 10px;
-        font-weight: 600;
-    }
-
-    .nearby-empty {
-        padding: 25px;
-        text-align: center;
-        color: #64748b;
-        font-size: 11px;
-    }
-
-    .sr-only-map {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
-
     @media (max-width: 1023px) {
+
         .smartpath-map-shell {
             grid-template-columns: 1fr;
+            min-height: 600px;
         }
 
         .smartpath-map-sidebar {
             position: fixed;
             inset: 64px auto 0 0;
             width: 290px;
+            max-height: calc(100vh - 64px);
             transform: translateX(-100%);
             transition: transform .25s ease;
             box-shadow: 8px 0 24px rgba(15, 23, 42, .10);
+            overflow-y: auto;
         }
 
         .smartpath-map-sidebar.open {
@@ -451,46 +318,259 @@
 
         .smartpath-map-content {
             width: 100%;
+            min-height: 600px;
+        }
+
+        .smartpath-map-sidebar {
+            min-height: 0;
         }
 
         #map-container {
             height: 600px;
+            flex-basis: 600px;
         }
 
-        .nearby-list {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 640px) {
+
+        .smartpath-map-shell,
+        .smartpath-map-content {
+            min-height: 520px;
+        }
+
+        #map-container {
+            height: 520px;
+            min-height: 420px;
+            flex-basis: 520px;
+        }
+
+    }
+
+    /* ==============================
+       NAVBAR DAFTAR HAMBATAN TERDEKAT
+       ============================== */
+
+    .nearby-navbar {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        z-index: 1000;
+        min-height: 64px;
+        padding: 12px 24px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        margin: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .nearby-navbar-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0;
+
+        color: #0f172a;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .nearby-location-btn {
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 16px;
+
+        background: #047857;
+        color: #ffffff;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        cursor: pointer;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .nearby-location-btn:hover {
+        background: #065f46;
+    }
+
+    .nearby-location-btn:disabled {
+        opacity: .65;
+        cursor: wait;
+    }
+
+    .nearby-location-btn:focus-visible {
+        outline: 3px solid #34d399;
+        outline-offset: 3px;
+    }
+
+    .leaflet-top.leaflet-left {
+        top: 88px;
+        left: 8px;
+    }
+
+    /* ==============================
+       SUMMARY DI DALAM AREA PETA
+       ============================== */
+
+    .map-summary {
+        position: absolute;
+        top: auto;
+        bottom: 16px;
+        left: auto;
+        right: 16px;
+
+        z-index: 1000;
+
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+
+        width: min(510px, calc(100% - 32px));
+        margin: 0;
+
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+
+        pointer-events: none;
+    }
+
+    .map-summary-item {
+        min-width: 0;
+        min-height: 72px;
+        background: rgba(255, 255, 255, 0.96);
+        padding: 10px 12px;
+        text-align: center;
+
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+        pointer-events: auto;
+    }
+
+    .map-summary-item:last-child {
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .map-summary-number {
+        display: block;
+        color: #047857;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .map-summary-label {
+        display: block;
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 10px;
+    }
+
+    @media (max-width: 1023px) {
+        .nearby-navbar {
+            top: 12px;
+            left: 12px;
+            right: 12px;
+        }
+
+        .map-summary {
+            right: 12px;
+            width: min(480px, calc(100% - 24px));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .map-summary-item {
+            padding: 9px 6px;
         }
     }
 
     @media (max-width: 640px) {
-        #map-container {
-            height: 520px;
-            min-height: 420px;
+        .nearby-navbar {
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            min-height: 56px;
+            padding: 9px 10px;
+            gap: 8px;
+        }
+
+        .nearby-navbar-title {
+            min-width: 0;
+            flex: 1 1 auto;
+            gap: 6px;
+            font-size: 13px;
+            line-height: 1.35;
+        }
+
+        .nearby-location-btn {
+            flex: 0 0 auto;
+            gap: 6px;
+            min-height: 38px;
+            padding: 8px 9px;
+            font-size: 9px;
+            white-space: nowrap;
         }
 
         .map-summary {
             right: 8px;
-            bottom: 8px;
+            width: min(420px, calc(100% - 16px));
+            top: auto;
+            bottom: 10px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 5px;
         }
 
         .map-summary-item {
-            padding: 7px 8px;
+            min-height: 60px;
+            padding: 7px 4px;
         }
 
-        .nearby-list {
-            grid-template-columns: 1fr;
+        .map-summary-number {
+            font-size: 14px;
         }
 
-        .nearby-item,
-        .nearby-item:nth-child(3n) {
-            border-right: 0;
+        .map-summary-label {
+            font-size: 9px;
         }
 
-        .nearby-header {
-            align-items: flex-start;
-            flex-direction: column;
+        .leaflet-top.leaflet-left {
+            top: 78px;
+            left: 6px;
         }
     }
+
+    @media (max-width: 380px) {
+        .nearby-navbar-title {
+            font-size: 11px;
+        }
+
+        .nearby-location-btn {
+            padding-inline: 7px;
+            font-size: 8px;
+        }
+
+        .map-summary-label {
+            font-size: 8px;
+        }
+    }
+
 </style>
 
 @endpush
@@ -498,8 +578,6 @@
 @section('content')
 
 <div class="smartpath-map-page">
-
-    @include('partials.nav-public')
 
     <div class="smartpath-map-shell">
 
@@ -531,134 +609,74 @@
 
             </div>
 
-
             <div class="map-filter-section">
-
-                <div class="map-filter-title">
-                    Status Laporan
-                </div>
+                <div class="map-filter-title">Status Laporan</div>
 
                 <label class="map-check">
-                    <input
-                        type="checkbox"
-                        class="filter-status"
-                        value="diverifikasi"
-                        checked
-                    >
-
+                    <input type="checkbox" class="filter-status" value="diverifikasi" checked>
                     <span class="map-status-dot verified"></span>
-
                     <span>Diverifikasi</span>
                 </label>
 
                 <label class="map-check">
-                    <input
-                        type="checkbox"
-                        class="filter-status"
-                        value="dalam_perbaikan"
-                        checked
-                    >
-
+                    <input type="checkbox" class="filter-status" value="dalam_perbaikan" checked>
                     <span class="map-status-dot progress"></span>
-
                     <span>Dalam Perbaikan</span>
                 </label>
 
                 <label class="map-check">
-                    <input
-                        type="checkbox"
-                        class="filter-status"
-                        value="selesai"
-                        checked
-                    >
-
+                    <input type="checkbox" class="filter-status" value="selesai" checked>
                     <span class="map-status-dot done"></span>
-
                     <span>Selesai</span>
                 </label>
-
             </div>
 
-
             <div class="map-filter-section">
-
-                <div class="map-filter-title">
-                    Kategori Hambatan
-                </div>
+                <div class="map-filter-title">Kategori Hambatan</div>
 
                 @foreach($kategoriHambatan as $kategori)
-
                     <label class="map-check">
-
                         <input
                             type="checkbox"
                             class="filter-kategori"
                             value="{{ $kategori->id }}"
                             checked
                         >
-
                         <span
                             class="map-status-dot"
                             style="background: {{ $kategori->warna_penanda ?: '#64748b' }}"
                         ></span>
-
-                        <span>
-                            {{ $kategori->nama }}
-                        </span>
-
+                        <span>{{ $kategori->nama }}</span>
                     </label>
-
                 @endforeach
-
             </div>
 
-
             <div class="map-filter-section">
-
                 <label class="map-check">
-
-                    <input
-                        type="checkbox"
-                        id="toggle-fasilitas"
-                    >
-
+                    <input type="checkbox" id="toggle-fasilitas">
                     <span class="map-status-dot" style="background:#0d9488"></span>
-
-                    <span>
-                        Tampilkan Fasilitas Publik
-                    </span>
-
+                    <span>Tampilkan Fasilitas Publik</span>
                 </label>
-
             </div>
 
-
             <div class="map-filter-section">
-
-                <div class="map-filter-title">
-                    Prioritas
-                </div>
+                <div class="map-filter-title">Prioritas</div>
 
                 <div class="map-legend-item">
                     <span class="map-legend-pin high"></span>
-                    <span>Tinggi  skor ≥ 70</span>
+                    <span>Tinggi skor ≥ 70</span>
                 </div>
-
                 <div class="map-legend-item">
                     <span class="map-legend-pin medium"></span>
-                    <span>Sedang  skor 40–69</span>
+                    <span>Sedang skor 40–69</span>
                 </div>
-
                 <div class="map-legend-item">
                     <span class="map-legend-pin low"></span>
-                    <span>Rendah  skor &lt; 40</span>
+                    <span>Rendah skor &lt; 40</span>
                 </div>
-
             </div>
 
-
             <div class="map-filter-section">
-
                 <button
                     id="toggle-sidebar"
                     type="button"
@@ -667,137 +685,63 @@
                 >
                     Filter Peta
                 </button>
-
             </div>
 
         </aside>
 
-
-        <main
+        <section
             class="smartpath-map-content"
             aria-label="Peta interaktif hambatan aksesibilitas"
+            role="region"
         >
-
-            <div id="map-container"></div>
-
-            <div class="map-summary">
-
-                <div class="map-summary-item">
-
-                    <span
-                        id="summary-total"
-                        class="map-summary-number"
-                    >
-                        0
-                    </span>
-
-                    <span class="map-summary-label">
-                        Total Marker
-                    </span>
-
-                </div>
-
-                <div class="map-summary-item">
-
-                    <span
-                        id="summary-high"
-                        class="map-summary-number"
-                    >
-                        0
-                    </span>
-
-                    <span class="map-summary-label">
-                        Prioritas Tinggi
-                    </span>
-
-                </div>
-
-                <div class="map-summary-item">
-
-                    <span
-                        id="summary-area"
-                        class="map-summary-number"
-                    >
-                        Depok
-                    </span>
-
-                    <span class="map-summary-label">
-                        Wilayah
-                    </span>
-
-                </div>
-
-            </div>
-
-        </main>
-
-    </div>
-
-
-    <section
-        class="nearby-section"
-        aria-labelledby="nearby-title"
-    >
-
-        <div class="nearby-card">
-
-            <div class="nearby-header">
-
-                <div>
-
-                    <h2
-                        id="nearby-title"
-                        class="nearby-title"
-                    >
-                        Daftar Hambatan Terdekat
-                    </h2>
-
-                    <p class="nearby-description">
-                        Informasi berbasis teks untuk membantu pengguna
-                        mengetahui hambatan di sekitar lokasi GPS.
-                    </p>
-
-                </div>
+            <header class="nearby-navbar" aria-labelledby="nearby-map-title">
+                <h1 id="nearby-map-title" class="nearby-navbar-title">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                        <circle cx="12" cy="10" r="2.5" />
+                    </svg>
+                    <span>Daftar Hambatan Terdekat</span>
+                </h1>
 
                 <button
                     id="nearby-location"
                     type="button"
-                    class="nearby-button"
+                    class="nearby-location-btn"
+                    aria-label="Gunakan lokasi saya untuk mencari hambatan terdekat"
                 >
-                    Gunakan Lokasi Saya
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="12" r="3" />
+                        <path stroke-linecap="round" d="M12 2v3m0 14v3M2 12h3m14 0h3" />
+                    </svg>
+                    <span>Gunakan Lokasi Saya</span>
                 </button>
+            </header>
 
-            </div>
+            <section class="map-summary" aria-label="Ringkasan peta">
 
-
-            <div
-                id="nearby-announcement"
-                class="sr-only-map"
-                aria-live="polite"
-                aria-atomic="true"
-            ></div>
-
-
-            <div
-                id="nearby-list"
-                class="nearby-list"
-                 aria-label="Daftar hambatan aksesibilitas terdekat"
-            >
-
-                <div
-                    class="nearby-empty"
-                    style="grid-column:1/-1;"
-                >
-                    Gunakan tombol "Gunakan Lokasi Saya"
-                    untuk mencari hambatan terverifikasi
-                    dalam radius 500 meter.
+                <div class="map-summary-item">
+                    <span id="summary-total" class="map-summary-number">0</span>
+                    <span class="map-summary-label">Total Marker</span>
                 </div>
 
-            </div>
+                <div class="map-summary-item">
+                    <span id="summary-high" class="map-summary-number">0</span>
+                    <span class="map-summary-label">Prioritas Tinggi</span>
+                </div>
 
-        </div>
+                <div class="map-summary-item">
+                    <span id="summary-area" class="map-summary-number">Depok</span>
+                    <span class="map-summary-label">Wilayah</span>
+                </div>
 
-    </section>
+            </section>
+
+            <div id="map-container"></div>
+        </section>
+
+    </div>
+
+
 
 </div>
 
@@ -864,6 +808,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let laporanData = [];
 
     let fasilitasData = [];
+
+    const reportMarkers = new Map();
+
+    let userLocationMarker = null;
+
+    let userLocationCircle = null;
 
     let initialFitDone = false;
 
@@ -1052,6 +1002,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderReports() {
 
         laporanLayer.clearLayers();
+        reportMarkers.clear();
 
         const activeStatuses =
             Array.from(
@@ -1144,6 +1095,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
                 laporanLayer.addLayer(
+                    marker
+                );
+
+                reportMarkers.set(
+                    String(report.id ?? report.uuid ?? report.judul),
                     marker
                 );
 
@@ -1479,106 +1435,103 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     document
-        .getElementById(
-            'nearby-location'
-        )
+        .getElementById('nearby-location')
         .addEventListener(
             'click',
             function () {
 
                 const button = this;
 
-                if (
-                    !navigator.geolocation
-                ) {
-
-                    alert(
-                        'Browser tidak mendukung fitur lokasi.'
-                    );
-
+                if (!navigator.geolocation) {
+                    alert('Browser tidak mendukung fitur lokasi.');
                     return;
                 }
 
                 button.disabled = true;
-                button.textContent =
-                    'Mengambil lokasi...';
+                button.innerHTML = '<span aria-hidden="true">⌖</span><span>Mengambil...</span>';
 
                 navigator.geolocation.getCurrentPosition(
                     function (position) {
 
-                        const userLat =
-                            position.coords.latitude;
+                        const userLat = position.coords.latitude;
+                        const userLng = position.coords.longitude;
+                        const radius = 50;
 
-                        const userLng =
-                            position.coords.longitude;
+                        if (userLocationMarker) {
+                            map.removeLayer(userLocationMarker);
+                        }
 
-                        const radius =
-                            50;
+                        if (userLocationCircle) {
+                            map.removeLayer(userLocationCircle);
+                        }
 
-                        const nearby =
-                            laporanData
-                                .map(
-                                    function (report) {
+                        userLocationMarker = window.L.circleMarker(
+                            [userLat, userLng],
+                            {
+                                radius: 7,
+                                color: '#ffffff',
+                                weight: 3,
+                                fillColor: '#2563eb',
+                                fillOpacity: 1,
+                                zIndexOffset: 1000
+                            }
+                        )
+                        .addTo(map)
+                        .bindPopup('<strong>Lokasi Anda</strong><br>Hambatan terdekat ditampilkan pada marker peta.');
 
-                                        return {
-                                            report:
-                                                report,
+                        userLocationCircle = window.L.circle(
+                            [userLat, userLng],
+                            {
+                                radius: radius,
+                                color: '#2563eb',
+                                weight: 1,
+                                fillColor: '#2563eb',
+                                fillOpacity: 0.08
+                            }
+                        ).addTo(map);
 
-                                            distance:
-                                                calculateDistance(
-                                                    userLat,
-                                                    userLng,
-                                                    Number(
-                                                        report.latitude
-                                                    ),
-                                                    Number(
-                                                        report.longitude
-                                                    )
-                                                )
-                                        };
-                                    }
-                                )
-                                .filter(
-                                    item =>
-                                        item.distance <= radius
-                                )
-                                .sort(
-                                    (a, b) =>
-                                        a.distance
-                                        -
-                                        b.distance
-                                )
-                                .slice(
-                                    0,
-                                    6
-                                );
+                        const nearby = laporanData
+                            .map(function (report) {
+                                return {
+                                    report: report,
+                                    distance: calculateDistance(
+                                        userLat,
+                                        userLng,
+                                        Number(report.latitude),
+                                        Number(report.longitude)
+                                    )
+                                };
+                            })
+                            .filter(function (item) {
+                                return item.distance <= radius;
+                            })
+                            .sort(function (a, b) {
+                                return a.distance - b.distance;
+                            })
+                            .slice(0, 6);
 
-                        renderNearby(
-                            nearby
-                        );
+                        map.setView([userLat, userLng], 17);
 
-                        map.setView(
-                            [
-                                userLat,
-                                userLng
-                            ],
-                            16
-                        );
+                        // Hambatan terdekat ditampilkan langsung melalui marker.
+                        nearby.forEach(function (item) {
+                            const report = item.report;
+                            const marker = reportMarkers.get(
+                                String(report.id ?? report.uuid ?? report.judul)
+                            );
 
-                        button.disabled =
-                            false;
+                            if (marker) {
+                                marker.openPopup();
+                            }
+                        });
 
-                        button.textContent =
-                            'Perbarui Lokasi';
+                        button.disabled = false;
+                        button.innerHTML = '<span aria-hidden="true">⌖</span><span>Lokasi Saya</span>';
 
                     },
                     function () {
 
-                        button.disabled =
-                            false;
-
-                        button.textContent =
-                            'Gunakan Lokasi Saya';
+                        button.disabled = false;
+                        button.innerHTML = '<span aria-hidden="true">⌖</span><span>Lokasi Saya</span>';
 
                         alert(
                             'Lokasi tidak dapat diperoleh. Pastikan izin lokasi pada browser telah diberikan.'
@@ -1641,90 +1594,6 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
         return earthRadius * c;
-    }
-
-
-    function renderNearby(items) {
-
-        const list =
-            document.getElementById(
-                'nearby-list'
-            );
-
-        const announcement =
-            document.getElementById(
-                'nearby-announcement'
-            );
-
-        if (!items.length) {
-
-            list.innerHTML = `
-                <div
-                    class="nearby-empty"
-                    style="grid-column:1/-1;"
-                    role="status"
-                >
-                    Tidak ditemukan hambatan
-                    terverifikasi dalam radius
-                    500 meter dari lokasi Anda.
-                </div>
-            `;
-
-            announcement.textContent =
-                'Tidak ditemukan hambatan terverifikasi dalam radius 500 meter.';
-
-            return;
-        }
-
-
-        list.innerHTML =
-            items.map(
-                function (item) {
-
-                    const report =
-                        item.report;
-
-                    const priority =
-                        getPriority(
-                            report.skor_prioritas
-                        );
-
-                    return `
-                        <article
-                            class="nearby-item"
-                            tabindex="0"
-                        >
-
-                            <div class="nearby-item-title">
-                                ${escapeHtml(report.judul)}
-                            </div>
-
-                            <div class="nearby-item-category">
-                                ${escapeHtml(report.kategori || 'Hambatan')}
-                            </div>
-
-                            <div class="nearby-item-address">
-                                ${escapeHtml(
-                                    report.alamat_lengkap
-                                    || 'Alamat tidak tersedia'
-                                )}
-                            </div>
-
-                            <div class="nearby-item-distance">
-                                ${item.distance < 1000
-                                    ? Math.round(item.distance) + ' m'
-                                    : (item.distance / 1000).toFixed(2) + ' km'
-                                }
-                                · Prioritas ${escapeHtml(priority.label)}
-                            </div>
-
-                        </article>
-                    `;
-                }
-            ).join('');
-
-        announcement.textContent =
-            `${items.length} hambatan terdekat ditemukan dalam radius 500 meter.`;
     }
 
 
