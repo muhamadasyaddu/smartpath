@@ -3,874 +3,459 @@
 @section('title', 'Dashboard Warga - SmartPath')
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    #warga-map { height: 360px; width: 100%; }
-    @media (max-width: 640px) { #warga-map { height: 300px; } }
-    .warga-map-card .leaflet-popup-content-wrapper { border-radius: 12px; }
-    .warga-map-card .leaflet-popup-content { margin: 12px 14px; }
-    @keyframes wargaMarkerPulse {
-        0%,100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.2); opacity: .65; }
-    }
-</style>
+    <link rel="stylesheet" href="{{ asset('css/smartpath-warga.css') }}">
 @endpush
 
 @section('content')
-@include('partials.nav-public')
+    @include('partials.nav-public')
 
-<main class="max-w-7xl mx-auto w-full px-4 py-10 sm:px-6 lg:px-8">
-    @if(session('sukses'))
-        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-            {{ session('sukses') }}
-        </div>
-    @endif
-
-    <div class="mb-8">
-        <p class="text-sm font-semibold uppercase tracking-wide text-emerald-600">Dashboard Warga</p>
-        <h1 class="mt-2 text-3xl font-bold text-slate-900 dark:text-white">Halo, {{ $user->nama_lengkap ?? 'Warga' }}</h1>
-        <p class="mt-2 text-slate-600 dark:text-slate-400">Kelola laporan aksesibilitas dan pantau perkembangannya di sini.</p>
-    </div>
-
-    <div class="grid gap-6 md:grid-cols-2">
-        <a href="{{ route('laporan.create') }}" class="rounded-2xl bg-emerald-600 p-6 text-white shadow-sm transition hover:bg-emerald-700">
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/30 flex items-center justify-center mb-4">
-                <i data-lucide="plus-circle" class="w-6 h-6"></i>
+    <main
+        id="warga-dashboard"
+        class="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
+        data-laporan-url="{{ route('peta.data') }}"
+        data-fasilitas-url="{{ route('peta.fasilitas') }}"
+        data-detail-template="{{ route('laporan.show', ['laporan' => '__REPORT_ID__']) }}"
+        data-pilot-bounds='@json(config("smartpath.pilot.bounds"))'
+        data-pilot-center='@json(config("smartpath.pilot.center"))'
+        data-gps-timeout="{{ config('smartpath.location.watch_timeout_ms', 15000) }}"
+        data-warning-accuracy="{{ config('smartpath.location.warning_accuracy_meters', 100) }}"
+        data-manual-accuracy="{{ config('smartpath.location.manual_recommended_accuracy_meters', 500) }}"
+        data-user-name="{{ $user->nama_lengkap ?? 'Warga' }}"
+        data-report-count="{{ $jumlahLaporan ?? 0 }}"
+    >
+        @if(session('sukses'))
+            <div
+                class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+                role="status"
+            >
+                {{ session('sukses') }}
             </div>
-            <h2 class="text-lg font-bold">Buat Laporan</h2>
-            <p class="mt-2 text-sm text-emerald-50">Laporkan hambatan aksesibilitas di sekitar Anda.</p>
-        </a>
+        @endif
 
-        <a href="{{ route('laporan.index') }}" class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0b1822] p-6 shadow-sm transition hover:border-emerald-500 hover:shadow-md group">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600">
-                    <i data-lucide="file-text" class="w-6 h-6"></i>
-                </div>
-                <span class="text-3xl font-bold text-slate-900 dark:text-white">{{ $jumlahLaporan ?? 0 }}</span>
+        <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p class="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-600">
+                    Dashboard Warga
+                </p>
+
+                <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                    Halo, {{ $user->nama_lengkap ?? 'Warga' }}
+                </h1>
+
+                <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                    Kelola laporan aksesibilitas, lihat kondisi jalur pedestrian,
+                    dan temukan hambatan terverifikasi di sekitar lokasi Anda.
+                </p>
             </div>
-            <h2 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 transition">Laporan Saya</h2>
-            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Lihat dan kelola seluruh laporan yang pernah Anda buat.</p>
-        </a>
-    </div>
 
-    <!-- MAP CARD -->
-    <section class="warga-map-card mt-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0b1822] shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200 dark:border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
-<i class="fa-solid fa-person-walking-with-cane text-emerald-600 dark:text-emerald-400 text-base"></i> </div>
-                <div>
-                    <h2 class="text-base font-bold text-slate-900 dark:text-white">Peta Aksesibilitas</h2>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Pantau kondisi aksesibilitas di Kota Depok</p>
-                </div>
-            </div>
-            <span class="inline-flex w-fit items-center gap-1.5 text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1.5 rounded-full">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> LIVE MAP
-            </span>
-        </div>
+            <button
+                type="button"
+                id="btn-read-page"
+                class="inline-flex w-fit items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                aria-label="Dengar panduan Dashboard Warga"
+                aria-pressed="false"
+            >
+                <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                <span>Dengar Panduan</span>
+            </button>
+        </header>
 
-      
+        <section aria-labelledby="warga-actions-title">
+            <h2 id="warga-actions-title" class="sr-only">
+                Akses cepat Dashboard Warga
+            </h2>
 
-                <div id="warga-map" role="application" aria-label="Peta aksesibilitas SmartPath"></div>
+            <div class="grid gap-6 md:grid-cols-3">
 
-                
-                </div>
-            </div>
-                        <!-- CARI RUTE -->
-           <div class="grid gap-6 md:grid-cols-2 mt-6">
+                {{-- BUAT LAPORAN --}}
+                <a
+                    href="{{ route('laporan.create') }}"
+                    class="group rounded-2xl bg-emerald-600 p-6 text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+                    <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
+                        <i
+                            class="fa-solid fa-file-circle-plus text-lg"
+                            aria-hidden="true"
+                        ></i>
+                    </div>
 
-    <!-- CARD NEARBY -->
-    <a href="{{ route('peta.nearby') }}"
-       class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0b1822] p-6 shadow-sm transition hover:border-emerald-500 hover:shadow-md">
+                    <h2 class="text-lg font-bold">
+                        Buat Laporan
+                    </h2>
 
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10
-                    flex items-center justify-center text-emerald-600 mb-4">
-            <i class="fa-solid fa-location-dot"></i>
-        </div>
-
-        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
-            Nearby
-        </h2>
-
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Temukan hambatan aksesibilitas di sekitar lokasi Anda.
-        </p>
-
-        <div class="mt-4 text-sm font-semibold text-emerald-600">
-            Lihat Nearby
-            <i class="fa-solid fa-arrow-right ml-1"></i>
-        </div>
-    </a>
-
-
-    <!-- CARD NAVIGASI AKTIF -->
-    <a href="{{ route('navigasi.index') }}"
-       class="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0b1822] p-6 shadow-sm transition hover:border-emerald-500 hover:shadow-md">
-
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10
-                    flex items-center justify-center text-emerald-600 mb-4">
-            <i class="fa-solid fa-person-walking-with-cane"></i>
-        </div>
-
-        <h2 class="text-lg font-bold text-slate-900 dark:text-white">
-            Navigasi Aktif
-        </h2>
-
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            Tentukan tujuan dan dapatkan panduan perjalanan serta peringatan hambatan.
-        </p>
-
-        <div class="mt-4 text-sm font-semibold text-emerald-600">
-            Mulai Navigasi
-            <i class="fa-solid fa-arrow-right ml-1"></i>
-        </div>
-    </a>
-
-</div>
-
-            <div class="flex flex-wrap items-center justify-between gap-3 pt-3">
-                <div class="flex flex-wrap gap-2">
-                    <button type="button" id="btnLokasiSaya" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-[10px] font-semibold text-slate-600 dark:text-slate-300 hover:border-emerald-500 hover:text-emerald-600 transition">
-                        <i class="fa-solid fa-location-crosshairs"></i> Lokasi Saya
-                    </button>
-                    <button type="button" id="btnFasilitas" aria-pressed="false" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-[10px] font-semibold text-slate-600 dark:text-slate-300 hover:border-emerald-500 hover:text-emerald-600 transition">
-                        <i class="fa-solid fa-building"></i> Fasilitas Publik
-                    </button>
-                </div>
-                <a href="{{ route('peta.index') }}" class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-emerald-600 hover:text-emerald-700 transition">
-                    Buka Peta Lengkap <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                    <p class="mt-2 text-sm leading-6 text-emerald-50">
+                        Laporkan hambatan aksesibilitas yang Anda temukan
+                        di ruang pedestrian.
+                    </p>
                 </a>
+
+                {{-- LAPORAN SAYA --}}
+                <a
+                    href="{{ route('laporan.index') }}"
+                    class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                            <i
+                                class="fa-solid fa-file-lines"
+                                aria-hidden="true"
+                            ></i>
+                        </div>
+
+                        <span class="text-3xl font-bold tracking-tight text-slate-900">
+                            {{ $jumlahLaporan ?? 0 }}
+                        </span>
+                    </div>
+
+                    <h2 class="text-lg font-bold text-slate-900 transition group-hover:text-emerald-700">
+                        Laporan Saya
+                    </h2>
+
+                    <p class="mt-2 text-sm leading-6 text-slate-600">
+                        Lihat laporan yang pernah Anda kirim dan pantau statusnya.
+                    </p>
+                </a>
+
+                {{-- PETA AKSESIBILITAS --}}
+                <a
+                    href="{{ route('peta.index') }}"
+                    class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+                    <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <i
+                            class="fa-solid fa-map-location-dot"
+                            aria-hidden="true"
+                        ></i>
+                    </div>
+
+                    <h2 class="text-lg font-bold text-slate-900 transition group-hover:text-emerald-700">
+                        Peta Aksesibilitas
+                    </h2>
+
+                    <p class="mt-2 text-sm leading-6 text-slate-600">
+                        Jelajahi titik hambatan terverifikasi dan fasilitas publik
+                        yang tersedia.
+                    </p>
+                </a>
+
+            </div>
+        </section>
+
+        {{-- ==========================================================
+             PETA AKSESIBILITAS
+        =========================================================== --}}
+        <section
+            class="warga-map-card mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+            aria-labelledby="warga-map-title"
+        >
+            <div class="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <i
+                            class="fa-solid fa-map"
+                            aria-hidden="true"
+                        ></i>
+                    </div>
+
+                    <div>
+                        <h2
+                            id="warga-map-title"
+                            class="text-base font-bold text-slate-900"
+                        >
+                            Peta Aksesibilitas
+                        </h2>
+
+                        <p class="mt-0.5 text-xs text-slate-500">
+                            Data laporan yang ditampilkan pada peta telah melalui
+                            proses verifikasi.
+                        </p>
+                    </div>
+
+                </div>
+
+                <span class="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-[10px] font-bold tracking-wide text-emerald-700">
+                    <span
+                        class="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                        aria-hidden="true"
+                    ></span>
+
+                    DATA TERVERIFIKASI
+                </span>
+
             </div>
 
-            
-        </div>
-    </section>
-</main>
+            <div
+                id="warga-map"
+                class="warga-dashboard__map"
+                role="region"
+                aria-label="Peta interaktif aksesibilitas SmartPath Kota Depok"
+            ></div>
+
+            <p
+                id="warga-map-status"
+                class="warga-map-status px-5 pt-3 text-xs text-slate-500"
+                role="status"
+                aria-live="polite"
+            >
+                Peta sedang disiapkan.
+            </p>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 pb-5 pt-3">
+
+                <div class="flex flex-wrap gap-2">
+
+                    <button
+                        type="button"
+                        id="btn-warga-location"
+                        class="warga-map-control inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        aria-busy="false"
+                    >
+                        <i
+                            class="fa-solid fa-location-crosshairs"
+                            aria-hidden="true"
+                        ></i>
+
+                        <span>Gunakan Lokasi Saya</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        id="btn-warga-facilities"
+                        class="warga-map-control inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        aria-pressed="false"
+                    >
+                        <i
+                            class="fa-solid fa-building"
+                            aria-hidden="true"
+                        ></i>
+
+                        <span>Fasilitas Publik</span>
+                    </button>
+
+                </div>
+
+                <a
+                    href="{{ route('peta.index') }}"
+                    class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 transition hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                >
+                    Buka Peta Lengkap
+
+                    <i
+                        class="fa-solid fa-arrow-right text-[10px]"
+                        aria-hidden="true"
+                    ></i>
+                </a>
+
+            </div>
+        </section>
+
+        {{-- ==========================================================
+             NEARBY OBSTACLES LIST
+        =========================================================== --}}
+        <section
+            class="mt-8"
+            aria-labelledby="warga-nearby-title"
+        >
+
+            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+
+                <div>
+
+                    <p class="text-xs font-semibold uppercase tracking-[0.08em] text-emerald-600">
+                        Mode Eksplorasi Pasif
+                    </p>
+
+                    <h2
+                        id="warga-nearby-title"
+                        class="mt-1 text-xl font-bold tracking-tight text-slate-900"
+                    >
+                        Hambatan Terdekat
+                    </h2>
+
+                    <p class="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
+                        Daftar teks ini membantu pengguna pembaca layar mengetahui
+                        hambatan aksesibilitas terverifikasi dalam radius 50 meter
+                        dari lokasi mereka.
+                    </p>
+
+                </div>
+
+                <div class="flex items-center gap-2">
+
+                    <span
+                        id="warga-nearby-summary"
+                        class="rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-600"
+                    >
+                        Lokasi belum digunakan
+                    </span>
+
+                    <button
+                        type="button"
+                        id="btn-read-nearby"
+                        class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        aria-pressed="false"
+                        disabled
+                    >
+                        <i
+                            class="fa-solid fa-volume-high"
+                            aria-hidden="true"
+                        ></i>
+
+                        <span>Dengar Hambatan Terdekat</span>
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div
+                id="warga-nearby-status"
+                class="warga-dashboard__sr-status"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+            ></div>
+
+            <div
+                id="warga-nearby-list"
+                class="grid gap-3"
+                aria-label="Daftar hambatan aksesibilitas terdekat"
+            >
+
+                <div
+                    class="warga-nearby-empty"
+                    role="status"
+                >
+                    <span
+                        class="warga-nearby-empty__icon"
+                        aria-hidden="true"
+                    >
+                        <i class="fa-solid fa-location-crosshairs"></i>
+                    </span>
+
+                    <div>
+                        <h3>Lokasi belum digunakan</h3>
+
+                        <p>
+                            Gunakan tombol “Gunakan Lokasi Saya” pada peta
+                            untuk mencari hambatan terverifikasi dalam radius
+                            50 meter.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        {{-- ==========================================================
+             FITUR TAMBAHAN
+        =========================================================== --}}
+        <section
+            class="mt-8 grid gap-6 md:grid-cols-2"
+            aria-labelledby="warga-tools-title"
+        >
+
+            <h2
+                id="warga-tools-title"
+                class="sr-only"
+            >
+                Fitur tambahan
+            </h2>
+
+            {{-- NEARBY --}}
+            <a
+                href="{{ route('peta.nearby') }}"
+                class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            >
+                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <i
+                        class="fa-solid fa-location-dot"
+                        aria-hidden="true"
+                    ></i>
+                </div>
+
+                <h2 class="text-lg font-bold text-slate-900 transition group-hover:text-emerald-700">
+                    Nearby
+                </h2>
+
+                <p class="mt-2 text-sm leading-6 text-slate-600">
+                    Buka halaman Nearby untuk membaca daftar hambatan
+                    terverifikasi berdasarkan lokasi Anda.
+                </p>
+
+                <span class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                    Lihat Nearby
+
+                    <i
+                        class="fa-solid fa-arrow-right"
+                        aria-hidden="true"
+                    ></i>
+                </span>
+            </a>
+
+            {{-- NAVIGASI --}}
+            <a
+                href="{{ route('navigasi.index') }}"
+                class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            >
+                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
+                    <i
+                        class="fa-solid fa-route"
+                        aria-hidden="true"
+                    ></i>
+                </div>
+
+                <h2 class="text-lg font-bold text-slate-900 transition group-hover:text-emerald-700">
+                    Navigasi Aktif
+                </h2>
+
+                <p class="mt-2 text-sm leading-6 text-slate-600">
+                    Tentukan tujuan perjalanan dan gunakan panduan suara
+                    serta peringatan hambatan pada halaman navigasi.
+                </p>
+
+                <span class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-teal-700">
+                    Mulai Navigasi
+
+                    <i
+                        class="fa-solid fa-arrow-right"
+                        aria-hidden="true"
+                    ></i>
+                </span>
+            </a>
+
+        </section>
+
+        {{-- CATATAN ACCESSIBILITY --}}
+        <aside
+            class="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4"
+            aria-label="Informasi aksesibilitas"
+        >
+            <div class="flex gap-3">
+
+                <i
+                    class="fa-solid fa-universal-access mt-0.5 text-emerald-700"
+                    aria-hidden="true"
+                ></i>
+
+                <p class="text-xs leading-6 text-emerald-900">
+                    Informasi hambatan pada daftar Nearby disajikan dalam bentuk
+                    teks dan dilengkapi status prioritas agar dapat dipahami
+                    tanpa bergantung pada warna atau peta visual.
+                </p>
+
+            </div>
+        </aside>
+
+    </main>
 @endsection
 
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    'use strict';
-
-    const map = L.map('warga-map', { center: [-6.4025, 106.8197], zoom: 13, zoomControl: true });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
-
-    const laporanLayer = L.layerGroup().addTo(map);
-    const fasilitasLayer = L.layerGroup();
-    let laporanData = [], fasilitasData = [], userMarker = null, userCircle = null;
-    const status = document.getElementById('wargaMapStatus');
-
-    const escapeHtml = value => {
-        const el = document.createElement('div');
-        el.textContent = value ?? '';
-        return el.innerHTML;
-    };
-
-    const setStatus = text => { if (status) status.textContent = text; };
-
-    function markerIcon(priority) {
-        const p = String(priority || '').toLowerCase();
-        const color = p === 'tinggi' ? '#ef4444' : p === 'sedang' ? '#f59e0b' : p === 'rendah' ? '#3b82f6' : '#64748b';
-        return L.divIcon({
-            className: 'warga-marker',
-            html: `<div style="width:${p === 'tinggi' ? 18 : 15}px;height:${p === 'tinggi' ? 18 : 15}px;background:${color};border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.3);${p === 'tinggi' ? 'animation:wargaMarkerPulse 2s infinite;' : ''}"></div>`,
-            iconSize: [18,18], iconAnchor: [9,9], popupAnchor: [0,-9]
-        });
-    }
-
-    function renderLaporan(data) {
-        laporanLayer.clearLayers();
-        data.forEach(item => {
-            const lat = parseFloat(item.latitude), lng = parseFloat(item.longitude);
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-
-            const marker = L.marker([lat,lng], { icon: markerIcon(item.tingkat_prioritas) });
-            marker.bindPopup(`
-                <div style="min-width:210px;max-width:280px">
-                    ${item.foto_utama ? `<img src="${escapeHtml(item.foto_utama)}" alt="Foto laporan" style="width:100%;height:115px;object-fit:cover;border-radius:8px;margin-bottom:8px">` : ''}
-                    <h3 style="font-weight:700;font-size:14px;margin:0 0 5px;color:#0f172a">${escapeHtml(item.judul || 'Laporan aksesibilitas')}</h3>
-                    <p style="font-size:11px;color:#64748b;margin:0 0 5px">${escapeHtml(item.kategori || 'Tanpa kategori')}</p>
-                    <p style="font-size:11px;color:#475569;margin:0 0 7px">${escapeHtml(item.alamat_lengkap || 'Alamat tidak tersedia')}</p>
-                    <span style="display:inline-block;padding:3px 8px;border-radius:999px;background:#ecfdf5;color:#047857;font-size:10px;font-weight:600">${escapeHtml(item.status_label || item.status || 'Terverifikasi')}</span>
-                    <span style="font-size:10px;color:#64748b;margin-left:5px">Prioritas: ${escapeHtml(item.tingkat_prioritas || 'Belum Dinilai')}</span>
-                    <br><a href="/laporan/${encodeURIComponent(item.id)}" style="display:inline-block;margin-top:8px;color:#059669;font-size:11px;font-weight:600;text-decoration:none">Lihat Detail →</a>
-                </div>
-            `, { maxWidth: 300 });
-            laporanLayer.addLayer(marker);
-        });
-    }
-
-    function facilityIcon() {
-        return L.divIcon({
-            className: 'warga-facility',
-            html: `<div style="width:24px;height:24px;background:#0d9488;border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);color:white;font-size:10px"><i class="fa-solid fa-building"></i></div>`,
-            iconSize: [24,24], iconAnchor: [12,12]
-        });
-    }
-
-    function renderFasilitas(data) {
-        fasilitasLayer.clearLayers();
-        data.forEach(item => {
-            const lat = parseFloat(item.latitude), lng = parseFloat(item.longitude);
-            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-            const marker = L.marker([lat,lng], { icon: facilityIcon() });
-            marker.bindPopup(`<div style="min-width:180px"><h3 style="font-weight:700;font-size:13px;margin:0 0 5px;color:#0f172a">${escapeHtml(item.nama || 'Fasilitas Publik')}</h3><p style="font-size:11px;color:#64748b;margin:0">${escapeHtml(item.jenis || 'Fasilitas publik')}<br>${escapeHtml(item.alamat || 'Alamat tidak tersedia')}</p></div>`);
-            fasilitasLayer.addLayer(marker);
-        });
-    }
-
-    fetch('{{ route("peta.data") }}')
-        .then(r => { if (!r.ok) throw new Error('Gagal memuat data laporan'); return r.json(); })
-        .then(data => {
-            laporanData = Array.isArray(data) ? data : [];
-            renderLaporan(laporanData);
-            setStatus('');
-        })
-        .catch(error => { console.error(error); setStatus('Data laporan belum dapat dimuat.'); });
-
-    fetch('{{ route("peta.fasilitas") }}')
-        .then(r => { if (!r.ok) throw new Error('Gagal memuat data fasilitas'); return r.json(); })
-        .then(data => { fasilitasData = Array.isArray(data) ? data : []; renderFasilitas(fasilitasData); })
-        .catch(error => console.error(error));
-
-    document.getElementById('btnFasilitas').addEventListener('click', function () {
-        const active = map.hasLayer(fasilitasLayer);
-        if (active) {
-            map.removeLayer(fasilitasLayer);
-            this.setAttribute('aria-pressed', 'false');
-            this.classList.remove('border-emerald-500','text-emerald-600');
-        } else {
-            fasilitasLayer.addTo(map);
-            this.setAttribute('aria-pressed', 'true');
-            this.classList.add('border-emerald-500','text-emerald-600');
-        }
-    });
-
-    document.getElementById('btnLokasiSaya').addEventListener('click', function () {
-        if (!navigator.geolocation) { setStatus('Perangkat atau browser tidak mendukung GPS.'); return; }
-        const button = this;
-        button.disabled = true;
-        setStatus('Sedang mendeteksi lokasi kamu...');
-        navigator.geolocation.getCurrentPosition(position => {
-            const lat = position.coords.latitude, lng = position.coords.longitude, accuracy = position.coords.accuracy;
-            if (userMarker) map.removeLayer(userMarker);
-            if (userCircle) map.removeLayer(userCircle);
-            userCircle = L.circle([lat,lng], { radius: accuracy, color:'#059669', fillColor:'#10b981', fillOpacity:.12, weight:2 }).addTo(map);
-            userMarker = L.marker([lat,lng], { icon:L.divIcon({ className:'warga-user', html:'<div style="width:16px;height:16px;background:#059669;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.35)"></div>', iconSize:[16,16], iconAnchor:[8,8] }) }).addTo(map).bindPopup('Lokasi kamu').openPopup();
-            map.setView([lat,lng],16);
-            setStatus(`Lokasi kamu ditemukan. Akurasi GPS ±${Math.round(accuracy)} meter.`);
-            button.disabled = false;
-        }, error => {
-            const messages = {1:'Izin lokasi ditolak. Silakan izinkan akses lokasi pada browser.',2:'Lokasi tidak tersedia. Pastikan GPS/lokasi perangkat aktif.',3:'Waktu mendapatkan lokasi habis. Silakan coba lagi.'};
-            setStatus(messages[error.code] || 'Lokasi tidak dapat ditemukan.');
-            button.disabled = false;
-        }, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
-    });
-
-   
-// ==========================================================
-// NAVIGASI AKTIF DI DALAM MAP
-// ==========================================================
-
-const routeForm = document.getElementById('wargaRouteForm');
-const routeDestination = document.getElementById('wargaRouteDestination');
-const routeButton = document.getElementById('wargaRouteButton');
-
-const routeChoices = document.getElementById('wargaRouteChoices');
-const routeResult = document.getElementById('wargaRouteResult');
-
-const routeName = document.getElementById('wargaRouteName');
-const routeAddress = document.getElementById('wargaRouteAddress');
-const routeDistance = document.getElementById('wargaRouteDistance');
-const routeDuration = document.getElementById('wargaRouteDuration');
-const routeHazards = document.getElementById('wargaRouteHazards');
-
-const startTrip = document.getElementById('wargaStartTrip');
-
-let wargaCurrentPosition = null;
-let wargaSelectedDestination = null;
-let wargaRouteLine = null;
-let wargaRouteGeometry = null;
-let wargaRouteSteps = [];
-let wargaRouteHazards = [];
-let wargaWatchId = null;
-let wargaNextStepIndex = 0;
-const wargaAnnouncedSteps = new Set();
-
-
-// ==========================================================
-// FORMAT JARAK
-// ==========================================================
-
-function formatRouteDistance(meters) {
-
-    meters = Number(meters || 0);
-
-    if (meters >= 1000) {
-        return (meters / 1000).toFixed(2) + ' km';
-    }
-
-    return Math.round(meters) + ' meter';
-}
-
-
-// ==========================================================
-// FORMAT DURASI
-// ==========================================================
-
-function formatRouteDuration(seconds) {
-
-    seconds = Number(seconds || 0);
-
-    const minutes = Math.max(
-        1,
-        Math.round(seconds / 60)
-    );
-
-    return minutes + ' menit';
-}
-
-
-// ==========================================================
-// AMBIL GPS
-// ==========================================================
-
-function getWargaCurrentPosition() {
-
-    return new Promise((resolve, reject) => {
-
-        if (!navigator.geolocation) {
-
-            reject(
-                new Error(
-                    'Browser tidak mendukung GPS.'
-                )
-            );
-
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-
-            function(position) {
-
-                wargaCurrentPosition = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    accuracy: position.coords.accuracy
-                };
-
-                resolve(
-                    wargaCurrentPosition
-                );
-            },
-
-            function(error) {
-
-                if (error.code === 1) {
-                    reject(
-                        new Error(
-                            'Izin lokasi ditolak. Aktifkan GPS/lokasi browser.'
-                        )
-                    );
-                }
-                else if (error.code === 2) {
-                    reject(
-                        new Error(
-                            'Lokasi tidak tersedia.'
-                        )
-                    );
-                }
-                else if (error.code === 3) {
-                    reject(
-                        new Error(
-                            'Waktu mendapatkan lokasi habis.'
-                        )
-                    );
-                }
-                else {
-                    reject(
-                        new Error(
-                            'Lokasi tidak dapat ditemukan.'
-                        )
-                    );
-                }
-            },
-
-            {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 0
-            }
-        );
-    });
-}
-
-
-// ==========================================================
-// GAMBAR RUTE DI LEAFLET
-// ==========================================================
-
-function drawWargaRoute(geometry) {
-
-    if (wargaRouteLine) {
-
-        map.removeLayer(
-            wargaRouteLine
-        );
-    }
-
-    const coordinates = geometry && geometry.type === 'LineString'
-        ? geometry.coordinates
-        : geometry;
-
-    if (!Array.isArray(coordinates) || coordinates.length === 0) {
-
-        return;
-    }
-
-    wargaRouteGeometry = geometry;
-
-    const leafletCoordinates = coordinates.map(function (coordinate) {
-        return [Number(coordinate[1]), Number(coordinate[0])];
-    });
-
-    wargaRouteLine = L.polyline(
-        leafletCoordinates,
-        {
-            color: '#059669',
-            weight: 6,
-            opacity: 0.85,
-            lineJoin: 'round',
-            lineCap: 'round'
-        }
-    ).addTo(map);
-
-    map.fitBounds(
-        wargaRouteLine.getBounds(),
-        {
-            padding: [30, 30]
-        }
-    );
-}
-
-
-// ==========================================================
-// TAMPILKAN PILIHAN TUJUAN
-// ==========================================================
-
-function showRouteChoices(items) {
-
-    routeChoices.innerHTML = '';
-
-    routeChoices.classList.remove(
-        'hidden'
-    );
-
-    items.forEach(function(item) {
-
-        const button =
-            document.createElement('button');
-
-        button.type = 'button';
-
-        button.className =
-            'w-full text-left rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0b1822] p-3 hover:border-emerald-500 transition';
-
-        const nama = item.tujuan || item.nama || item.display_name || 'Tujuan';
-        const alamat = item.alamat || item.display_name || nama;
-        const jarak = item.jarak_pengguna ?? item.jarak;
-
-        button.setAttribute('aria-label', `Pilih tujuan ${nama}`);
-        button.innerHTML = `
-            <p class="text-xs font-bold text-slate-900 dark:text-white">
-                ${escapeHtml(nama)}
-            </p>
-
-            <p class="mt-1 text-[10px] text-slate-500 dark:text-slate-400">
-                ${escapeHtml(alamat)}
-            </p>
-
-            ${
-                jarak !== undefined && jarak !== null
-                    ? `
-                        <p class="mt-1 text-[10px] text-emerald-600">
-                            ${formatRouteDistance(jarak)}
-                        </p>
-                    `
-                    : ''
-            }
-        `;
-
-        button.addEventListener(
-            'click',
-            function() {
-
-                wargaSelectedDestination = {
-
-                    latitude:
-                        Number(item.latitude),
-
-                    longitude:
-                        Number(item.longitude),
-
-                    nama:
-                        nama,
-
-                    alamat: alamat
-                };
-
-                routeChoices.classList.add(
-                    'hidden'
-                );
-
-                buatRuteWarga();
-            }
-        );
-
-        routeChoices.appendChild(
-            button
-        );
-    });
-}
-
-
-// ==========================================================
-// BUAT RUTE
-// ==========================================================
-
-async function buatRuteWarga() {
-    if (!wargaSelectedDestination) return;
-
-    setStatus('Sedang menghitung rute perjalanan...');
-
-    try {
-        await getWargaCurrentPosition();
-
-        const response = await fetch('{{ route("navigasi.rute") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                latitude_awal: wargaCurrentPosition.latitude,
-                longitude_awal: wargaCurrentPosition.longitude,
-                latitude_tujuan: wargaSelectedDestination.latitude,
-                longitude_tujuan: wargaSelectedDestination.longitude
-            })
-        });
-
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-            throw new Error(data.message || 'Rute tidak dapat dibuat.');
-        }
-
-        wargaRouteSteps = Array.isArray(data.steps) ? data.steps : [];
-        drawWargaRoute(data.geometry);
-
-        routeResult.classList.remove('hidden');
-        routeName.textContent = wargaSelectedDestination.nama;
-        routeAddress.textContent = wargaSelectedDestination.alamat || wargaSelectedDestination.nama;
-        routeDistance.textContent = formatRouteDistance(data.distance);
-        routeDuration.textContent = formatRouteDuration(data.duration);
-
-        await cekHambatanWarga(data.geometry);
-        setStatus('Rute berhasil ditampilkan pada peta.');
-    } catch (error) {
-        console.error('Gagal membuat rute:', error);
-        setStatus(error.message || 'Gagal membuat rute.');
-    }
-}
-
-async function cekHambatanWarga(geometry) {
-    const response = await fetch('{{ route("navigasi.cek-hambatan") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({ geometry: geometry })
-    });
-
-    const data = await response.json();
-    if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Pengecekan hambatan gagal.');
-    }
-
-    wargaRouteHazards = Array.isArray(data.hambatan) ? data.hambatan : [];
-
-    if (!wargaRouteHazards.length) {
-        routeHazards.innerHTML = '<p role="status">Tidak ada hambatan yang terdeteksi di sepanjang rute.</p>';
-        return;
-    }
-
-    routeHazards.innerHTML = `
-        <p class="font-semibold text-amber-600">Hambatan sepanjang rute: ${wargaRouteHazards.length}</p>
-        <ul class="mt-1 list-disc pl-5" aria-label="Daftar hambatan sepanjang rute">
-            ${wargaRouteHazards.map(item => `<li>${escapeHtml(item.judul || 'Hambatan aksesibilitas')} (${escapeHtml(String(item.jarak_dari_rute ?? 0))} meter dari rute)</li>`).join('')}
-        </ul>
-    `;
-}
-
-
-// ==========================================================
-// SUBMIT CARI RUTE
-// ==========================================================
-
-routeForm.addEventListener(
-    'submit',
-    async function(event) {
-
-        event.preventDefault();
-
-        const tujuan =
-            routeDestination.value.trim();
-
-        if (!tujuan) {
-
-            setStatus(
-                'Masukkan tujuan perjalanan terlebih dahulu.'
-            );
-
-            return;
-        }
-
-
-        routeButton.disabled = true;
-
-        routeButton.innerHTML =
-            `
-                <i class="fa-solid fa-spinner fa-spin"></i>
-                Mencari...
-            `;
-
-
-        try {
-
-            // GPS
-            await getWargaCurrentPosition();
-
-
-            // Cari tujuan
-            const response =
-                await fetch(
-                    '{{ route("navigasi.cari-tujuan") }}',
-                    {
-                        method: 'POST',
-
-                        headers: {
-
-                            'Content-Type':
-                                'application/json',
-
-                            'X-CSRF-TOKEN':
-                                '{{ csrf_token() }}',
-
-                            'Accept':
-                                'application/json'
-                        },
-
-                        body: JSON.stringify({
-
-                            tujuan:
-                                tujuan,
-
-                            latitude:
-                                wargaCurrentPosition.latitude,
-
-                            longitude:
-                                wargaCurrentPosition.longitude
-                        })
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (
-                !response.ok ||
-                !data.success
-            ) {
-
-                throw new Error(
-                    data.message ||
-                    'Tujuan tidak ditemukan.'
-                );
-            }
-
-
-            const hasil = Array.isArray(data.hasil) ? data.hasil : [];
-
-            if (data.tipe_pencarian === 'kategori') {
-                if (!hasil.length) throw new Error('Tujuan tidak ditemukan.');
-                showRouteChoices(hasil);
-                setStatus('Pilih salah satu tujuan yang tersedia.');
-            } else if (data.latitude !== undefined && data.longitude !== undefined) {
-                wargaSelectedDestination = {
-                    latitude: Number(data.latitude),
-                    longitude: Number(data.longitude),
-                    nama: data.tujuan || tujuan,
-                    alamat: data.alamat || data.tujuan || tujuan
-                };
-                await buatRuteWarga();
-            } else {
-                throw new Error('Tujuan tidak ditemukan.');
-            }
-
-        }
-        catch(error) {
-
-            console.error(
-                'Navigasi:',
-                error
-            );
-
-            setStatus(
-                error.message ||
-                'Pencarian rute gagal.'
-            );
-
-        }
-        finally {
-
-            routeButton.disabled = false;
-
-            routeButton.innerHTML =
-                `
-                    <i class="fa-solid fa-route"></i>
-                    Cari Rute
-                `;
-        }
-    }
-);
-
-
-// ==========================================================
-// MULAI PERJALANAN
-// ==========================================================
-
-startTrip.addEventListener(
-    'click',
-    function() {
-
-        if (
-            !wargaSelectedDestination
-        ) {
-
-            setStatus(
-                'Cari tujuan terlebih dahulu.'
-            );
-
-            return;
-        }
-
-
-        if (wargaWatchId !== null) return;
-
-        wargaNextStepIndex = 0;
-        wargaAnnouncedSteps.clear();
-        setStatus('Navigasi aktif. Posisi pengguna sedang dipantau.');
-        bacakanWarga('Rute dimulai. Tujuan Anda adalah ' + wargaSelectedDestination.nama + '.');
-
-        wargaWatchId = navigator.geolocation.watchPosition(
-            function (position) {
-                wargaCurrentPosition = {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    accuracy: position.coords.accuracy
-                };
-
-                if (userMarker) map.removeLayer(userMarker);
-                if (userCircle) map.removeLayer(userCircle);
-
-                userCircle = L.circle(
-                    [wargaCurrentPosition.latitude, wargaCurrentPosition.longitude],
-                    { radius: wargaCurrentPosition.accuracy, color: '#059669', fillColor: '#10b981', fillOpacity: .12, weight: 2 }
-                ).addTo(map);
-                userMarker = L.marker([
-                    wargaCurrentPosition.latitude,
-                    wargaCurrentPosition.longitude
-                ]).addTo(map);
-
-                prosesPanduanWarga();
-                cekHambatanTerdekatWarga();
-            },
-            function () {
-                setStatus('Posisi GPS tidak dapat diperbarui. Pastikan lokasi perangkat tetap aktif.');
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 3000 }
-        );
-    }
-);
-
-function bacakanWarga(teks) {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    const suara = new SpeechSynthesisUtterance(teks);
-    suara.lang = 'id-ID';
-    suara.rate = 1;
-    window.speechSynthesis.speak(suara);
-}
-
-function prosesPanduanWarga() {
-    const langkah = wargaRouteSteps[wargaNextStepIndex];
-    if (!langkah || langkah.latitude === null || langkah.longitude === null) return;
-
-    const jarak = hitungJarakWarga(
-        wargaCurrentPosition.latitude,
-        wargaCurrentPosition.longitude,
-        Number(langkah.latitude),
-        Number(langkah.longitude)
-    );
-
-    if (jarak > 80 || wargaAnnouncedSteps.has(wargaNextStepIndex)) return;
-
-    const arah = langkah.modifier === 'left'
-        ? 'belok kiri'
-        : langkah.modifier === 'right'
-            ? 'belok kanan'
-            : 'lanjut mengikuti rute';
-
-    bacakanWarga(`Dalam sekitar ${Math.max(1, Math.round(jarak))} meter, ${arah}.`);
-    wargaAnnouncedSteps.add(wargaNextStepIndex);
-
-    if (jarak <= 25) wargaNextStepIndex += 1;
-}
-
-function cekHambatanTerdekatWarga() {
-    const hambatan = wargaRouteHazards.find(function (item) {
-        if (!item.latitude || !item.longitude) return false;
-        return hitungJarakWarga(
-            wargaCurrentPosition.latitude,
-            wargaCurrentPosition.longitude,
-            Number(item.latitude),
-            Number(item.longitude)
-        ) <= 50;
-    });
-
-    if (hambatan) {
-        bacakanWarga('Hati-hati, terdapat hambatan aksesibilitas di sekitar Anda.');
-    }
-}
-
-function hitungJarakWarga(lat1, lon1, lat2, lon2) {
-    const rad = value => value * Math.PI / 180;
-    const a = Math.sin(rad(lat2 - lat1) / 2) ** 2
-        + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(rad(lon2 - lon1) / 2) ** 2;
-    return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-    window.addEventListener('resize', () => setTimeout(() => map.invalidateSize(), 150));
-    setTimeout(() => map.invalidateSize(), 300);
-});
-</script>
+    <script
+        src="{{ asset('js/smartpath-warga.js') }}"
+        defer
+    ></script>
 @endpush

@@ -1,0 +1,327 @@
+/* ==========================================================
+   SmartPath — Dashboard Warga
+   ========================================================== */
+
+.warga-dashboard__map {
+    width: 100%;
+    min-height: 360px;
+    background: #f1f5f9;
+}
+
+.warga-map-card .leaflet-container {
+    font-family: 'Inter', sans-serif;
+    background: #e2e8f0;
+}
+
+.warga-map-card .leaflet-popup-content-wrapper,
+.warga-map-card .leaflet-popup-tip {
+    border-radius: 14px;
+}
+
+.warga-map-card .leaflet-popup-content {
+    margin: 14px 16px;
+    min-width: 190px;
+}
+
+.warga-map-card .leaflet-control-zoom a {
+    color: #334155;
+}
+
+/* ==========================================================
+   MARKER LAPORAN
+   ========================================================== */
+
+.warga-report-marker,
+.warga-facility-marker {
+    background: transparent;
+    border: 0;
+}
+
+.warga-report-marker__dot {
+    display: block;
+    width: 18px;
+    height: 18px;
+    border: 3px solid #ffffff;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.28);
+}
+
+.warga-facility-marker__dot {
+    display: flex;
+    width: 28px;
+    height: 28px;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #ffffff;
+    border-radius: 999px;
+    background: #0f766e;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.28);
+    font-size: 11px;
+}
+
+/* ==========================================================
+   POPUP MAP
+   ========================================================== */
+
+.warga-popup h3 {
+    margin: 0 0 6px;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.warga-popup p {
+    margin: 0 0 5px;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.warga-popup__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.warga-popup__meta span {
+    display: inline-flex;
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.warga-popup a {
+    display: inline-flex;
+    margin-top: 2px;
+    color: #059669;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.warga-popup a:hover {
+    color: #047857;
+    text-decoration: underline;
+}
+
+/* ==========================================================
+   STATUS MAP
+   ========================================================== */
+
+.warga-map-status {
+    min-height: 1.25rem;
+}
+
+.warga-map-control.is-active {
+    border-color: #059669;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+/* ==========================================================
+   NEARBY
+   ========================================================== */
+
+.warga-nearby-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #ffffff;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.warga-nearby-item:hover,
+.warga-nearby-item:focus-visible {
+    border-color: #34d399;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.warga-nearby-item:focus-visible {
+    outline: 3px solid #047857;
+    outline-offset: 3px;
+}
+
+.warga-nearby-item__icon,
+.warga-nearby-empty__icon {
+    display: flex;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.warga-nearby-item__body {
+    min-width: 0;
+    flex: 1;
+}
+
+.warga-nearby-item__top {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.warga-nearby-item__top h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.warga-nearby-item__category {
+    margin: 5px 0 0;
+    color: #047857;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.warga-nearby-item__address {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.warga-nearby-item__distance {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    margin: 9px 0 0;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ==========================================================
+   PRIORITAS
+   ========================================================== */
+
+.warga-priority-badge {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    border-radius: 999px;
+    padding: 5px 8px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.warga-priority-badge.is-high {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.warga-priority-badge.is-medium {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.warga-priority-badge.is-low {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.warga-priority-badge.is-unknown {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+/* ==========================================================
+   EMPTY STATE
+   ========================================================== */
+
+.warga-nearby-empty {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border: 1px dashed #cbd5e1;
+    border-radius: 16px;
+    background: #ffffff;
+    padding: 22px;
+}
+
+.warga-nearby-empty__icon.is-warning {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.warga-nearby-empty h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.warga-nearby-empty p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* ==========================================================
+   SCREEN READER STATUS
+   ========================================================== */
+
+.warga-dashboard__sr-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 640px) {
+
+    .warga-dashboard__map {
+        min-height: 300px;
+    }
+
+    .warga-nearby-item {
+        padding: 15px;
+    }
+
+    .warga-nearby-item__top {
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .warga-nearby-empty {
+        padding: 18px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .warga-nearby-item {
+        transition: none;
+    }
+}
