@@ -355,7 +355,7 @@ class PetaController extends Controller
             ->values();
 
         return view(
-            'peta.nearby',
+            'Peta.nearby',
             compact('laporanData')
         );
     }

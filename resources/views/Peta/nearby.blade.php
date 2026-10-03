@@ -580,6 +580,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const alamat = item.alamat_lengkap ?? item.alamat ?? 'Alamat tidak tersedia';
             const judul = item.judul ?? 'Hambatan aksesibilitas';
 
+
+    function escapeHtml(value) {
+    const element = document.createElement('div');
+
+                element.textContent =
+                    value == null ? '' : String(value);
+
+                return element.innerHTML;
+            }
+
             return `
                 <article
                     class="obstacle-card"
@@ -595,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="obstacle-content">
                         <div class="obstacle-top">
                             <h3 class="obstacle-title" id="obs-title-${index}">
-                                ${judul}
+                                ${escapeHtml(judul)}
                             </h3>
                             <span 
                                 class="priority-badge ${priorityClass}" 
@@ -607,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
 
                         <div class="obstacle-category" id="obs-cat-${index}">
-                            Kategori: ${kategori}
+                            Kategori: ${escapeHtml(kategori)}
                         </div>
 
                         <p class="obstacle-address" id="obs-addr-${index}">
@@ -616,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         <span class="obstacle-distance" id="obs-dist-${index}">
                             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                            ${distanceText} dari lokasi kamu
+                            ${escapeHtml(alamat)}
                         </span>
                     </div>
                 </article>
