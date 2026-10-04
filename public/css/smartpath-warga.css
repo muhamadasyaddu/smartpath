@@ -1,11 +1,294 @@
 /* ==========================================================
    SmartPath — Dashboard Warga
+   Clean / Enterprise / Accessibility-first
    ========================================================== */
+
+.warga-dashboard {
+    width: min(100% - 48px, 1320px);
+    margin: 0 auto;
+    padding: 42px 0 56px;
+    color: #0f172a;
+}
+
+.warga-dashboard__flash {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding: 13px 16px;
+    border: 1px solid #a7f3d0;
+    border-radius: 10px;
+    background: #ecfdf5;
+    color: #065f46;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 600;
+}
+
+.warga-dashboard__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    margin-bottom: 24px;
+}
+
+.warga-dashboard__eyebrow {
+    margin: 0;
+    color: #047857;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 750;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.warga-dashboard__title {
+    margin: 7px 0 0;
+    color: #0f172a;
+    font-size: clamp(28px, 3vw, 36px);
+    line-height: 1.18;
+    font-weight: 800;
+    letter-spacing: -.025em;
+}
+
+.warga-dashboard__intro {
+    max-width: 760px;
+    margin: 10px 0 0;
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+.warga-dashboard__voice-button,
+.warga-control-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        border-color .16s ease,
+        background-color .16s ease,
+        color .16s ease;
+}
+
+.warga-dashboard__voice-button:hover,
+.warga-control-button:hover:not(:disabled) {
+    border-color: #34d399;
+    background: #f0fdf4;
+    color: #047857;
+}
+
+.warga-control-button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.warga-control-button--accent {
+    border-color: #a7f3d0;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-dashboard__voice-button:focus-visible,
+.warga-control-button:focus-visible,
+.warga-map-link:focus-visible,
+.warga-action:focus-visible,
+.warga-secondary-link:focus-visible {
+    outline: 3px solid rgba(5, 150, 105, .25);
+    outline-offset: 2px;
+}
+
+.warga-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.warga-action {
+    position: relative;
+    display: flex;
+    min-height: 126px;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 19px;
+    border: 1px solid #dbe4e9;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #0f172a;
+    text-decoration: none;
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease,
+        transform .16s ease;
+}
+
+.warga-action:hover {
+    border-color: #86efac;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+    transform: translateY(-1px);
+}
+
+.warga-action--primary {
+    border-color: #047857;
+    background: #047857;
+    color: #ffffff;
+}
+
+.warga-action--primary:hover {
+    border-color: #065f46;
+    background: #065f46;
+}
+
+.warga-action__icon {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-action--primary .warga-action__icon {
+    background: rgba(255, 255, 255, .14);
+    color: #ffffff;
+}
+
+.warga-action__body {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+}
+
+.warga-action__body strong {
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 750;
+}
+
+.warga-action__body span {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.warga-action--primary .warga-action__body span {
+    color: #d1fae5;
+}
+
+.warga-action__arrow {
+    margin-top: 3px;
+    color: #64748b;
+}
+
+.warga-action--primary .warga-action__arrow {
+    color: #d1fae5;
+}
+
+.warga-action__metric {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    color: #0f172a;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: 800;
+}
+
+.warga-map-card {
+    overflow: hidden;
+    border: 1px solid #dbe4e9;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+}
+
+.warga-map-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 17px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.warga-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.warga-section-heading__icon {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 38px;
+    border-radius: 9px;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-section-heading h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 750;
+}
+
+.warga-section-heading p {
+    margin: 3px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.warga-verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1px solid #a7f3d0;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.warga-verified-badge > span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+}
 
 .warga-dashboard__map {
     width: 100%;
-    min-height: 360px;
-    background: #f1f5f9;
+    height: min(66vh, 650px);
+    min-height: 520px;
+    background: #e2e8f0;
 }
 
 .warga-map-card .leaflet-container {
@@ -15,21 +298,61 @@
 
 .warga-map-card .leaflet-popup-content-wrapper,
 .warga-map-card .leaflet-popup-tip {
-    border-radius: 14px;
+    border-radius: 10px;
 }
 
 .warga-map-card .leaflet-popup-content {
-    margin: 14px 16px;
-    min-width: 190px;
+    margin: 13px 15px;
+    min-width: 210px;
 }
 
 .warga-map-card .leaflet-control-zoom a {
+    width: 34px !important;
+    height: 34px !important;
+    line-height: 32px !important;
     color: #334155;
+    font-size: 18px !important;
 }
 
-/* ==========================================================
-   MARKER LAPORAN
-   ========================================================== */
+.warga-map-card .leaflet-control-attribution {
+    font-size: 10px;
+}
+
+.warga-map-card__footer {
+    padding: 13px 20px 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.warga-map-status {
+    min-height: 22px;
+    margin: 0 0 10px;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.warga-map-card__controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.warga-map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+    color: #047857;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.warga-map-link:hover {
+    color: #065f46;
+}
 
 .warga-report-marker,
 .warga-facility-marker {
@@ -39,43 +362,39 @@
 
 .warga-report-marker__dot {
     display: block;
-    width: 18px;
-    height: 18px;
+    width: 19px;
+    height: 19px;
     border: 3px solid #ffffff;
-    border-radius: 999px;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.28);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .28);
 }
 
 .warga-facility-marker__dot {
     display: flex;
-    width: 28px;
-    height: 28px;
+    width: 29px;
+    height: 29px;
     align-items: center;
     justify-content: center;
     border: 3px solid #ffffff;
-    border-radius: 999px;
+    border-radius: 9px;
     background: #0f766e;
     color: #ffffff;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.28);
-    font-size: 11px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .28);
+    font-size: 12px;
 }
-
-/* ==========================================================
-   POPUP MAP
-   ========================================================== */
 
 .warga-popup h3 {
     margin: 0 0 6px;
     color: #0f172a;
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1.4;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 750;
 }
 
 .warga-popup p {
-    margin: 0 0 5px;
-    color: #64748b;
-    font-size: 11px;
+    margin: 0 0 6px;
+    color: #475569;
+    font-size: 13px;
     line-height: 1.55;
 }
 
@@ -92,7 +411,8 @@
     border-radius: 999px;
     background: #ecfdf5;
     color: #047857;
-    font-size: 10px;
+    font-size: 12px;
+    line-height: 1.4;
     font-weight: 700;
 }
 
@@ -100,7 +420,8 @@
     display: inline-flex;
     margin-top: 2px;
     color: #059669;
-    font-size: 11px;
+    font-size: 13px;
+    line-height: 1.5;
     font-weight: 700;
     text-decoration: none;
 }
@@ -110,58 +431,102 @@
     text-decoration: underline;
 }
 
-/* ==========================================================
-   STATUS MAP
-   ========================================================== */
-
-.warga-map-status {
-    min-height: 1.25rem;
-}
-
 .warga-map-control.is-active {
     border-color: #059669;
     background: #ecfdf5;
     color: #047857;
 }
 
-/* ==========================================================
-   NEARBY
-   ========================================================== */
+.warga-nearby {
+    margin-top: 30px;
+}
+
+.warga-nearby__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 14px;
+}
+
+.warga-nearby__header h2 {
+    margin: 5px 0 0;
+    color: #0f172a;
+    font-size: 22px;
+    line-height: 1.35;
+    font-weight: 800;
+    letter-spacing: -.015em;
+}
+
+.warga-nearby__header p:not(.warga-dashboard__eyebrow) {
+    max-width: 780px;
+    margin: 6px 0 0;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.warga-nearby__tools {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.warga-location-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 11px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 650;
+}
+
+.warga-nearby-list {
+    display: grid;
+    gap: 10px;
+}
 
 .warga-nearby-item {
     display: flex;
-    gap: 14px;
     align-items: flex-start;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
+    gap: 14px;
+    padding: 17px;
+    border: 1px solid #dbe4e9;
+    border-radius: 11px;
     background: #ffffff;
-    padding: 18px;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .03);
     transition:
-        border-color 160ms ease,
-        box-shadow 160ms ease;
+        border-color .16s ease,
+        box-shadow .16s ease;
 }
 
 .warga-nearby-item:hover,
 .warga-nearby-item:focus-visible {
-    border-color: #34d399;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    border-color: #86efac;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
 }
 
 .warga-nearby-item:focus-visible {
-    outline: 3px solid #047857;
-    outline-offset: 3px;
+    outline: 3px solid rgba(5, 150, 105, .25);
+    outline-offset: 2px;
 }
 
 .warga-nearby-item__icon,
 .warga-nearby-empty__icon {
     display: flex;
-    width: 44px;
-    height: 44px;
-    flex: 0 0 44px;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 9px;
     background: #ecfdf5;
     color: #059669;
 }
@@ -173,54 +538,53 @@
 
 .warga-nearby-item__top {
     display: flex;
-    gap: 12px;
     align-items: flex-start;
     justify-content: space-between;
+    gap: 14px;
 }
 
 .warga-nearby-item__top h3 {
     margin: 0;
     color: #0f172a;
     font-size: 15px;
-    font-weight: 700;
     line-height: 1.45;
+    font-weight: 750;
 }
 
 .warga-nearby-item__category {
     margin: 5px 0 0;
     color: #047857;
-    font-size: 12px;
+    font-size: 13px;
+    line-height: 1.45;
     font-weight: 700;
 }
 
 .warga-nearby-item__address {
-    margin: 4px 0 0;
-    color: #64748b;
-    font-size: 12px;
-    line-height: 1.55;
+    margin: 5px 0 0;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
 .warga-nearby-item__distance {
     display: inline-flex;
-    gap: 6px;
     align-items: center;
+    gap: 6px;
     margin: 9px 0 0;
     color: #334155;
-    font-size: 11px;
+    font-size: 13px;
+    line-height: 1.5;
     font-weight: 700;
 }
 
-/* ==========================================================
-   PRIORITAS
-   ========================================================== */
-
 .warga-priority-badge {
     display: inline-flex;
-    flex: 0 0 auto;
     align-items: center;
-    border-radius: 999px;
+    flex: 0 0 auto;
     padding: 5px 8px;
-    font-size: 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1.4;
     font-weight: 800;
     white-space: nowrap;
 }
@@ -245,18 +609,14 @@
     color: #475569;
 }
 
-/* ==========================================================
-   EMPTY STATE
-   ========================================================== */
-
 .warga-nearby-empty {
     display: flex;
-    gap: 14px;
     align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
     border: 1px dashed #cbd5e1;
-    border-radius: 16px;
+    border-radius: 11px;
     background: #ffffff;
-    padding: 22px;
 }
 
 .warga-nearby-empty__icon.is-warning {
@@ -267,21 +627,108 @@
 .warga-nearby-empty h3 {
     margin: 0;
     color: #0f172a;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 15px;
     line-height: 1.5;
+    font-weight: 750;
 }
 
 .warga-nearby-empty p {
-    margin: 4px 0 0;
-    color: #64748b;
-    font-size: 12px;
-    line-height: 1.6;
+    margin: 5px 0 0;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.65;
 }
 
-/* ==========================================================
-   SCREEN READER STATUS
-   ========================================================== */
+.warga-secondary-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.warga-secondary-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 16px;
+    border: 1px solid #dbe4e9;
+    border-radius: 11px;
+    background: #ffffff;
+    color: #0f172a;
+    text-decoration: none;
+    transition:
+        border-color .16s ease,
+        background-color .16s ease;
+}
+
+.warga-secondary-link:hover {
+    border-color: #86efac;
+    background: #fbfffd;
+}
+
+.warga-secondary-link__icon {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-secondary-link__icon--teal {
+    background: #f0fdfa;
+    color: #0f766e;
+}
+
+.warga-secondary-link > span:nth-child(2) {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+}
+
+.warga-secondary-link strong {
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 750;
+}
+
+.warga-secondary-link span span {
+    margin-top: 3px;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.warga-secondary-link > i {
+    color: #64748b;
+}
+
+.warga-accessibility-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1px solid #d1fae5;
+    border-radius: 10px;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.warga-accessibility-note > i {
+    margin-top: 2px;
+    color: #047857;
+}
+
+.warga-accessibility-note p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.7;
+}
 
 .warga-dashboard__sr-status {
     position: absolute;
@@ -295,33 +742,127 @@
     border: 0;
 }
 
-/* ==========================================================
-   RESPONSIVE
-   ========================================================== */
+@media (max-width: 980px) {
 
-@media (max-width: 640px) {
-
-    .warga-dashboard__map {
-        min-height: 300px;
+    .warga-quick-actions {
+        grid-template-columns: 1fr;
     }
 
-    .warga-nearby-item {
-        padding: 15px;
+    .warga-action {
+        min-height: auto;
+    }
+
+    .warga-dashboard__map {
+        height: 60vh;
+        min-height: 470px;
+    }
+
+}
+
+@media (max-width: 760px) {
+
+    .warga-dashboard {
+        width: min(100% - 28px, 680px);
+        padding: 28px 0 40px;
+    }
+
+    .warga-dashboard__header,
+    .warga-nearby__header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .warga-dashboard__voice-button {
+        width: 100%;
+    }
+
+    .warga-map-card__header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .warga-map-card__controls,
+    .warga-nearby__tools {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .warga-map-link {
+        margin-left: 0;
+    }
+
+    .warga-secondary-links {
+        grid-template-columns: 1fr;
     }
 
     .warga-nearby-item__top {
         flex-direction: column;
-        gap: 7px;
+        gap: 8px;
     }
 
-    .warga-nearby-empty {
-        padding: 18px;
+}
+
+@media (max-width: 520px) {
+
+    .warga-dashboard {
+        width: min(100% - 20px, 680px);
     }
+
+    .warga-dashboard__title {
+        font-size: 28px;
+    }
+
+    .warga-dashboard__intro,
+    .warga-nearby__header p:not(.warga-dashboard__eyebrow) {
+        font-size: 14px;
+    }
+
+    .warga-dashboard__map {
+        height: 58vh;
+        min-height: 390px;
+    }
+
+    .warga-map-card__header,
+    .warga-map-card__footer {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .warga-map-card__controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .warga-control-button,
+    .warga-map-link {
+        width: 100%;
+    }
+
+    .warga-map-link {
+        justify-content: center;
+        padding-top: 4px;
+    }
+
+    .warga-nearby__tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .warga-location-status,
+    .warga-nearby__tools .warga-control-button {
+        width: 100%;
+    }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
 
+    .warga-action,
+    .warga-dashboard__voice-button,
+    .warga-control-button,
+    .warga-secondary-link,
     .warga-nearby-item {
         transition: none;
     }
+
 }

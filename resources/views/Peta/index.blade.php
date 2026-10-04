@@ -64,7 +64,7 @@
     .map-filter-description {
         margin-bottom: 10px;
         color: #64748b;
-        font-size: 11px;
+        font-size: 12px;
         line-height: 1.6;
     }
 
@@ -109,7 +109,7 @@
         gap: 8px;
         padding: 4px 0;
         color: #475569;
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .map-legend-pin {
@@ -285,13 +285,13 @@
         display: inline-flex;
         padding: 4px 7px;
         border-radius: 6px;
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 700;
     }
 
     .smartpath-popup-score {
         color: #64748b;
-        font-size: 10px;
+        font-size: 12px;
     }
 
     @media (max-width: 1023px) {
@@ -479,7 +479,7 @@
         display: block;
         margin-top: 3px;
         color: #64748b;
-        font-size: 10px;
+        font-size: 12px;
     }
 
     @media (max-width: 1023px) {
@@ -524,7 +524,7 @@
             gap: 6px;
             min-height: 38px;
             padding: 8px 9px;
-            font-size: 9px;
+            font-size: 12px;
             white-space: nowrap;
         }
 
@@ -547,7 +547,7 @@
         }
 
         .map-summary-label {
-            font-size: 9px;
+            font-size: 12px;
         }
 
         .leaflet-top.leaflet-left {
@@ -563,11 +563,11 @@
 
         .nearby-location-btn {
             padding-inline: 7px;
-            font-size: 8px;
+            font-size: 12px;
         }
 
         .map-summary-label {
-            font-size: 8px;
+            font-size: 12px;
         }
     }
 
@@ -985,7 +985,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     style="
                         margin-top:7px;
                         color:#64748b;
-                        font-size:10px;
+                        font-size:12px;
                     "
                 >
                     ${escapeHtml(report.status_label || report.status)}
@@ -1313,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             ${escapeHtml(facility.jenis_label)}
                         </div>
 
-                        <div style="margin-top:5px;color:#64748b;font-size:10px;line-height:1.5;">
+                        <div style="margin-top:5px;color:#64748b;font-size:12px;line-height:1.5;">
                             ${escapeHtml(facility.alamat || 'Alamat tidak tersedia')}
                         </div>
                     </div>

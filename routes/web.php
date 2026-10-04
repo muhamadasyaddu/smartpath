@@ -20,6 +20,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\RencanaPerbaikanController;
 use App\Http\Controllers\NavigasiController;
 use App\Http\Controllers\KinerjaAnggaranController;
+use App\Http\Controllers\BantuanController;
 
 // ============================================
 // RUTE PUBLIK
@@ -109,7 +110,14 @@ Route::post(
 // ============================================
 Route::middleware('auth')->group(function () {
     Route::resource('laporan', LaporanController::class)
-        ->except(['index']);
+    ->except(['index', 'store']);
+
+    Route::post(
+    '/laporan',
+    [LaporanController::class, 'store']
+)
+    ->middleware('throttle:10,10')
+    ->name('laporan.store');
 
     Route::get(
         '/laporan',
@@ -148,12 +156,40 @@ Route::middleware('auth')->group(function () {
 });
 
 // ============================================
+// VERIFIKASI — AKSES INTERNAL
+// Administrator + Dinas dapat melihat
+// ============================================
+
+Route::middleware(['auth', 'staff'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get(
+            '/verifikasi',
+            [VerifikasiController::class, 'index']
+        )->name('verifikasi.index');
+
+        Route::get(
+            '/verifikasi/{laporan}',
+            [VerifikasiController::class, 'show']
+        )->name('verifikasi.show');
+    });
+
+// ============================================
 // ADMINISTRATOR SAJA
 // ============================================
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+
+        Route::get(
+        '/bantuan',
+            [BantuanController::class, 'index']
+        )->name('bantuan.index');
+
 
         // ======================================================
         // NOTIFIKASI ADMINISTRATOR
@@ -189,16 +225,6 @@ Route::middleware(['auth', 'admin'])
             [DashboardController::class, 'live']
         )->name('dashboard.live');
 
-        // Sprint 2: Verifikasi laporan
-        Route::get(
-            '/verifikasi',
-            [VerifikasiController::class, 'index']
-        )->name('verifikasi.index');
-
-        Route::get(
-            '/verifikasi/{laporan}',
-            [VerifikasiController::class, 'show']
-        )->name('verifikasi.show');
 
         Route::post(
             '/verifikasi/{laporan}/setujui',
@@ -390,9 +416,10 @@ Route::middleware('auth')->group(function () {
 
     // Cari tujuan
     Route::post(
-        '/navigasi/cari-tujuan',
-        [NavigasiController::class, 'cariTujuan']
-    )->name('navigasi.cari-tujuan');
+    '/navigasi/cari-tujuan',
+    [NavigasiController::class, 'cariTujuan']
+    )->middleware('throttle:10,1')
+    ->name('navigasi.cari-tujuan');
 
     // Cari rute
     Route::post(
@@ -402,9 +429,10 @@ Route::middleware('auth')->group(function () {
 
     // Cek hambatan di sepanjang rute
     Route::post(
-        '/navigasi/cek-hambatan',
-        [NavigasiController::class, 'cekHambatanRute']
-    )->name('navigasi.cek-hambatan');
+    '/navigasi/cek-hambatan',
+    [NavigasiController::class, 'cekHambatanRute']
+    )->middleware('throttle:10,1')
+    ->name('navigasi.cek-hambatan');
 });
 
 

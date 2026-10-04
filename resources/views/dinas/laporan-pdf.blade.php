@@ -13,7 +13,7 @@
 
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 11px;
+            font-size: 12px;
             color: #1e293b;
             line-height: 1.5;
             margin: 0;
@@ -45,7 +45,7 @@
         }
 
         .subtitle {
-            font-size: 11px;
+            font-size: 12px;
             color: #64748b;
             margin: 0;
         }
@@ -58,7 +58,7 @@
         }
 
         .document-code {
-            font-size: 10px;
+            font-size: 12px;
             color: #64748b;
             margin-top: 4px;
         }

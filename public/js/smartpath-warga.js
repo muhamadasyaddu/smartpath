@@ -1064,10 +1064,9 @@
                 );
 
 
-            const hadPreviousPosition =
-                Boolean(
-                    currentPosition
-                );
+            const previousAccuracy = currentPosition
+            ? Number(currentPosition.accuracy)
+            : null;
 
 
             currentPosition = {
@@ -1155,6 +1154,8 @@
 
 
             if (!hadPreviousPosition) {
+
+                
 
                 map.setView(
                     [

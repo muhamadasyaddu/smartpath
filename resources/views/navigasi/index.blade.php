@@ -4,154 +4,758 @@
 
 @section('content')
 
+@include('partials.nav-public')
+
 <style>
-    #hasil-hambatan,
-    #kontrol-navigasi {
-        margin-top: 20px;
+    .smartpath-navigation {
+        min-height: calc(100vh - 64px);
+        background: #f8fafc;
     }
 
-    #status-perjalanan {
-        margin-top: 16px;
+    .navigation-shell {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 28px 24px 48px;
+    }
+
+    .navigation-header {
+        margin-bottom: 18px;
+    }
+
+    .navigation-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #047857;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .navigation-title {
+        margin-top: 7px;
+        color: #0f172a;
+        font-size: clamp(25px, 3vw, 34px);
+        line-height: 1.18;
+        font-weight: 800;
+        letter-spacing: -.025em;
+    }
+
+    .navigation-description {
+        max-width: 760px;
+        margin-top: 8px;
+        color: #475569;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .navigation-map-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 620px;
+        height: min(78vh, 780px);
+        border: 1px solid #dbe4e9;
+        border-radius: 16px;
+        background: #e2e8f0;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .07);
+    }
+
+    .navigation-map {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .navigation-map .leaflet-container {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .navigation-map-topbar {
+        position: absolute;
+        z-index: 800;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+    }
+
+    .navigation-map-title,
+    .navigation-gps-status {
+        pointer-events: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border: 1px solid rgba(226, 232, 240, .95);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, .94);
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 700;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, .08);
+        backdrop-filter: blur(8px);
+    }
+
+    .navigation-gps-status {
+        color: #475569;
+        font-size: 12px;
+    }
+
+    .navigation-gps-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #94a3b8;
+    }
+
+    .navigation-gps-dot.is-active {
+        background: #059669;
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, .12);
+    }
+
+    .navigation-overlay {
+        position: absolute;
+        z-index: 900;
+        left: 18px;
+        bottom: 18px;
+        width: min(430px, calc(100% - 36px));
+        max-height: calc(100% - 118px);
+        overflow-y: auto;
+        border: 1px solid rgba(226, 232, 240, .96);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, .97);
+        box-shadow: 0 16px 45px rgba(15, 23, 42, .16);
+        backdrop-filter: blur(12px);
+    }
+
+    .navigation-overlay__header {
+        padding: 16px 18px 13px;
+        border-bottom: 1px solid #eef2f7;
+    }
+
+    .navigation-overlay__heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .navigation-overlay__icon {
+        display: flex;
+        width: 34px;
+        height: 34px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .navigation-overlay h2 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 15px;
+        line-height: 1.35;
+        font-weight: 750;
+    }
+
+    .navigation-overlay__subheading {
+        margin-top: 3px;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .navigation-overlay__body {
+        padding: 16px 18px 18px;
+    }
+
+    .navigation-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .navigation-input {
+        width: 100%;
+        min-height: 46px;
+        padding: 11px 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        outline: none;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .navigation-input:focus {
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, .12);
+    }
+
+    .navigation-helper {
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.55;
+    }
+
+    .navigation-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .navigation-primary,
+    .navigation-secondary {
+        min-height: 44px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .navigation-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 1px solid #047857;
+        background: #047857;
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    .navigation-primary:hover {
+        background: #065f46;
+        border-color: #065f46;
+    }
+
+    .navigation-primary:disabled {
+        cursor: wait;
+        opacity: .65;
+    }
+
+    .navigation-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 14px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #334155;
+        cursor: pointer;
+    }
+
+    .navigation-secondary:hover {
+        background: #f8fafc;
+    }
+
+    .navigation-status {
+        margin-top: 12px;
+    }
+
+    .navigation-result,
+    .navigation-active {
+        margin-top: 12px;
+    }
+
+    .alert {
+        border-radius: 10px;
+        padding: 11px 12px;
+        border: 1px solid transparent;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .alert-info {
+        border-color: #bae6fd;
+        background: #f0f9ff;
+        color: #075985;
+    }
+
+    .alert-warning {
+        border-color: #fde68a;
+        background: #fffbeb;
+        color: #92400e;
+    }
+
+    .alert-danger {
+        border-color: #fecaca;
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+    .alert-success {
+        border-color: #a7f3d0;
+        background: #ecfdf5;
+        color: #065f46;
+    }
+
+    .alert-secondary {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+        color: #475569;
+    }
+
+    .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 11px;
+        background: #ffffff;
+    }
+
+    .card-body {
+        padding: 14px;
+    }
+
+    .card h2,
+    .card h3 {
+        color: #0f172a;
+        font-size: 14px;
+        line-height: 1.45;
+        font-weight: 750;
+    }
+
+    .card p,
+    .card .text-muted {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 42px;
+        padding: 9px 12px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    .btn-success {
+        border: 1px solid #047857;
+        background: #047857;
+        color: #ffffff;
+    }
+
+    .btn-success:hover {
+        background: #065f46;
+    }
+
+    .btn-danger {
+        border: 1px solid #fecaca;
+        background: #ffffff;
+        color: #b91c1c;
+    }
+
+    .btn-danger:hover {
+        background: #fef2f2;
+    }
+
+    .btn-outline-primary {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        color: #0f172a;
+        text-align: left;
+    }
+
+    .btn-outline-primary:hover {
+        border-color: #34d399;
+        background: #ecfdf5;
     }
 
     .hambatan-aman,
     .hambatan-ditemukan,
     .hambatan-pesan,
     .info-perjalanan {
-        padding: 20px;
-        border-radius: 12px;
-        margin-top: 16px;
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        font-size: 13px;
+        line-height: 1.55;
     }
 
     .hambatan-aman {
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+        color: #166534;
     }
 
     .hambatan-ditemukan {
-        background: #fff7ed;
-        border: 1px solid #fed7aa;
+        border-color: #fde68a;
+        background: #fffbeb;
+        color: #92400e;
     }
 
     .hambatan-pesan {
+        border-color: #fecaca;
         background: #fef2f2;
-        border: 1px solid #fecaca;
+        color: #991b1b;
     }
 
     .info-perjalanan {
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-    }
-
-    .hambatan-aman h3,
-    .hambatan-ditemukan h3,
-    .info-perjalanan h3 {
-        margin: 0 0 8px;
+        border-color: #99f6e4;
+        background: #f0fdfa;
+        color: #115e59;
     }
 
     .hambatan-card {
-        background: white;
-        padding: 16px;
-        margin-top: 12px;
-        border-radius: 10px;
-        border: 1px solid #e5e7eb;
+        margin-top: 8px;
+        padding: 11px;
+        border: 1px solid #e2e8f0;
+        border-radius: 9px;
+        background: #ffffff;
     }
 
     .hambatan-card h4 {
-        margin-top: 0;
-        margin-bottom: 12px;
+        margin: 0 0 5px;
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 750;
     }
 
     .hambatan-card p {
-        margin: 6px 0;
-    }
-
-    .btn-mulai-perjalanan,
-    .btn-hentikan-navigasi {
-        width: 100%;
-        padding: 12px 18px;
-        font-size: 16px;
-        font-weight: 600;
+        margin: 4px 0;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.5;
     }
 
     .status-gps {
+        margin-top: 7px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .navigation-accessibility-note {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border: 1px solid #d1fae5;
+        border-radius: 12px;
+        background: #f0fdf4;
+    }
+
+    .navigation-accessibility-note__title {
+        color: #065f46;
         font-size: 14px;
-        margin-top: 10px;
+        font-weight: 750;
     }
 
-    #peta-navigasi {
-        height: min(58vh, 520px);
-        min-height: 320px;
-        border-radius: 14px;
-        overflow: hidden;
-        background: #e5e7eb;
+    .navigation-accessibility-note p {
+        margin-top: 4px;
+        color: #166534;
+        font-size: 13px;
+        line-height: 1.6;
     }
 
-    .leaflet-control-attribution {
-        font-size: 10px;
+    .leaflet-control-zoom a {
+        width: 34px !important;
+        height: 34px !important;
+        line-height: 32px !important;
+        font-size: 18px !important;
+    }
+
+    @media (max-width: 900px) {
+
+        .navigation-shell {
+            padding: 22px 16px 36px;
+        }
+
+        .navigation-map-card {
+            min-height: 620px;
+            height: 76vh;
+        }
+
+    }
+
+    @media (max-width: 640px) {
+
+        .navigation-shell {
+            padding: 18px 12px 28px;
+        }
+
+        .navigation-map-card {
+            min-height: 640px;
+            height: 78vh;
+            border-radius: 12px;
+        }
+
+        .navigation-map-topbar {
+            top: 10px;
+            left: 10px;
+            right: 10px;
+        }
+
+        .navigation-overlay {
+            left: 10px;
+            bottom: 10px;
+            width: calc(100% - 20px);
+            max-height: 54%;
+            border-radius: 13px;
+        }
+
+        .navigation-actions {
+            grid-template-columns: 1fr;
+        }
+
     }
 </style>
 
-<div class="container py-4">
 
-    {{-- HEADER --}}
-    <div class="mb-4">
-        <a href="{{ url()->previous() }}" class="text-decoration-none">
-            ← Kembali
-        </a>
+<main class="smartpath-navigation">
 
-        <h1 class="mt-3 mb-2">Navigasi SmartPath</h1>
+    <div class="navigation-shell">
 
-        <p class="text-muted">
-            Tentukan tujuan perjalanan untuk mendapatkan informasi aksesibilitas di sepanjang perjalanan.
-        </p>
-    </div>
+        <header class="navigation-header">
 
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body p-2">
-            <div id="peta-navigasi" aria-label="Peta navigasi SmartPath"></div>
-        </div>
-    </div>
+            <div>
 
-    {{-- FORM TUJUAN --}}
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
+                <div class="navigation-eyebrow">
+                    <i
+                        class="fa-solid fa-route"
+                        aria-hidden="true"
+                    ></i>
 
-            <h2 class="h5 mb-3">Lokasi Tujuan</h2>
+                    Navigasi Aksesibilitas
+                </div>
 
-            <label for="tujuan" class="form-label">Masukkan tujuan</label>
+                <h1 class="navigation-title">
+                    Temukan rute yang lebih mudah diakses
+                </h1>
 
-            <input
-                type="text"
-                id="tujuan"
-                class="form-control"
-                placeholder="Contoh: Stasiun Depok"
-                aria-describedby="tujuan-help"
+                <p class="navigation-description">
+                    Tentukan tujuan perjalanan untuk mendapatkan rute pejalan kaki
+                    dan peringatan hambatan aksesibilitas yang telah terverifikasi.
+                </p>
+
+            </div>
+
+        </header>
+
+
+        {{-- ==========================================================
+             MAP + FLOATING NAVIGATION PANEL
+        =========================================================== --}}
+        <section
+            class="navigation-map-card"
+            aria-labelledby="navigation-map-title"
+        >
+
+            <div
+                id="peta-navigasi"
+                class="navigation-map"
+                role="application"
+                aria-label="Peta navigasi SmartPath Kota Depok"
+            ></div>
+
+
+            {{-- TOP BAR --}}
+            <div class="navigation-map-topbar">
+
+                <div
+                    id="navigation-map-title"
+                    class="navigation-map-title"
+                >
+                    <i
+                        class="fa-solid fa-map-location-dot text-emerald-700"
+                        aria-hidden="true"
+                    ></i>
+
+                    Peta Perjalanan
+                </div>
+
+
+                <div class="navigation-gps-status">
+
+                    <span
+                        id="navigation-gps-dot"
+                        class="navigation-gps-dot"
+                        aria-hidden="true"
+                    ></span>
+
+                    <span id="navigation-gps-label">
+                        GPS perangkat
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            {{-- FLOATING CONTROL PANEL --}}
+            <aside
+                class="navigation-overlay"
+                aria-label="Kontrol navigasi"
             >
 
-            <small id="tujuan-help" class="text-muted">
-                Masukkan nama tempat atau alamat tujuan kamu.
-            </small>
+                <div class="navigation-overlay__header">
 
-            <button type="button" id="btn-mulai-navigasi" class="btn btn-primary mt-4">
-                📍 Cari Rute
-            </button>
+                    <div class="navigation-overlay__heading">
 
-            <div id="status-navigasi" class="mt-3" role="status" aria-live="polite"></div>
+                        <span
+                            class="navigation-overlay__icon"
+                            aria-hidden="true"
+                        >
+                            <i class="fa-solid fa-location-arrow"></i>
+                        </span>
 
-        </div>
+                        <div>
+
+                            <h2>
+                                Tentukan Lokasi Tujuan
+                            </h2>
+
+                            <p class="navigation-overlay__subheading">
+                                Cari tempat atau alamat di sekitar Kota Depok.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="navigation-overlay__body">
+
+                    <label
+                        for="tujuan"
+                        class="navigation-label"
+                    >
+                        Tujuan perjalanan
+                    </label>
+
+                    <input
+                        type="text"
+                        id="tujuan"
+                        class="navigation-input"
+                        placeholder="Contoh: Stasiun Depok"
+                        autocomplete="street-address"
+                        aria-describedby="tujuan-help"
+                    >
+
+                    <p
+                        id="tujuan-help"
+                        class="navigation-helper"
+                    >
+                        Masukkan nama fasilitas, tempat umum,
+                        atau alamat tujuan.
+                    </p>
+
+
+                    <div class="navigation-actions">
+
+                        <button
+                            type="button"
+                            id="btn-mulai-navigasi"
+                            class="navigation-primary"
+                        >
+                            <i
+                                class="fa-solid fa-location-arrow"
+                                aria-hidden="true"
+                            ></i>
+
+                            Cari Rute
+                        </button>
+
+
+                        <button
+                            type="button"
+                            id="btn-map-center"
+                            class="navigation-secondary"
+                            title="Kembali ke posisi awal peta"
+                        >
+                            <i
+                                class="fa-solid fa-crosshairs"
+                                aria-hidden="true"
+                            ></i>
+
+                            Posisi
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="status-navigasi"
+                        class="navigation-status"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <div
+                        id="kontrol-navigasi"
+                        class="navigation-result"
+                    ></div>
+
+
+                    <div
+                        id="status-perjalanan"
+                        class="navigation-active"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+
+        {{-- HAMBATAN --}}
+        <section
+            id="hasil-hambatan"
+            class="mt-5"
+            aria-live="polite"
+            aria-label="Informasi hambatan aksesibilitas sepanjang rute"
+        ></section>
+
+
+        {{-- ACCESSIBILITY --}}
+        <section class="navigation-accessibility-note">
+
+            <div class="flex gap-3">
+
+                <i
+                    class="fa-solid fa-universal-access mt-0.5 text-emerald-700"
+                    aria-hidden="true"
+                ></i>
+
+                <div>
+
+                    <div class="navigation-accessibility-note__title">
+                        Informasi aksesibilitas
+                    </div>
+
+                    <p>
+                        Informasi hambatan tetap tersedia dalam bentuk teks
+                        dan dapat dibacakan melalui fitur suara perangkat.
+                        Kontrol utama navigasi ditempatkan langsung di dalam
+                        area peta agar pengguna tidak perlu berpindah ke panel
+                        jauh di bawah halaman.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
     </div>
 
-    {{-- HASIL RUTE / KONTROL NAVIGASI --}}
-    <div id="kontrol-navigasi"></div>
-
-    {{-- STATUS PERJALANAN --}}
-    <div id="status-perjalanan"></div>
-
-    {{-- HASIL HAMBATAN --}}
-    <div id="hasil-hambatan"></div>
-
-</div>
+</main>
 
 @endsection
 

@@ -98,6 +98,9 @@ class LaporanController extends Controller
      */
     public function store(StoreLaporanRequest $request)
     {
+
+        
+
         $validated = $request->validated();
         $storedPaths = [];
 
@@ -261,8 +264,11 @@ class LaporanController extends Controller
                     'Laporan berhasil dikirim dan menunggu verifikasi.'
                 );
         } catch (Throwable $e) {
+
     foreach ($storedPaths as $path) {
-        Storage::disk('public')->delete($path);
+
+        Storage::disk('public')
+            ->delete($path);
     }
 
     report($e);
@@ -270,11 +276,10 @@ class LaporanController extends Controller
     return back()
         ->withInput()
         ->withErrors([
-            'laporan' => config('app.debug')
-                ? 'Laporan gagal disimpan: ' . $e->getMessage()
-                : 'Laporan belum dapat disimpan. Silakan coba lagi.',
+            'laporan' =>
+                'Laporan belum dapat disimpan. Silakan coba lagi.',
         ]);
-}
+    }
     }
 
     /**

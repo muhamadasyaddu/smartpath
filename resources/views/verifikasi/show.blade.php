@@ -292,7 +292,12 @@
                     SLA Verifikasi
                 </h3>
 
-                @if($laporan->status === 'menunggu_verifikasi')
+                @if(
+                    $laporan->status === 'menunggu_verifikasi'
+                    && auth()->user()->isAdmin()
+                )
+                
+
                     @php
                         $slaExpired = $laporan->created_at->lt(now()->subHours(48));
                         $elapsedHours = (int) $laporan->created_at->diffInHours(now());
@@ -395,7 +400,54 @@
             </section>
 
             {{-- Aksi --}}
-            @if($laporan->status === 'menunggu_verifikasi')
+            @if(
+                $laporan->status === 'menunggu_verifikasi'
+                && auth()->user()->isAdmin()
+            )
+            @if(
+                $laporan->status === 'menunggu_verifikasi'
+                && auth()->user()->isDinas()
+            )
+                <section
+                    class="rounded-xl border border-emerald-200 bg-emerald-50 p-5"
+                    aria-labelledby="dinas-verifikasi-info"
+                >
+
+                    <div class="flex gap-3">
+
+                        <div
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-700 border border-emerald-100"
+                            aria-hidden="true"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+
+                        <div>
+
+                            <h3
+                                id="dinas-verifikasi-info"
+                                class="text-sm font-semibold text-emerald-900"
+                            >
+                                Mode Monitoring Dinas
+                            </h3>
+
+                            <p
+                                class="mt-1 text-xs leading-5 text-emerald-800"
+                            >
+                                Laporan ini masih menunggu verifikasi administrator.
+                                Petugas Dinas dapat meninjau bukti foto, kategori,
+                                koordinat, dan indikasi duplikasi, sedangkan keputusan
+                                verifikasi dilakukan oleh administrator sistem.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+            @endif
+
+
                 <section class="bg-white rounded-xl border border-slate-200 p-6">
                     <h3 class="font-semibold text-slate-900 mb-4">
                         Keputusan Verifikasi

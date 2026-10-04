@@ -11,6 +11,8 @@
     aria-label="Menu dinas"
 >
 
+
+
     {{-- ======================================================
          BAGIAN MENU
     ======================================================= --}}
@@ -85,15 +87,14 @@
             </div>
 
 
-            {{-- VERIFIKASI LAPORAN --}}
             
               {{-- VERIFIKASI LAPORAN --}}
-<a href="{{ route('admin.verifikasi.index') }}"
-   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors
-       {{ request()->routeIs('admin.verifikasi.*')
-           ? 'bg-emerald-50 text-emerald-700'
-           : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-       }}"
+                <a href="{{ route('admin.verifikasi.index') }}"
+                class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors
+                    {{ request()->routeIs('admin.verifikasi.*')
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    }}"
             >
                 <svg
                     class="w-5 h-5"

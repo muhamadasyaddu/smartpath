@@ -69,7 +69,72 @@ class StoreLaporanRequest extends FormRequest
      * terdekat.
      */
     protected function prepareForValidation(): void
+{
+    $latitude = filter_var(
+        $this->input('latitude'),
+        FILTER_VALIDATE_FLOAT,
+        FILTER_NULL_ON_FAILURE
+    );
+
+    $longitude = filter_var(
+        $this->input('longitude'),
+        FILTER_VALIDATE_FLOAT,
+        FILTER_NULL_ON_FAILURE
+    );
+
+    /*
+     * Browser tidak dipercaya untuk menentukan wilayah_id.
+     * Selalu timpa nilai client dengan hasil server-side.
+     */
+    if (
+        $latitude === null ||
+        $longitude === null
+    ) {
+
+        $this->merge([
+            'wilayah_id' => null,
+        ]);
+
+        return;
+    }
+
+    /*
+     * Koordinat di luar wilayah pilot tidak boleh
+     * mendapatkan wilayah Depok dari input browser.
+     */
+    if (
+        !$this->isInsidePilotArea(
+            (float) $latitude,
+            (float) $longitude
+        )
+    ) {
+
+        $this->merge([
+            'wilayah_id' => null,
+        ]);
+
+        return;
+    }
+
+    $wilayah =
+        Wilayah::nearestKecamatanByReferencePoint(
+            (float) $latitude,
+            (float) $longitude
+        );
+
+    $this->merge([
+        'wilayah_id' => $wilayah?->id,
+    ]);
+}
+
+    /**
+     * Validasi tambahan setelah seluruh field
+     * berhasil diproses oleh Laravel Validator.
+     */
+    public function withValidator($validator): void
     {
+    $validator->after(function ($validator) {
+
         $latitude = filter_var(
             $this->input('latitude'),
             FILTER_VALIDATE_FLOAT,
@@ -82,79 +147,74 @@ class StoreLaporanRequest extends FormRequest
             FILTER_NULL_ON_FAILURE
         );
 
+        /*
+         * ==========================================================
+         * 1. VALIDASI KOORDINAT
+         * ==========================================================
+         */
+
         if (
-            $latitude === null
-            || $longitude === null
+            $latitude === null ||
+            $longitude === null
         ) {
             return;
         }
 
-        /*
-         * Jangan pernah mengklasifikasikan koordinat
-         * di luar wilayah pilot sebagai kecamatan Depok.
-         */
         if (
             !$this->isInsidePilotArea(
                 (float) $latitude,
                 (float) $longitude
             )
         ) {
+
+            $validator->errors()->add(
+                'latitude',
+                'Lokasi laporan berada di luar wilayah uji coba Kota Depok. Silakan pilih titik laporan yang berada di Kota Depok.'
+            );
+
             return;
         }
 
-        $wilayah = Wilayah::nearestKecamatanByReferencePoint(
-            (float) $latitude,
-            (float) $longitude
-        );
+        /*
+         * ==========================================================
+         * 2. VALIDASI AKURASI GPS OTOMATIS
+         * ==========================================================
+         */
 
-        if ($wilayah) {
-            $this->merge([
-                'wilayah_id' => $wilayah->id,
-            ]);
-        }
-    }
+        if (
+            $this->input('sumber_koordinat')
+            ===
+            'gps_otomatis'
+        ) {
 
-    /**
-     * Validasi tambahan setelah seluruh field
-     * berhasil diproses oleh Laravel Validator.
-     */
-    public function withValidator($validator): void
-    {
-        $validator->after(function ($validator) {
-
-            $latitude = filter_var(
-                $this->input('latitude'),
+            $accuracy = filter_var(
+                $this->input('gps_accuracy'),
                 FILTER_VALIDATE_FLOAT,
                 FILTER_NULL_ON_FAILURE
             );
 
-            $longitude = filter_var(
-                $this->input('longitude'),
-                FILTER_VALIDATE_FLOAT,
-                FILTER_NULL_ON_FAILURE
+            $hardLimit = (float) config(
+                'smartpath.location.manual_recommended_accuracy_meters',
+                500
             );
 
+            /*
+             * Jika browser mengirim GPS otomatis dengan
+             * accuracy yang terlalu buruk, jangan izinkan
+             * laporan masuk hanya karena JavaScript dimanipulasi.
+             */
             if (
-                $latitude === null
-                || $longitude === null
+                $accuracy !== null &&
+                $accuracy > $hardLimit
             ) {
-                return;
-            }
 
-            if (
-                !$this->isInsidePilotArea(
-                    (float) $latitude,
-                    (float) $longitude
-                )
-            ) {
                 $validator->errors()->add(
                     'latitude',
-                    'Lokasi laporan berada di luar wilayah uji coba Kota Depok. Silakan pilih titik laporan yang berada di Kota Depok.'
+                    'Akurasi lokasi GPS terlalu rendah. Geser marker ke lokasi hambatan secara manual sebelum mengirim laporan.'
                 );
-
-                return;
             }
-        });
+        }
+    });
     }
 
     public function rules(): array
@@ -227,6 +287,13 @@ class StoreLaporanRequest extends FormRequest
                 'in:gps_otomatis,manual',
             ],
 
+            'gps_accuracy' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:100000',
+            ],
+
             'foto' => [
                 'required',
                 'array',
@@ -281,6 +348,15 @@ class StoreLaporanRequest extends FormRequest
 
             'judul.required' =>
                 'Judul laporan harus diisi.',
+
+            'gps_accuracy.numeric' =>
+                'Informasi akurasi GPS tidak valid.',
+
+            'gps_accuracy.min' =>
+                'Nilai akurasi GPS tidak valid.',
+
+            'gps_accuracy.max' =>
+                'Nilai akurasi GPS terlalu besar.',
 
             'judul.max' =>
                 'Judul laporan maksimal 200 karakter.',

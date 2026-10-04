@@ -424,13 +424,35 @@
 
         {{-- BANTUAN --}}
 
-        <button
-            type="button"
-            class="sp-nav w-full text-left"
-            disabled
-            aria-disabled="true"
-            title="Modul bantuan belum tersedia"
+        <a
+            href="{{ route('admin.bantuan.index') }}"
+            class="sp-nav {{ request()->routeIs('admin.bantuan.*') ? 'sp-nav-active' : '' }}"
+            aria-current="{{ request()->routeIs('admin.bantuan.*') ? 'page' : 'false' }}"
         >
+
+            <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke-width="1.7"
+                aria-hidden="true"
+            >
+                <circle
+                    cx="12"
+                    cy="12"
+                    r="9"
+                />
+
+                <path
+                    stroke-linecap="round"
+                    d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-.9.8-1.8 1.2-1.8 2.3M12 16.5h.01"
+                />
+            </svg>
+
+            <span>
+                Bantuan
+            </span>
+
+        </a>
 
             <svg
                 viewBox="0 0 24 24"

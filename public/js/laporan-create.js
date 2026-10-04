@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const sourceInput =
         document.getElementById('sumber_koordinat');
 
+    const gpsAccuracyInput =
+    document.getElementById('gps_accuracy');
+
     const locationStatus =
         document.getElementById('location-status');
 
@@ -152,12 +155,20 @@ document.addEventListener('DOMContentLoaded', function () {
      * menentukan apakah titik GPS cukup presisi.
      */
 
-    const LOCATION_WARNING_ACCURACY = 100;
+    const LOCATION_WARNING_ACCURACY =
+    Number(
+        mapElement.dataset.warningAccuracy || 100
+    );
 
-    const LOCATION_MANUAL_RECOMMENDED = 50;
+    const LOCATION_MANUAL_RECOMMENDED =
+        Number(
+            mapElement.dataset.manualAccuracy || 500
+        );
 
-    const GPS_WATCH_TIMEOUT = 15000;
-
+    const GPS_WATCH_TIMEOUT =
+        Number(
+            mapElement.dataset.gpsTimeout || 15000
+        );
 
         /*
     |--------------------------------------------------------------------------
@@ -233,6 +244,10 @@ document.addEventListener('DOMContentLoaded', function () {
         lngInput.value = '';
 
         setSource('manual');
+
+        if (gpsAccuracyInput) {
+            gpsAccuracyInput.value = '';
+        }
 
         map.setView(
             [
@@ -897,6 +912,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 ? bestPosition.coords.accuracy
                 : null;
 
+        if (gpsAccuracyInput) {
+            gpsAccuracyInput.value =
+                Number.isFinite(accuracy)
+                    ? accuracy.toFixed(2)
+                    : '';
+        }
+
 
         placeMarker(
             latitude,
@@ -1338,6 +1360,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 17,
                 null
             );
+
+            if (gpsAccuracyInput) {
+                gpsAccuracyInput.value = '';
+            }
 
 
             setLocationStatus(
@@ -1901,57 +1927,77 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /*
-             * GPS dengan akurasi >500m tidak langsung
-             * dianggap cukup presisi.
-             *
-             * User masih dapat menggeser marker.
-             */
+            
+
+
+         /*
+        * ==========================================================
+        * VALIDASI AKURASI GPS
+        * ==========================================================
+        *
+        * GPS otomatis:
+        *
+        * <= warning:
+        *     dianggap cukup baik.
+        *
+        * > warning dan <= hard limit:
+        *     tetap dapat dikirim, tetapi user diberi
+        *     peringatan untuk memeriksa marker.
+        *
+        * > hard limit:
+        *     harus menggunakan penandaan manual.
+        *
+        * Jika user sudah memilih/geser marker secara manual,
+        * validasi akurasi GPS tidak berlaku.
+        */
+
+        if (
+            sourceInput.value === 'gps_otomatis'
+        ) {
+
+            const gpsAccuracy =
+                Number.parseFloat(
+                    gpsAccuracyInput?.value || ''
+                );
 
             if (
-                sourceInput.value ===
-                    'gps_otomatis' &&
-
-                bestGpsPosition &&
-
-                Number.isFinite(
-                    bestGpsPosition.coords.accuracy
-                ) &&
-
-                bestGpsPosition.coords.accuracy >
+                Number.isFinite(gpsAccuracy) &&
+                gpsAccuracy >
                     LOCATION_MANUAL_RECOMMENDED
             ) {
 
                 event.preventDefault();
 
-
                 setLocationStatus(
-                    'Akurasi lokasi perangkat terlalu rendah untuk dikirim sebagai titik GPS. Geser marker ke lokasi hambatan atau aktifkan Location Services perangkat.',
+                    `Akurasi GPS sekitar ${Math.round(gpsAccuracy)} meter belum cukup presisi untuk dikirim sebagai titik otomatis. Silakan geser marker ke lokasi hambatan.`,
                     'error'
                 );
-
 
                 alert(
                     'Akurasi lokasi perangkat masih terlalu rendah. Silakan geser marker ke lokasi hambatan secara manual sebelum mengirim laporan.'
                 );
 
-
                 return;
             }
 
-
             /*
-             * PENTING:
-             *
-             * Tidak ada lagi:
-             *
-             * validateWilayahLocation()
-             * wilayahSelect.focus()
-             * validasi Kecamatan di browser
-             *
-             * Backend yang menentukan wilayah_id berdasarkan
-             * latitude dan longitude.
-             */
+            * Akurasi 101–500 meter hanya menjadi peringatan.
+            *
+            * Laporan TIDAK diblokir.
+            */
+            if (
+                Number.isFinite(gpsAccuracy) &&
+                gpsAccuracy >
+                    LOCATION_WARNING_ACCURACY
+            ) {
+
+                setLocationStatus(
+                    `Lokasi GPS diperoleh dengan akurasi sekitar ${Math.round(gpsAccuracy)} meter. Periksa marker sebelum mengirim laporan.`,
+                    'warning'
+                );
+
+            }
+        }
 
 
             /*

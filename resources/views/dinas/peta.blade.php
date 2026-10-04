@@ -773,7 +773,7 @@
 
     #dinas-map
     .leaflet-control-attribution {
-        font-size: 10px;
+        font-size: 12px;
     }
 
     .dinas-report-marker,
@@ -817,7 +817,7 @@
         border: 2px solid #fff;
         box-shadow:
             0 2px 7px rgba(15, 23, 42, .24);
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .dinas-map-popup {

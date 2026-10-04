@@ -155,7 +155,7 @@
             align-items: center;
             padding: 3px 8px;
             border-radius: 999px;
-            font-size: 9px;
+            font-size: 14px;
             font-weight: 700;
             background: #fef3c7;
             color: #92400e;
@@ -217,7 +217,7 @@
             justify-content: center;
             background: rgba(255,255,255,.10);
             color: #fff;
-            font-size: 21px;
+            font-size: 22px;
         }
 
         /* ===== STEPS ===== */
@@ -253,7 +253,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 800;
             z-index: 3;
         }
@@ -1011,14 +1011,14 @@
 
             marker.bindPopup(`
                 <div style="font-family:Inter,sans-serif;padding:4px">
-                    <b style="font-size:13px">${escapeHtml(report.title)}</b>
-                    <div style="font-size:10px;color:#64748b;margin-top:5px">
+                    <b style="font-size:14px">${escapeHtml(report.title)}</b>
+                    <div style="font-size:14px;color:#64748b;margin-top:5px">
                         ${escapeHtml(report.location)}
                     </div>
-                    <div style="margin-top:7px;font-size:9px;font-weight:700;color:${escapeHtml(report.color)}">
+                    <div style="margin-top:7px;font-size:14px;font-weight:700;color:${escapeHtml(report.color)}">
                         ${escapeHtml(report.status)}
                     </div>
-                    <div style="font-size:9px;color:#94a3b8;margin-top:3px">
+                    <div style="font-size:14px;color:#94a3b8;margin-top:3px">
                         ${escapeHtml(report.time)}
                     </div>
                 </div>

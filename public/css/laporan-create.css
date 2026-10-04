@@ -32,13 +32,13 @@
 
 .sp-section-heading h2 {
     margin: 0;
-    font-size: 0.98rem;
+    font-size: 1.25rem;
     line-height: 1.4;
     font-weight: 700;
 }
 
 .sp-section-number {
-    font-size: 0.98rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: #0f172a;
 }
@@ -102,7 +102,7 @@
 
 .sp-category-label {
     color: #334155;
-    font-size: 0.78rem;
+    font-size: 1rem;
     line-height: 1.25;
     font-weight: 600;
     text-align: center;
@@ -112,7 +112,7 @@
     display: block;
     margin-bottom: 6px;
     color: #334155;
-    font-size: 0.82rem;
+    font-size: 1.25rem;
     line-height: 1.35;
     font-weight: 600;
 }
@@ -125,7 +125,7 @@
     background: #ffffff;
     padding: 9px 12px;
     color: #0f172a;
-    font-size: 0.875rem;
+    font-size: 1.0rem;
     line-height: 1.4;
     outline: none;
     transition:
@@ -171,7 +171,7 @@
 .sp-field-error {
     margin-top: 5px;
     color: #dc2626;
-    font-size: 0.78rem;
+    font-size: 1.25rem;
     line-height: 1.4;
 }
 
@@ -191,7 +191,7 @@
     min-height: 20px;
     margin: 0;
     color: #64748b;
-    font-size: 0.75rem;
+    font-size: 1.0rem;
     line-height: 1.45;
 }
 
@@ -220,7 +220,7 @@
     border-radius: 9px;
     color: #047857;
     background: #ffffff;
-    font-size: 0.82rem;
+    font-size: 1.0;
     font-weight: 700;
 
     transition:
@@ -351,7 +351,7 @@
     min-height: 42px;
 
     color: #334155;
-    font-size: 0.875rem;
+    font-size: 1.0rem;
     font-weight: 600;
 
     border-radius: 8px;
@@ -382,7 +382,7 @@
     background: #059669;
     color: #ffffff;
 
-    font-size: 0.875rem;
+    font-size: 1.0rem;
     font-weight: 700;
 
     transition:

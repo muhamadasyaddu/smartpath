@@ -90,7 +90,7 @@
         }
 
         .label-text {
-            font-size: 0.75rem;
+            font-size: 1.0rem;
             font-weight: 700;
             letter-spacing: 2px;
             color: var(--primary-mint);
@@ -163,7 +163,7 @@
         .navbar-nav .nav-link {
             color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 1.0rem;
             padding: 0.5rem 1rem;
             position: relative;
             transition: var(--transition);
@@ -207,7 +207,7 @@
             background-color: var(--primary-mint);
             color: var(--white);
             font-weight: 700;
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             padding: 0.6rem 1.5rem;
             border-radius: var(--btn-radius);
             border: none;
@@ -332,14 +332,14 @@
 
         .hero-cards .card-title {
             color: var(--white);
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             margin-bottom: 0.35rem;
         }
 
         .hero-cards .card-text {
             color: rgba(255, 255, 255, 0.65);
-            font-size: 0.8rem;
+            font-size: 1.0;
             line-height: 1.5;
             margin: 0;
         }
@@ -404,7 +404,7 @@
         }
 
         .floating-card p {
-            font-size: 0.75rem;
+            font-size: 1.0rem;
             color: var(--secondary-text);
             margin: 0;
         }
@@ -469,7 +469,7 @@
         }
 
         .problem-card p {
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             color: var(--secondary-text);
             margin: 0;
         }
@@ -631,7 +631,7 @@
         }
 
         .value-card p {
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             color: var(--secondary-text);
             margin: 0;
         }
@@ -691,7 +691,7 @@
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             color: var(--secondary-text);
             padding: 0.5rem 0;
             border-bottom: 1px solid rgba(6, 42, 37, 0.04);
@@ -703,7 +703,7 @@
 
         .benefit-list li i {
             color: var(--primary-mint);
-            font-size: 0.75rem;
+            font-size: 1.0rem;
             margin-top: 4px;
             flex-shrink: 0;
         }
@@ -744,13 +744,13 @@
 
         .footer-desc {
             color: rgba(255, 255, 255, 0.55);
-            font-size: 0.9rem;
+            font-size: 1.0rem;
             max-width: 280px;
         }
 
         .footer-title {
             color: var(--white);
-            font-size: 0.9rem;
+            font-size: 1.0rem;
             font-weight: 700;
             margin-bottom: 1rem;
             letter-spacing: 0.5px;
@@ -765,12 +765,12 @@
         .footer-links li {
             margin-bottom: 0.5rem;
             color: rgba(255, 255, 255, 0.55);
-            font-size: 0.875rem;
+            font-size: 1.0rem;
         }
 
         .footer-links a {
             color: rgba(255, 255, 255, 0.55);
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             transition: var(--transition);
         }
 
@@ -815,12 +815,12 @@
 
         .footer-copy {
             color: rgba(255, 255, 255, 0.5);
-            font-size: 0.8rem;
+            font-size: 1rem;
         }
 
         .footer-tagline {
             color: var(--primary-mint-light);
-            font-size: 0.8rem;
+            font-size: 1rem;
             font-weight: 600;
         }
 
@@ -1015,13 +1015,13 @@
             }
 
             .hero-desc {
-                font-size: 0.9rem;
+                font-size: 1rem;
             }
 
             .btn-primary-custom,
             .btn-outline-light-custom {
                 padding: 0.5rem 1.25rem;
-                font-size: 0.8rem;
+                font-size: 1rem;
             }
         }
     </style>

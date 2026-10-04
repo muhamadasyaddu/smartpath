@@ -59,6 +59,13 @@
             value="{{ old('sumber_koordinat', 'gps_otomatis') }}"
         >
 
+        <input
+            type="hidden"
+            id="gps_accuracy"
+            name="gps_accuracy"
+            value="{{ old('gps_accuracy') }}"
+        >
+
         @if($errors->any())
             <div
                 class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800"
@@ -277,6 +284,9 @@
                     class="sp-map mb-4"
                     data-pilot-bounds='@json(config("smartpath.pilot.bounds"))'
                     data-pilot-center='@json(config("smartpath.pilot.center"))'
+                    data-gps-timeout="{{ config('smartpath.location.watch_timeout_ms', 15000) }}"
+                    data-warning-accuracy="{{ config('smartpath.location.warning_accuracy_meters', 100) }}"
+                    data-manual-accuracy="{{ config('smartpath.location.manual_recommended_accuracy_meters', 500) }}"
                     role="region"
                     aria-label="Peta pemilih lokasi. Klik peta atau geser marker untuk menentukan titik laporan."
                 ></div>

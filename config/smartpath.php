@@ -63,22 +63,27 @@ return [
 
     'location' => [
 
-        /*
-         * Akurasi <= 100 meter dianggap cukup baik untuk
-         * ditampilkan sebagai hasil GPS.
-         */
-        'warning_accuracy_meters' => 100,
+    /*
+     * GPS dengan akurasi sampai 100 meter dianggap
+     * cukup baik untuk digunakan sebagai titik awal.
+     *
+     * User tetap dapat melihat marker dan menggesernya
+     * apabila titik tidak sesuai dengan kondisi lapangan.
+     */
+    'warning_accuracy_meters' => 100,
 
-        /*
-         * Jika lebih dari nilai ini, pengguna wajib
-         * memeriksa atau menggeser marker secara manual.
-         */
-        'manual_recommended_accuracy_meters' => 500,
+    /*
+     * Jika akurasi GPS lebih dari 500 meter,
+     * sistem menganggap posisi otomatis terlalu tidak presisi.
+     *
+     * User harus menggeser marker secara manual.
+     */
+    'manual_recommended_accuracy_meters' => 500,
 
-        /*
-         * Waktu maksimum pencarian posisi perangkat.
-         */
-        'watch_timeout_ms' => 15000,
-    ],
+    /*
+     * Batas waktu total pencarian GPS.
+     */
+    'watch_timeout_ms' => 15000,
+],
 
 ];

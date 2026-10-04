@@ -63,7 +63,7 @@
 
     #admin-sidebar .sp-brand-name{
     color:var(--sp-slate-900);
-    font-size:16px;
+    font-size:22px;
     font-weight:700;
     letter-spacing:-.035em;
     line-height:1.1
@@ -72,7 +72,7 @@
     #admin-sidebar .sp-brand-tagline{
     margin-top:2px;
     color:var(--sp-slate-500);
-    font-size:7px;
+    font-size:12px;
     font-weight:500
     }
 
@@ -90,7 +90,7 @@
     border:1px solid transparent;
     border-radius:5px;
     color:var(--sp-slate-600);
-    font-size:10px;
+    font-size:14px;
     font-weight:500;
     line-height:1.2;
     text-decoration:none;
@@ -135,7 +135,7 @@
     #admin-sidebar .sp-sidebar-section-title{
     margin:0 9px 6px;
     color:var(--sp-slate-400);
-    font-size:8px;
+    font-size:12px;
     font-weight:700;
     letter-spacing:.14em;
     text-transform:uppercase
@@ -157,7 +157,7 @@
     border-radius:999px;
     background:var(--sp-red-600);
     color:#fff;
-    font-size:7px;
+    font-size:12px;
     font-weight:700
     }
 
@@ -169,14 +169,14 @@
 
     header[role=banner] .sp-header-title{
     color:var(--sp-slate-900);
-    font-size:17px;
+    font-size:22px;
     font-weight:600;
     letter-spacing:-.025em
     }
 
     header[role=banner] .sp-header-subtitle{
     color:var(--sp-slate-500);
-    font-size:10px;
+    font-size:12px;
     line-height:1.4
     }
 
@@ -186,7 +186,7 @@
     border:1px solid var(--sp-slate-300);
     border-radius:6px;
     color:var(--sp-slate-900);
-    font-size:10px;
+    font-size:12px;
     outline:0
     }
 
@@ -222,21 +222,21 @@
     border-radius:50%;
     color:var(--sp-emerald-700);
     background:var(--sp-emerald-50);
-    font-size:10px;
+    font-size:16px;
     font-weight:700
     }
 
     header[role=banner] .sp-profile-name{
     max-width:110px;
     color:var(--sp-slate-900);
-    font-size:10px;
+    font-size:14px;
     font-weight:600
     }
 
     header[role=banner] .sp-profile-location{
     margin-top:2px;
     color:var(--sp-slate-500);
-    font-size:8px
+    font-size:12px
     }
 
     header[role=banner] .sp-notification-badge{
@@ -253,7 +253,7 @@
     border-radius:999px;
     background:var(--sp-red-600);
     color:#fff;
-    font-size:6px;
+    font-size:12px;
     font-weight:700
     }
 
@@ -298,20 +298,20 @@
     .sp-card__header h2{
     margin:0;
     color:var(--sp-slate-900);
-    font-size:11px;
+    font-size:16px;
     font-weight:700
     }
 
     .sp-card__header p{
     margin:2px 0 0;
     color:var(--sp-slate-500);
-    font-size:8px
+    font-size:16px
     }
 
     .sp-card__header>a,
     .sp-card__header>span{
     color:var(--sp-emerald-700);
-    font-size:8px;
+    font-size:12px;
     font-weight:600;
     text-decoration:none;
     white-space:nowrap
@@ -349,7 +349,7 @@
     align-items:center;
     gap:7px;
     color:var(--sp-slate-700);
-    font-size:8px;
+    font-size:22px;
     font-weight:600
     }
 
@@ -393,7 +393,7 @@
     display:block;
     margin-top:3px;
     color:var(--sp-slate-900);
-    font-size:23px;
+    font-size:22px;
     font-weight:700;
     line-height:1;
     letter-spacing:-.045em
@@ -403,7 +403,7 @@
     display:block;
     margin-top:3px;
     color:var(--sp-slate-500);
-    font-size:7px
+    font-size:16px
     }
 
     .sp-kpi__value-row{
@@ -419,7 +419,7 @@
     gap:4px;
     margin-top:7px;
     color:var(--sp-slate-500);
-    font-size:7px
+    font-size:14px
     }
 
     .sp-kpi__change{
@@ -481,7 +481,7 @@
     background:#fff;
     color:var(--sp-slate-700);
     font:inherit;
-    font-size:8px;
+    font-size:16px;
     outline:0
     }
 
@@ -514,7 +514,7 @@
 
     #admin-map{
     width:100%;
-    height:255px;
+    height:400px;
     background:var(--sp-slate-100)
     }
 
@@ -544,7 +544,7 @@
     }
 
     #admin-dashboard .leaflet-control-attribution{
-    font-size:6px;
+    font-size:12px;
     background:rgba(255,255,255,.9)
     }
 
@@ -565,7 +565,7 @@
     }
 
     .sp-map-legend strong{
-    font-size:7px
+    font-size:14px
     }
 
     .sp-map-legend span{
@@ -573,7 +573,7 @@
     align-items:center;
     gap:5px;
     color:var(--sp-slate-600);
-    font-size:7px
+    font-size:12px
     }
 
     .sp-legend-pin{
@@ -615,7 +615,7 @@
 
     .sp-map-summary strong{
     display:block;
-    font-size:9px
+    font-size:16px
     }
 
     .sp-map-summary>div:first-child strong{
@@ -630,7 +630,7 @@
     display:block;
     margin-top:1px;
     color:var(--sp-slate-500);
-    font-size:6px
+    font-size:14px
     }
 
     .smartpath-admin-marker{
@@ -652,8 +652,8 @@
     .sp-marker-pin:after{
     content:"";
     position:absolute;
-    width:7px;
-    height:7px;
+    width:12px;
+    height:12px;
     left:50%;
     top:50%;
     transform:translate(-50%,-50%) rotate(45deg);
@@ -691,7 +691,7 @@
 
     .sp-map-popup-title{
     color:var(--sp-slate-900);
-    font-size:11px;
+    font-size:14px;
     font-weight:700;
     line-height:1.35
     }
@@ -699,14 +699,14 @@
     .sp-map-popup-category{
     margin-top:2px;
     color:var(--sp-emerald-700);
-    font-size:8px;
+    font-size:16px;
     font-weight:600
     }
 
     .sp-map-popup-address{
     margin-top:5px;
     color:var(--sp-slate-500);
-    font-size:8px
+    font-size:16px
     }
 
     .sp-map-popup-meta{
@@ -720,27 +720,27 @@
     padding:3px 5px;
     border:1px solid;
     border-radius:4px;
-    font-size:7px;
+    font-size:16px;
     font-weight:700
     }
 
     .sp-map-popup-score{
     color:var(--sp-slate-600);
-    font-size:7px;
+    font-size:16px;
     font-weight:600
     }
 
     .sp-map-popup-detail{
     margin-top:4px;
     color:var(--sp-slate-600);
-    font-size:7px
+    font-size:16px
     }
 
     .sp-map-popup-link{
     display:inline-flex;
     margin-top:7px;
     color:var(--sp-emerald-700);
-    font-size:8px;
+    font-size:16px;
     font-weight:700;
     text-decoration:none
     }
@@ -797,7 +797,7 @@
     display:block;
     overflow:hidden;
     color:var(--sp-slate-900);
-    font-size:8px;
+    font-size:14px;
     font-weight:700;
     text-overflow:ellipsis;
     white-space:nowrap
@@ -808,7 +808,7 @@
     overflow:hidden;
     margin-top:2px;
     color:var(--sp-slate-500);
-    font-size:7px;
+    font-size:14px;
     text-overflow:ellipsis;
     white-space:nowrap
     }
@@ -818,7 +818,7 @@
     gap:7px;
     margin-top:3px;
     color:var(--sp-slate-500);
-    font-size:6px
+    font-size:12px
     }
 
     .sp-priority-side{
@@ -834,7 +834,7 @@
     padding:2px 5px;
     border:1px solid;
     border-radius:4px;
-    font-size:6px;
+    font-size:14px;
     font-weight:700
     }
 
@@ -881,7 +881,7 @@
     .sp-empty-state span,
     .sp-empty-inline{
     color:var(--sp-slate-400);
-    font-size:7px
+    font-size:12px
     }
 
     .sp-analytics-grid{
@@ -932,7 +932,7 @@
     .sp-donut span{
     margin-top:2px;
     color:var(--sp-slate-500);
-    font-size:6px
+    font-size:12px
     }
 
     .sp-status-list{
@@ -946,7 +946,7 @@
     justify-content:space-between;
     gap:8px;
     color:var(--sp-slate-600);
-    font-size:7px
+    font-size:14px
     }
 
     .sp-status-row>span{
@@ -956,12 +956,12 @@
     }
 
     .sp-status-row strong{
-    font-size:7px
+    font-size:14px
     }
 
     .sp-status-row small{
     color:var(--sp-slate-400);
-    font-size:6px;
+    font-size:12px;
     font-weight:400
     }
 
@@ -976,7 +976,7 @@
     justify-content:space-between;
     margin-bottom:3px;
     color:var(--sp-slate-600);
-    font-size:7px
+    font-size:14px
     }
 
     .sp-category-row strong{
@@ -1050,7 +1050,7 @@
     display:flex;
     justify-content:space-between;
     color:var(--sp-slate-400);
-    font-size:5.5px
+    font-size:12px
     }
 
     .sp-trend-note{
@@ -1067,12 +1067,12 @@
     }
 
     .sp-trend-note strong{
-    font-size:7px
+    font-size:12px
     }
 
     .sp-trend-note span{
     color:var(--sp-slate-600);
-    font-size:6px
+    font-size:12px
     }
 
     .sp-bottom-grid{
@@ -1097,7 +1097,7 @@
     border-bottom:1px solid var(--sp-slate-200);
     color:var(--sp-slate-500);
     background:var(--sp-slate-50);
-    font-size:6px;
+    font-size:14px;
     font-weight:700;
     text-align:left;
     text-transform:uppercase
@@ -1107,7 +1107,7 @@
     padding:7px;
     border-bottom:1px solid var(--sp-slate-100);
     color:var(--sp-slate-600);
-    font-size:7px
+    font-size:14px
     }
 
     .sp-table-card tbody tr:hover{
@@ -1171,7 +1171,7 @@
     padding:2px 5px;
     border:1px solid;
     border-radius:4px;
-    font-size:6px;
+    font-size:12px;
     font-weight:600;
     white-space:nowrap
     }
@@ -1222,7 +1222,7 @@
     display:grid;
     grid-template-columns:22px minmax(0,1fr);
     gap:7px;
-    padding:8px 10px;
+    padding:8px 14px;
     border-bottom:1px solid var(--sp-slate-100)
     }
 
@@ -1245,7 +1245,7 @@
     .sp-activity-item p{
     margin:0;
     color:var(--sp-slate-700);
-    font-size:7px;
+    font-size:14px;
     line-height:1.45
     }
 
@@ -1253,7 +1253,7 @@
     display:block;
     margin-top:2px;
     color:var(--sp-slate-400);
-    font-size:6px
+    font-size:14px
     }
 
     #admin-dashboard a:focus-visible,

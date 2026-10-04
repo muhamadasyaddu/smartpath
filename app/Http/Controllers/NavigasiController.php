@@ -15,18 +15,37 @@ class NavigasiController extends Controller
    
 
 
-public function cariTujuan(Request $request)
-{
-    $request->validate([
-        'tujuan' => 'required|string|max:255',
-        'latitude' => 'nullable|numeric',
-        'longitude' => 'nullable|numeric',
+    public function cariTujuan(Request $request)
+    {
+        $request->validate([
+        'tujuan' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'latitude' => [
+            'nullable',
+            'numeric',
+            'between:-90,90',
+        ],
+
+        'longitude' => [
+            'nullable',
+            'numeric',
+            'between:-180,180',
+        ],
     ]);
 
     $tujuan = trim($request->tujuan);
 
-    $latitudePengguna = $request->latitude;
-    $longitudePengguna = $request->longitude;
+    $latitudePengguna = $request->filled('latitude')
+    ? (float) $request->input('latitude')
+    : null;
+
+    $longitudePengguna = $request->filled('longitude')
+    ? (float) $request->input('longitude')
+    : null;
 
     /*
     |--------------------------------------------------------------------------
@@ -326,11 +345,12 @@ public function cariTujuan(Request $request)
 
     } catch (\Throwable $e) {
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Terjadi kesalahan saat mencari lokasi tujuan.',
-            'error' => $e->getMessage(),
-        ], 500);
+    report($e);
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Terjadi kesalahan saat mengecek hambatan. Coba lagi beberapa saat..',
+    ], 500);
     }
 }
 
@@ -338,69 +358,92 @@ public function cariTujuan(Request $request)
 
     public function rute(Request $request)
 {
-    $request->validate([
-    'latitude_awal' => 'required|numeric',
-    'longitude_awal' => 'required|numeric',
-    'latitude_tujuan' => 'required|numeric',
-    'longitude_tujuan' => 'required|numeric',
-]);
+        $request->validate([
+        'latitude_awal' => [
+            'required',
+            'numeric',
+            'between:-90,90',
+        ],
 
+        'longitude_awal' => [
+            'required',
+            'numeric',
+            'between:-180,180',
+        ],
 
-    $latitudeAwal = $request->latitude_awal;
-    $longitudeAwal = $request->longitude_awal;
+        'latitude_tujuan' => [
+            'required',
+            'numeric',
+            'between:-90,90',
+        ],
 
-    $latitudeTujuan = $request->latitude_tujuan;
-    $longitudeTujuan = $request->longitude_tujuan;
+        'longitude_tujuan' => [
+            'required',
+            'numeric',
+            'between:-180,180',
+        ],
+    ]);
+
+    $latitudeAwal = (float) $request->input('latitude_awal');
+    $longitudeAwal = (float) $request->input('longitude_awal');
+
+    $latitudeTujuan = (float) $request->input('latitude_tujuan');
+    $longitudeTujuan = (float) $request->input('longitude_tujuan');
 
     $koordinat = $longitudeAwal . ","
-        . $latitudeAwal . ";"
-        . $longitudeTujuan . ","
-        . $latitudeTujuan;
+    . $latitudeAwal . ";"
+    . $longitudeTujuan . ","
+    . $latitudeTujuan;
 
-    $endpointRute = [
-        'https://routing.openstreetmap.de/routed-foot/route/v1/driving/',
-        'https://router.project-osrm.org/route/v1/driving/',
-    ];
+    $endpointRute =
+        'https://routing.openstreetmap.de/routed-foot/route/v1/driving/';
 
-    $data = null;
-    $statusProvider = null;
+    try {
 
-    foreach ($endpointRute as $endpoint) {
-        try {
-            $response = Http::timeout(20)
-                ->withHeaders(['User-Agent' => 'SmartPath/1.0'])
-                ->get($endpoint . $koordinat, [
+        $response = Http::timeout(20)
+            ->withHeaders([
+                'User-Agent' =>
+                    'SmartPath/1.0 (Smart City Accessibility Project)',
+
+                'Accept' =>
+                    'application/json',
+            ])
+            ->get(
+                $endpointRute . $koordinat,
+                [
                     'overview' => 'full',
                     'geometries' => 'geojson',
                     'steps' => 'true',
-                ]);
+                ]
+            );
 
-            $statusProvider = $response->status();
+    } catch (\Throwable $e) {
 
-            if ($response->successful()) {
-                $data = $response->json();
+        report($e);
 
-                if (!empty($data['routes'])) {
-                    break;
-                }
-            }
-        } catch (\Throwable $exception) {
-            continue;
-        }
-    }
-
-    if ($data === null) {
         return response()->json([
             'success' => false,
-            'message' => 'Layanan rute sedang tidak dapat diakses. Coba lagi beberapa saat.',
-            'status_provider' => $statusProvider,
+            'message' =>
+                'Layanan rute pejalan kaki sedang tidak dapat diakses. Coba lagi beberapa saat.',
         ], 503);
     }
+
+    if (!$response->successful()) {
+
+        return response()->json([
+            'success' => false,
+            'message' =>
+                'Layanan rute pejalan kaki sedang tidak dapat diakses. Coba lagi beberapa saat.',
+        ], 503);
+    }
+
+    $data = $response->json();
 
     if (
         empty($data['routes']) ||
         !isset($data['routes'][0]['geometry'])
     ) {
+
         return response()->json([
             'success' => false,
             'message' => 'Tidak ditemukan rute menuju tujuan.',
@@ -443,14 +486,26 @@ return response()->json([
 ]);
 }
 
-public function cekHambatanRute(Request $request)
-{
-    try {
-        $request->validate([
-            'geometry' => 'required|array',
-        ]);
+    public function cekHambatanRute(Request $request)
+    {
+        try {
+            $request->validate([
+            'geometry' => [
+            'required',
+            'array',
+            'min:2',
+            'max:5000',
+        ],
+    ]);
 
         $coordinates = $request->geometry['coordinates'] ?? [];
+
+        if (count($coordinates) > 5000) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data rute terlalu besar untuk diproses.',
+            ], 422);
+        }
 
         if (empty($coordinates)) {
             return response()->json([
