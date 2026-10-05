@@ -445,7 +445,7 @@
                     <span>Data Anda dilindungi dan diproses secara aman.</span>
                 </div>
                 <p class="mt-1 text-[11px] font-medium text-slate-400">
-                    © {{ date('Y') }} SmartPath. All rights reserved.
+                    © {{ date('Y') }} SmartPath.
                 </p>
             </footer>
 

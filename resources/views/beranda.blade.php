@@ -119,10 +119,6 @@
             filter: brightness(.42) saturate(.65) contrast(1.12);
         }
 
-        #smartpath-map .leaflet-control-zoom {
-            display: none;
-        }
-
         .map-report {
             position: absolute;
             z-index: 1000;
@@ -161,8 +157,8 @@
             color: #92400e;
         }
         .dark .status {
-            background: #f59e0b30;
-            color: #f59e0b;
+            background: #78350f;
+            color: #fffbeb;
         }
 
         /* ===== FEATURE CARDS ===== */
@@ -329,8 +325,9 @@
 
         /* ===== KEYBOARD FOCUS ===== */
         :focus-visible {
-            outline: 3px solid #34d399;
+            outline: 3px solid #047857;
             outline-offset: 3px;
+            box-shadow: 0 0 0 2px #fff;
         }
 
         a, button, input {
@@ -343,9 +340,15 @@
             border: 0;
         }
         .custom-pin-icon:focus-visible {
-            outline: 3px solid #34d399;
-            outline-offset: 4px;
+            outline: 3px solid #fff;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 5px #047857;
             border-radius: 50%;
+        }
+
+        #smartpath-map .leaflet-control a:focus-visible {
+            outline: 3px solid #047857;
+            outline-offset: 2px;
         }
 
         /* ===== RESPONSIVE ===== */
@@ -380,7 +383,7 @@
     <a href="#main-content" class="skip-link">Langsung ke konten utama</a>
 
     <!-- ===== SCROLL PROGRESS ===== -->
-    <div class="scroll-progress" id="scrollProgress"></div>
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
     <!-- ===== NAVBAR ===== -->
     <header class="sticky top-0 z-50 bg-[#062a25]/95 dark:bg-[#020617]/95 backdrop-blur-md border-b border-white/10 dark:border-slate-800/50">
@@ -393,7 +396,7 @@
             </a>
 
             <!-- Desktop Menu (Semua ke halaman yang sama) -->
-            <nav class="hidden lg:flex items-center gap-8 text-[12px]">
+            <nav class="hidden lg:flex items-center gap-8 text-base">
                 <!-- Tambahkan class nav-link ke semua menu, dan ganti href ke #id_section -->
                 <a href="#beranda" data-section="beranda" class="nav-link text-white border-b-2 border-emerald-400 pb-5">Beranda</a>
                 <a href="{{ route('tentang') }}" class="nav-link text-slate-300 hover:text-white transition">Tentang</a>
@@ -548,16 +551,20 @@
                                 </div>
                             </div>
 
-                            <div id="smartpath-map" class="h-[310px] rounded-xl overflow-hidden" role="region" aria-label="Peta laporan aksesibilitas SmartPath"></div>
+                            <div id="smartpath-map" class="h-[310px] rounded-xl overflow-hidden" role="region" aria-label="Peta laporan aksesibilitas SmartPath" aria-describedby="map-help"></div>
+                            <p id="map-help" class="sr-only">
+                                Gunakan tombol Tab untuk memilih penanda laporan, Enter atau Spasi untuk membuka detail, dan Escape untuk menutup detail.
+                            </p>
+                            <p id="map-announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 
                             <div class="map-report">
                                 <img src="{{ asset('trotoar-depok.jpg') }}" alt="Contoh hambatan trotoar">
                                 <div class="min-w-0">
                                     <p class="text-[12px] font-bold text-slate-800 dark:text-white">Trotoar Rusak</p>
-                                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate">Jl. Margonda Raya, Depok</p>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate">Jl. Margonda Raya, Depok</p>
                                     <div class="flex items-center gap-2 mt-2">
                                         <span class="status">Pending</span>
-                                        <span class="text-[9px] text-slate-400">2 hari yang lalu</span>
+                                        <span class="text-[9px] text-slate-500">2 hari yang lalu</span>
                                     </div>
                                 </div>
                             </div>
@@ -566,19 +573,19 @@
                         <!-- LEGEND -->
                         <div class="flex justify-center flex-wrap gap-x-5 gap-y-2 pt-3 text-[9px] text-slate-300">
                             <span class="flex items-center gap-1.5">
-                                <i class="fa-solid fa-location-dot text-amber-400 text-[11px]" aria-hidden="true"></i> Pending
+                                <i class="fa-solid fa-location-dot text-amber-400 text-[12px]" aria-hidden="true"></i> Pending
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <i class="fa-solid fa-location-dot text-teal-400 text-[11px]" aria-hidden="true"></i> Diverifikasi
+                                <i class="fa-solid fa-location-dot text-teal-400 text-[12px]" aria-hidden="true"></i> Diverifikasi
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <i class="fa-solid fa-location-dot text-sky-400 text-[11px]" aria-hidden="true"></i> Dalam Perbaikan
+                                <i class="fa-solid fa-location-dot text-sky-400 text-[12px]" aria-hidden="true"></i> Dalam Perbaikan
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <i class="fa-solid fa-location-dot text-emerald-400 text-[11px]" aria-hidden="true"></i> Selesai
+                                <i class="fa-solid fa-location-dot text-emerald-400 text-[12px]" aria-hidden="true"></i> Selesai
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <i class="fa-solid fa-location-dot text-red-400 text-[11px]" aria-hidden="true"></i> Ditolak
+                                <i class="fa-solid fa-location-dot text-red-400 text-[12px]" aria-hidden="true"></i> Ditolak
                             </span>
                         </div>
                     </div>
@@ -602,33 +609,33 @@
                     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="feature-card p-5 animate-on-scroll">
                             <div class="icon-circle mb-4"><i class="fa-solid fa-file-pen" aria-hidden="true"></i></div>
-                            <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Laporkan dengan Mudah</h3>
-                            <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Laporkan hambatan aksesibilitas di sekitar Anda hanya dalam beberapa langkah sederhana.</p>
+                            <h3 class="text-[14px] font-bold text-slate-800 dark:text-white">Laporkan dengan Mudah</h3>
+                            <p class="mt-2 text-[13px] leading-5 text-slate-500 dark:text-slate-400">Laporkan hambatan aksesibilitas di sekitar Anda hanya dalam beberapa langkah sederhana.</p>
                         </div>
 
                         <div class="feature-card p-5 animate-on-scroll">
                             <div class="icon-circle mb-4"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
-                            <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Verifikasi & Deduplikasi</h3>
-                            <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Laporan diverifikasi dan didukung sistem deduplikasi agar data tetap akurat.</p>
+                            <h3 class="text-[14px] font-bold text-slate-800 dark:text-white">Verifikasi & Deduplikasi</h3>
+                            <p class="mt-2 text-[13px] leading-5 text-slate-500 dark:text-slate-400">Laporan diverifikasi dan didukung sistem deduplikasi agar data tetap akurat.</p>
                         </div>
 
                         <div class="feature-card p-5 animate-on-scroll">
                             <div class="icon-circle mb-4"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></div>
-                            <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Prioritas Berdasarkan Data</h3>
-                            <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Sistem skor membantu menentukan prioritas perbaikan berdasarkan dampak nyata.</p>
+                            <h3 class="text-[14px] font-bold text-slate-800 dark:text-white">Prioritas Berdasarkan Data</h3>
+                            <p class="mt-2 text-[13px] leading-5 text-slate-500 dark:text-slate-400">Sistem skor membantu menentukan prioritas perbaikan berdasarkan dampak nyata.</p>
                         </div>
 
                         <div class="feature-card p-5 animate-on-scroll">
                             <div class="icon-circle mb-4"><i class="fa-solid fa-people-group" aria-hidden="true"></i></div>
-                            <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Bersama Membangun</h3>
-                            <p class="mt-2 text-[10px] leading-5 text-slate-500 dark:text-slate-400">Libatkan komunitas dan pemerintah dalam mewujudkan kota yang lebih aksesibel.</p>
+                            <h3 class="text-[14px] font-bold text-slate-800 dark:text-white">Bersama Membangun</h3>
+                            <p class="mt-2 text-[13px] leading-5 text-slate-500 dark:text-slate-400">Libatkan komunitas dan pemerintah dalam mewujudkan kota yang lebih aksesibel.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- ===== STATISTICS ===== -->
                 <div class="stats-box mt-8 px-7 py-6 text-white animate-on-scroll">
-                    <div class="text-[9px] font-bold uppercase tracking-widest text-slate-300 mb-5">SmartPath dalam Angka</div>
+                    <div class="text-[12px] font-bold uppercase tracking-widest text-slate-300 mb-5">SmartPath dalam Angka</div>
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-7">
                         <div class="flex items-center gap-4">
                             <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
@@ -656,7 +663,7 @@
             <div class="max-w-[1180px] mx-auto px-6">
                 <div class="grid lg:grid-cols-[1fr_245px] gap-10 items-start">
                     <div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">Cara Kerja</span>
+                        <span class="text-[12px] font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">Cara Kerja</span>
                         <h2 class="mt-2 text-2xl font-extrabold text-slate-800 dark:text-white">Bersama dalam 4 Langkah Mudah</h2>
 
                         <div class="relative mt-10">
@@ -665,26 +672,26 @@
                                 <div class="text-center relative animate-on-scroll">
                                     <div class="step-number">1</div>
                                     <div class="step-icon"><i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i></div>
-                                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Laporkan</h3>
-                                    <p class="text-[11px] leading-5 text-slate-500 dark:text-slate-400 mt-2">Isi formulir laporan dan unggah foto lokasi hambatan aksesibilitas.</p>
+                                    <h3 class="text-[14px] font-bold text-slate-800 dark:text-white">Laporkan</h3>
+                                    <p class="text-[13px] leading-5 text-slate-500 dark:text-slate-400 mt-2">Isi formulir laporan dan unggah foto lokasi hambatan aksesibilitas.</p>
                                 </div>
                                 <div class="text-center relative animate-on-scroll">
                                     <div class="step-number">2</div>
                                     <div class="step-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
-                                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Verifikasi</h3>
-                                    <p class="text-[11px] leading-5 text-slate-500 dark:text-slate-400 mt-2">Tim memverifikasi dan menduplikasi laporan agar data akurat.</p>
+                                    <h3 class="text-[14px] font-bold text-slate-800 dark:text-white">Verifikasi</h3>
+                                    <p class="text-[13px] leading-5 text-slate-500 dark:text-slate-400 mt-2">Tim memverifikasi dan menduplikasi laporan agar data akurat.</p>
                                 </div>
                                 <div class="text-center relative animate-on-scroll">
                                     <div class="step-number">3</div>
                                     <div class="step-icon"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></div>
-                                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Prioritaskan</h3>
-                                    <p class="text-[11px] leading-5 text-slate-500 dark:text-slate-400 mt-2">Sistem memberi skor dan menentukan prioritas perbaikan.</p>
+                                    <h3 class="text-[14px] font-bold text-slate-800 dark:text-white">Prioritaskan</h3>
+                                    <p class="text-[13px] leading-5 text-slate-500 dark:text-slate-400 mt-2">Sistem memberi skor dan menentukan prioritas perbaikan.</p>
                                 </div>
                                 <div class="text-center relative animate-on-scroll">
                                     <div class="step-number">4</div>
                                     <div class="step-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
-                                    <h3 class="text-[12px] font-bold text-slate-800 dark:text-white">Tindak Lanjut</h3>
-                                    <p class="text-[11px] leading-5 text-slate-500 dark:text-slate-400 mt-2">Pemerintah dan pihak terkait menindaklanjuti hingga perbaikan selesai.</p>
+                                    <h3 class="text-[14px] font-bold text-slate-800 dark:text-white">Tindak Lanjut</h3>
+                                    <p class="text-[13px] leading-5 text-slate-500 dark:text-slate-400 mt-2">Pemerintah dan pihak terkait menindaklanjuti hingga perbaikan selesai.</p>
                                 </div>
                             </div>
                         </div>
@@ -696,11 +703,11 @@
                             Jadi Bagian dari<br>Perubahan!
                         </h3>
                         
-                        <p class="text-[10px] leading-5 text-emerald-100/80 mt-3">
+                        <p class="text-[12px] leading-5 text-emerald-100/80 mt-3">
                             Setiap laporan Anda membantu mewujudkan kota yang lebih nyaman dan setara untuk semua.
                         </p>
                         
-                        <a href="#beranda" class="inline-block mt-2 text-[10px] font-bold text-emerald-300 hover:text-emerald-200 transition hover:underline cursor-pointer">
+                        <a href="#beranda" class="inline-block mt-2 text-[12px] font-bold text-emerald-300 hover:text-emerald-200 transition hover:underline cursor-pointer">
                             Ayo Segera!
                         </a>
                     </div>
@@ -720,7 +727,7 @@
                         <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center"><i class="fa-solid fa-route"></i></div>
                         <span class="text-xl font-extrabold">SmartPath</span>
                     </div>
-                    <p class="text-[10px] leading-5 text-slate-400">SmartPath adalah platform partisipatif untuk melaporkan dan memetakan hambatan aksesibilitas di ruang publik.</p>
+                    <p class="text-[13px] leading-5 text-slate-300">SmartPath adalah platform partisipatif untuk melaporkan dan memetakan hambatan aksesibilitas di ruang publik.</p>
                     <div class="flex gap-2 mt-4">
                         <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-facebook-f"></i></a>
                         <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-instagram"></i></a>
@@ -731,7 +738,7 @@
                 <!-- Kolom 2: Navigasi -->
                 <div>
                     <h4 class="text-[11px] font-bold text-white mb-4">Navigasi</h4>
-                    <ul class="space-y-2 text-[10px]">
+                    <ul class="space-y-2 text-[13px]">
                         <li><a href="#beranda" class="hover:text-emerald-400 transition">Beranda</a></li>
                         <li><a href="{{ route('tentang') }}" class="hover:text-emerald-400 transition">Tentang</a></li>
                         <li><a href="#fitur" class="hover:text-emerald-400 transition">Fitur</a></li>
@@ -744,7 +751,7 @@
                 <!-- Kolom 3: Kategori Laporan -->
                 <div>
                     <h4 class="text-[11px] font-bold text-white mb-4">Kategori Laporan</h4>
-                    <ul class="space-y-3 text-[10px]">
+                    <ul class="space-y-3 text-[13px]">
                         <li><i class="fa-solid fa-road w-5 text-slate-500"></i> Trotoar Rusak</li>
                         <li><i class="fa-solid fa-wheelchair w-5 text-slate-500"></i> Ramp Tidak Ada</li>
                         <li><i class="fa-solid fa-grip-lines w-5 text-slate-500"></i> Guiding Block Rusak</li>
@@ -755,16 +762,16 @@
                 <!-- Kolom 4: Alamat -->
                 <div>
                     <h4 class="text-[11px] font-bold text-white mb-4">Alamat</h4>
-                    <ul class="space-y-3 text-[10px]">
+                    <ul class="space-y-3 text-[13px]">
                         <li><i class="fa-solid fa-location-dot text-emerald-400 w-5"></i> Kota Depok, Jawa Barat, Indonesia</li>
-                        <li><i class="fa-solid fa-envelope text-emerald-400 w-5"></i> hello@smartpath.id</li>
+                        <li><i class="fa-solid fa-envelope text-emerald-400 w-5"></i> smartpath.official.id@gmail.com</li>
                         <li><i class="fa-solid fa-phone text-emerald-400 w-5"></i> (021) 1234 5678</li>
                     </ul>
                 </div>
             </div>
 
             <!-- Bottom Copyright -->
-            <div class="pt-5 flex flex-col sm:flex-row justify-between gap-3 text-[9px] text-slate-500">
+            <div class="pt-5 flex flex-col sm:flex-row justify-between gap-3 text-[9px] text-slate-300">
                 <span>© 2026 SmartPath. Semua hak dilindungi.</span>
                 <div class="flex gap-6">
                     <a href="#" class="hover:text-emerald-400 transition">Kebijakan Privasi</a>
@@ -950,6 +957,7 @@
         // ================================
         const mapElement = $('#smartpath-map');
         const mapSearch = $('#mapSearch');
+        const mapAnnouncements = $('#map-announcements');
         let map = null;
         let reports = [];
 
@@ -1002,7 +1010,7 @@
                     iconAnchor: [12, 24],
                     popupAnchor: [0, -24]
                 })
-            }).addTo(map);
+            });
 
             marker.bindTooltip(escapeHtml(report.title), {
                 direction: 'top',
@@ -1012,17 +1020,25 @@
             marker.bindPopup(`
                 <div style="font-family:Inter,sans-serif;padding:4px">
                     <b style="font-size:14px">${escapeHtml(report.title)}</b>
-                    <div style="font-size:14px;color:#64748b;margin-top:5px">
+                    <div style="font-size:14px;color:#475569;margin-top:5px">
                         ${escapeHtml(report.location)}
                     </div>
-                    <div style="margin-top:7px;font-size:14px;font-weight:700;color:${escapeHtml(report.color)}">
+                    <div style="margin-top:7px;font-size:14px;font-weight:700;color:#166534">
                         ${escapeHtml(report.status)}
                     </div>
-                    <div style="font-size:14px;color:#94a3b8;margin-top:3px">
+                    <div style="font-size:14px;color:#475569;margin-top:3px">
                         ${escapeHtml(report.time)}
                     </div>
                 </div>
             `);
+
+            const closePopupOnEscape = event => {
+                if (event.key !== 'Escape') return;
+
+                event.preventDefault();
+                marker.closePopup();
+                marker.getElement()?.focus();
+            };
 
             marker.on('add', () => {
                 const element = marker.getElement();
@@ -1031,25 +1047,57 @@
                 element.setAttribute('role', 'button');
                 element.setAttribute(
                     'aria-label',
-                    `${report.title}, ${report.location}, status ${report.status}`
+                    `${report.title}, ${report.location}, status ${report.status}. Tekan Enter atau Spasi untuk membuka detail.`
                 );
                 element.setAttribute('tabindex', '0');
+                element.setAttribute('aria-haspopup', 'dialog');
+                element.setAttribute('aria-expanded', String(marker.isPopupOpen()));
 
                 element.addEventListener('keydown', event => {
                     if (event.key === 'Enter' || event.key === ' ') {
                         event.preventDefault();
+                        event.stopPropagation();
                         marker.openPopup();
+                    } else if (event.key === 'Escape' && marker.isPopupOpen()) {
+                        event.preventDefault();
+                        marker.closePopup();
+                        element.focus();
                     }
                 });
             });
+
+            marker.on('popupopen', event => {
+                marker.getElement()?.setAttribute('aria-expanded', 'true');
+
+                const popupElement = event.popup.getElement();
+                if (!popupElement) return;
+
+                popupElement.setAttribute('role', 'dialog');
+                popupElement.setAttribute('aria-label', `Detail laporan: ${report.title}`);
+                popupElement.addEventListener('keydown', closePopupOnEscape);
+            });
+
+            marker.on('popupclose', event => {
+                marker.getElement()?.setAttribute('aria-expanded', 'false');
+                event.popup.getElement()?.removeEventListener('keydown', closePopupOnEscape);
+            });
+
+            marker.addTo(map);
         }
 
         function initializeMap() {
             if (!mapElement || typeof L === 'undefined') return;
 
             map = L.map(mapElement, {
-                zoomControl: false
+                zoomControl: true
             }).setView([-6.4025, 106.7942], 13);
+
+            const zoomIn = mapElement.querySelector('.leaflet-control-zoom-in');
+            const zoomOut = mapElement.querySelector('.leaflet-control-zoom-out');
+            zoomIn?.setAttribute('aria-label', 'Perbesar peta');
+            zoomIn?.setAttribute('title', 'Perbesar peta');
+            zoomOut?.setAttribute('aria-label', 'Perkecil peta');
+            zoomOut?.setAttribute('title', 'Perkecil peta');
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors',
@@ -1074,6 +1122,9 @@
 
                     reports = source.map(normalizeReport);
                     reports.forEach(addReportMarker);
+                    if (mapAnnouncements) {
+                        mapAnnouncements.textContent = `${reports.length} penanda laporan tersedia di peta.`;
+                    }
                 })
                 .catch(error => {
                     console.error('SmartPath Map Error:', error);
@@ -1112,10 +1163,16 @@
                         layer.openPopup();
                     }
                 });
+                if (mapAnnouncements) {
+                    mapAnnouncements.textContent = `Lokasi ditemukan: ${found.title}, ${found.location}.`;
+                }
             } else if (!found) {
                 mapSearch.value = '';
                 mapSearch.setAttribute('aria-invalid', 'true');
                 mapSearch.setAttribute('placeholder', 'Lokasi tidak ditemukan');
+                if (mapAnnouncements) {
+                    mapAnnouncements.textContent = 'Lokasi tidak ditemukan. Coba kata kunci lain.';
+                }
 
                 setTimeout(() => {
                     mapSearch.setAttribute('aria-invalid', 'false');

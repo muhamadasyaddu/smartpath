@@ -58,10 +58,10 @@ class AuthController extends Controller
             'kata_sandi.required' => 'Kata sandi harus diisi.',
         ]);
 
-        $user = User::where(
-            'email',
-            $credentials['email']
-        )->first();
+        $credentials['email'] = Str::lower(trim($credentials['email']));
+        $request->merge(['email' => $credentials['email']]);
+
+        $user = User::whereRaw('LOWER(email) = ?', [$credentials['email']])->first();
 
         if (
             !$user ||
@@ -154,6 +154,8 @@ class AuthController extends Controller
         RegisterUserRequest $request
     ): RedirectResponse {
         $validated = $request->validated();
+        $validated['email'] = Str::lower(trim($validated['email']));
+        $request->merge(['email' => $validated['email']]);
 
         $user = DB::transaction(
             function () use ($validated) {
