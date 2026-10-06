@@ -1,10 +1,10 @@
-<nav class="sticky top-0 z-40 border-b border-slate-200/80 bg-white shadow-xs" role="navigation" aria-label="Navigasi utama">
+<nav class="smartpath-public-navbar sticky top-0 z-40 border-b border-slate-200/80 bg-white shadow-xs" role="navigation" aria-label="Navigasi utama">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
             
             {{-- Brand & Menu Kiri --}}
             <div class="flex items-center gap-8">
-                <a href="{{ route('beranda') }}" class="flex items-center gap-2.5 font-bold text-lg text-emerald-700" aria-label="SmartPath Beranda">
+                <a href="{{ route('beranda') }}" class="flex items-center gap-2.5 font-bold text-lg text-emerald-700 {{ request()->routeIs('warga.dashboard', 'navigasi.*', 'peta.nearby') ? 'warga-navbar-brand--hidden' : '' }}" aria-label="SmartPath Beranda">
                     <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>

@@ -3,6 +3,64 @@
 
     document.addEventListener('DOMContentLoaded', function () {
 
+        const sidebar = document.getElementById('warga-sidebar');
+        const sidebarOpenButton =
+            document.querySelector('[data-warga-sidebar-open]');
+        const sidebarCloseButtons =
+            document.querySelectorAll('[data-warga-sidebar-close]');
+        const sidebarBackdrop =
+            document.querySelector('.warga-sidebar__backdrop');
+        const mobileSidebarQuery =
+            window.matchMedia('(max-width: 900px)');
+
+        function setSidebarOpen(isOpen, returnFocus) {
+            if (!sidebar || !sidebarOpenButton || !sidebarBackdrop) {
+                return;
+            }
+
+            const shouldOpen = mobileSidebarQuery.matches && isOpen;
+
+            sidebar.classList.toggle('is-open', shouldOpen);
+            sidebarBackdrop.classList.toggle('is-visible', shouldOpen);
+            sidebar.setAttribute('aria-hidden', String(mobileSidebarQuery.matches && !shouldOpen));
+            sidebarOpenButton.setAttribute('aria-expanded', String(shouldOpen));
+            document.documentElement.classList.toggle('warga-sidebar-open', shouldOpen);
+
+            if (shouldOpen) {
+                const firstLink = sidebar.querySelector('a, button');
+                if (firstLink) {
+                    firstLink.focus();
+                }
+            } else if (returnFocus && mobileSidebarQuery.matches) {
+                sidebarOpenButton.focus();
+            }
+        }
+
+        if (sidebar && sidebarOpenButton && sidebarBackdrop) {
+            sidebar.setAttribute('aria-hidden', String(mobileSidebarQuery.matches));
+
+            sidebarOpenButton.addEventListener('click', function () {
+                setSidebarOpen(true, false);
+            });
+
+            sidebarCloseButtons.forEach(function (button) {
+                button.addEventListener('click', function () {
+                    setSidebarOpen(false, true);
+                });
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && sidebar.classList.contains('is-open')) {
+                    setSidebarOpen(false, true);
+                }
+            });
+
+            mobileSidebarQuery.addEventListener('change', function (event) {
+                setSidebarOpen(false, false);
+                sidebar.setAttribute('aria-hidden', String(event.matches));
+            });
+        }
+
         const root = document.getElementById('warga-dashboard');
 
         if (!root) {

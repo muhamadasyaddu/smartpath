@@ -4,6 +4,12 @@
 |--------------------------------------------------------------------------
 */
 
+nav.smartpath-public-navbar[aria-label="Navigasi utama"] {
+    position: sticky;
+    z-index: 2000;
+    isolation: isolate;
+}
+
 :where(
     a,
     button,

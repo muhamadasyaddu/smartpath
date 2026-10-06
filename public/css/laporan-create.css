@@ -11,9 +11,10 @@
 
 .sp-report-card {
     background: #ffffff;
-    border: 1px solid #1e293b;
+    border: 1px solid #e2e8f0;
     border-radius: 14px;
     padding: 20px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
 }
 
 @media (min-width: 640px) {
@@ -40,7 +41,7 @@
 .sp-section-number {
     font-size: 1.25rem;
     font-weight: 800;
-    color: #0f172a;
+    color: #475569;
 }
 
 .sp-category-option {
@@ -67,18 +68,18 @@
 }
 
 .sp-category-option:hover .sp-category-card {
-    border-color: #64748b;
+    border-color: #94a3b8;
     background: #f8fafc;
 }
 
 .sp-category-option input:checked + .sp-category-card {
-    border-color: #059669;
-    background: #ecfdf5;
-    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.10);
+    border-color: #334155;
+    background: #f8fafc;
+    box-shadow: 0 0 0 2px rgba(51, 65, 85, 0.08);
 }
 
 .sp-category-option input:focus-visible + .sp-category-card {
-    outline: 2px solid #059669;
+    outline: 2px solid #475569;
     outline-offset: 2px;
 }
 
@@ -97,7 +98,7 @@
     position: absolute;
     inset: 4px;
     border-radius: 9999px;
-    background: var(--category-color, #059669);
+    background: var(--category-color, #475569);
 }
 
 .sp-category-label {
@@ -111,7 +112,7 @@
 .sp-label {
     display: block;
     margin-bottom: 6px;
-    color: #334155;
+    color: #0f172a;
     font-size: 1.25rem;
     line-height: 1.35;
     font-weight: 600;
@@ -120,7 +121,7 @@
 .sp-input {
     width: 100%;
     min-height: 42px;
-    border: 1px solid #94a3b8;
+    border: 1px solid #cbd5e1;
     border-radius: 10px;
     background: #ffffff;
     padding: 9px 12px;
@@ -139,8 +140,8 @@
 }
 
 .sp-input:focus {
-    border-color: #059669;
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    border-color: #475569;
+    box-shadow: 0 0 0 3px rgba(71, 85, 105, 0.12);
 }
 
 .sp-input:disabled {
@@ -196,7 +197,7 @@
 }
 
 .sp-location-status.is-success {
-    color: #047857;
+    color: #334155;
 }
 
 .sp-location-status.is-warning {
@@ -218,7 +219,7 @@
     min-height: 42px;
     padding: 8px 12px;
     border-radius: 9px;
-    color: #047857;
+    color: #0f172a;
     background: #ffffff;
     font-size: 1.0;
     font-weight: 700;
@@ -230,12 +231,12 @@
 }
 
 .sp-location-button:hover {
-    color: #065f46;
-    background: #ecfdf5;
+    color: #0f172a;
+    background: #f8fafc;
 }
 
 .sp-location-button:focus-visible {
-    outline: 2px solid #059669;
+    outline: 2px solid #475569;
     outline-offset: 2px;
 }
 
@@ -278,12 +279,12 @@
 
 .sp-drop-zone:hover,
 .sp-drop-zone.is-dragging {
-    border-color: #059669;
-    background: #ecfdf5;
+    border-color: #94a3b8;
+    background: #f8fafc;
 }
 
 .sp-drop-zone:focus-visible {
-    outline: 2px solid #059669;
+    outline: 2px solid #475569;
     outline-offset: 3px;
 }
 
@@ -362,7 +363,7 @@
 }
 
 .sp-cancel-button:focus-visible {
-    outline: 2px solid #059669;
+    outline: 2px solid #475569;
     outline-offset: 3px;
 }
 

@@ -2,7 +2,17 @@
 
 @section('title', 'Nearby Obstacles - SmartPath')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/smartpath-warga.css') }}">
+@endpush
+
 @section('content')
+<div class="warga-shell">
+    @include('partials.sidebar-warga')
+
+    <div class="warga-workspace">
+        @include('partials.nav-public')
+        @include('partials.bar-mobile-warga')
 
 <style>
     .nearby-page {
@@ -380,6 +390,20 @@
                 bentuk daftar agar lebih mudah diakses oleh pengguna
                 screen reader.
             </p>
+
+            <button
+                type="button"
+                class="warga-dashboard__voice-button mt-4"
+                data-read-page
+                data-read-status="nearby-read-status"
+                data-read-text="Halaman Nearby SmartPath. Gunakan tombol Gunakan Lokasi Saya untuk mencari hambatan aksesibilitas terverifikasi dalam radius 50 meter. Hasil ditampilkan sebagai daftar teks dan diurutkan berdasarkan jarak."
+                aria-controls="nearby-read-status"
+                aria-pressed="false"
+            >
+                <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                <span data-read-label>Dengar Panduan</span>
+            </button>
+            <span id="nearby-read-status" class="sr-only" role="status" aria-live="polite"></span>
 
         </header>
 
@@ -778,4 +802,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+</div>
+</div>
+
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/smartpath-warga.js') }}" defer></script>
+    <script src="{{ asset('js/smartpath-read-page.js') }}" defer></script>
+@endpush

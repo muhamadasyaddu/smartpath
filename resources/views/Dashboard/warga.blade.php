@@ -7,11 +7,16 @@
 @endpush
 
 @section('content')
-    @include('partials.nav-public')
+    <div class="warga-shell">
+        @include('partials.sidebar-warga')
+
+        <div class="warga-workspace">
+            @include('partials.nav-public')
+            @include('partials.bar-mobile-warga')
 
     <main
         id="warga-dashboard"
-        class="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
+        class="warga-dashboard mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8"
         data-laporan-url="{{ route('peta.data') }}"
         data-fasilitas-url="{{ route('peta.fasilitas') }}"
         data-detail-template="{{ route('laporan.show', ['laporan' => '__REPORT_ID__']) }}"
@@ -25,24 +30,24 @@
     >
         @if(session('sukses'))
             <div
-                class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+                class="warga-dashboard__flash mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
                 role="status"
             >
                 {{ session('sukses') }}
             </div>
         @endif
 
-        <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <header class="warga-dashboard__header mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-                <p class="text-sm font-semibold uppercase tracking-[0.08em] text-emerald-600">
+                <p class="warga-dashboard__eyebrow text-sm font-semibold uppercase tracking-[0.08em] text-emerald-600">
                     Dashboard Warga
                 </p>
 
-                <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-                    Halo, {{ $user->nama_lengkap ?? 'Warga' }}
-                </h1>
+                    <h1 class="warga-dashboard__title mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                        Halo, {{ $user->nama_lengkap ?? 'Warga' }}
+                    </h1>
 
-                <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                <p class="warga-dashboard__intro mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                     Kelola laporan aksesibilitas, lihat kondisi jalur pedestrian,
                     dan temukan hambatan terverifikasi di sekitar lokasi Anda.
                 </p>
@@ -51,7 +56,7 @@
             <button
                 type="button"
                 id="btn-read-page"
-                class="inline-flex w-fit items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                class="warga-dashboard__voice-button inline-flex w-fit items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 aria-label="Dengar panduan Dashboard Warga"
                 aria-pressed="false"
             >
@@ -65,77 +70,66 @@
                 Akses cepat Dashboard Warga
             </h2>
 
-            <div class="grid gap-6 md:grid-cols-3">
+            <div class="warga-quick-actions grid gap-6 md:grid-cols-3">
 
                 {{-- BUAT LAPORAN --}}
                 <a
                     href="{{ route('laporan.create') }}"
-                    class="group rounded-2xl bg-emerald-600 p-6 text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    class="warga-action warga-action--primary group rounded-2xl bg-emerald-600 p-6 text-white shadow-sm transition hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 >
-                    <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
+                    <div class="warga-action__icon flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
                         <i
                             class="fa-solid fa-file-circle-plus text-lg"
                             aria-hidden="true"
                         ></i>
                     </div>
 
-                    <h2 class="text-lg font-bold">
-                        Buat Laporan
-                    </h2>
-
-                    <p class="mt-2 text-sm leading-6 text-emerald-50">
-                        Laporkan hambatan aksesibilitas yang Anda temukan
-                        di ruang pedestrian.
-                    </p>
+                    <div class="warga-action__body">
+                        <h2>Buat Laporan</h2>
+                        <span>
+                            Laporkan hambatan aksesibilitas yang Anda temukan
+                            di ruang pedestrian.
+                        </span>
+                    </div>
+                    <i class="warga-action__arrow fa-solid fa-arrow-right" aria-hidden="true"></i>
                 </a>
 
                 {{-- LAPORAN SAYA --}}
                 <a
                     href="{{ route('laporan.index') }}"
-                    class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    class="warga-action group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 >
-                    <div class="mb-4 flex items-center justify-between">
-                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
-                            <i
-                                class="fa-solid fa-file-lines"
-                                aria-hidden="true"
-                            ></i>
-                        </div>
-
-                        <span class="text-3xl font-bold tracking-tight text-slate-900">
-                            {{ $jumlahLaporan ?? 0 }}
-                        </span>
+                    <div class="warga-action__icon flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                     </div>
 
-                    <h2 class="text-lg font-bold text-slate-900 transition group-hover:text-emerald-700">
-                        Laporan Saya
-                    </h2>
-
-                    <p class="mt-2 text-sm leading-6 text-slate-600">
-                        Lihat laporan yang pernah Anda kirim dan pantau statusnya.
-                    </p>
+                    <div class="warga-action__body">
+                        <h2>Laporan Saya</h2>
+                        <span>Lihat laporan yang pernah Anda kirim dan pantau statusnya.</span>
+                    </div>
+                    <i class="warga-action__arrow fa-solid fa-arrow-right" aria-hidden="true"></i>
                 </a>
 
                 {{-- PETA AKSESIBILITAS --}}
                 <a
                     href="{{ route('peta.index') }}"
-                    class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    class="warga-action group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 >
-                    <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div class="warga-action__icon flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                         <i
                             class="fa-solid fa-map-location-dot"
                             aria-hidden="true"
                         ></i>
                     </div>
 
-                    <h2 class="text-lg font-bold text-slate-900 transition group-hover:text-emerald-700">
-                        Peta Aksesibilitas
-                    </h2>
-
-                    <p class="mt-2 text-sm leading-6 text-slate-600">
-                        Jelajahi titik hambatan terverifikasi dan fasilitas publik
-                        yang tersedia.
-                    </p>
+                    <div class="warga-action__body">
+                        <h2>Peta Aksesibilitas</h2>
+                        <span>
+                            Jelajahi titik hambatan terverifikasi dan fasilitas publik
+                            yang tersedia.
+                        </span>
+                    </div>
+                    <i class="warga-action__arrow fa-solid fa-arrow-right" aria-hidden="true"></i>
                 </a>
 
             </div>
@@ -148,11 +142,11 @@
             class="warga-map-card mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
             aria-labelledby="warga-map-title"
         >
-            <div class="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="warga-map-card__header flex flex-col gap-3 border-b border-slate-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 
-                <div class="flex items-center gap-3">
+                <div class="warga-section-heading flex items-center gap-3">
 
-                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                    <div class="warga-section-heading__icon flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                         <i
                             class="fa-solid fa-map"
                             aria-hidden="true"
@@ -175,7 +169,7 @@
 
                 </div>
 
-                <span class="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-[10px] font-bold tracking-wide text-emerald-700">
+                <span class="warga-verified-badge inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-[10px] font-bold tracking-wide text-emerald-700">
                     <span
                         class="h-1.5 w-1.5 rounded-full bg-emerald-500"
                         aria-hidden="true"
@@ -202,14 +196,14 @@
                 Peta sedang disiapkan.
             </p>
 
-            <div class="flex flex-wrap items-center justify-between gap-3 px-5 pb-5 pt-3">
+            <div class="warga-map-card__footer flex flex-wrap items-center justify-between gap-3 px-5 pb-5 pt-3">
 
                 <div class="flex flex-wrap gap-2">
 
                     <button
                         type="button"
                         id="btn-warga-location"
-                        class="warga-map-control inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        class="warga-map-control warga-control-button inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                         aria-busy="false"
                     >
                         <i
@@ -223,7 +217,7 @@
                     <button
                         type="button"
                         id="btn-warga-facilities"
-                        class="warga-map-control inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        class="warga-map-control warga-control-button inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-400 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                         aria-pressed="false"
                     >
                         <i
@@ -238,7 +232,7 @@
 
                 <a
                     href="{{ route('peta.index') }}"
-                    class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 transition hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    class="warga-map-link inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 transition hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                 >
                     Buka Peta Lengkap
 
@@ -255,15 +249,15 @@
              NEARBY OBSTACLES LIST
         =========================================================== --}}
         <section
-            class="mt-8"
+            class="warga-nearby mt-8"
             aria-labelledby="warga-nearby-title"
         >
 
-            <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div class="warga-nearby__header mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 
                 <div>
 
-                    <p class="text-xs font-semibold uppercase tracking-[0.08em] text-emerald-600">
+                    <p class="warga-dashboard__eyebrow text-xs font-semibold uppercase tracking-[0.08em] text-emerald-600">
                         Mode Eksplorasi Pasif
                     </p>
 
@@ -274,7 +268,7 @@
                         Hambatan Terdekat
                     </h2>
 
-                    <p class="mt-1 max-w-2xl text-sm leading-6 text-slate-600">
+                    <p class="warga-dashboard__intro mt-1 max-w-2xl text-sm leading-6 text-slate-600">
                         Daftar teks ini membantu pengguna pembaca layar mengetahui
                         hambatan aksesibilitas terverifikasi dalam radius 50 meter
                         dari lokasi mereka.
@@ -282,11 +276,11 @@
 
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="warga-nearby__tools flex items-center gap-2">
 
                     <span
                         id="warga-nearby-summary"
-                        class="rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-600"
+                        class="warga-location-status rounded-full bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-600"
                     >
                         Lokasi belum digunakan
                     </span>
@@ -294,7 +288,7 @@
                     <button
                         type="button"
                         id="btn-read-nearby"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                        class="warga-control-button warga-control-button--accent inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
                         aria-pressed="false"
                         disabled
                     >
@@ -320,7 +314,7 @@
 
             <div
                 id="warga-nearby-list"
-                class="grid gap-3"
+                class="warga-nearby-list grid gap-3"
                 aria-label="Daftar hambatan aksesibilitas terdekat"
             >
 
@@ -354,7 +348,7 @@
              FITUR TAMBAHAN
         =========================================================== --}}
         <section
-            class="mt-8 grid gap-6 md:grid-cols-2"
+            class="warga-secondary-links mt-8 grid gap-6 md:grid-cols-2"
             aria-labelledby="warga-tools-title"
         >
 
@@ -368,70 +362,60 @@
             {{-- NEARBY --}}
             <a
                 href="{{ route('peta.nearby') }}"
-                class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                class="warga-secondary-link group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
             >
-                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <div class="warga-secondary-link__icon flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                     <i
                         class="fa-solid fa-location-dot"
                         aria-hidden="true"
                     ></i>
                 </div>
 
-                <h2 class="text-lg font-bold text-slate-900 transition group-hover:text-emerald-700">
-                    Nearby
-                </h2>
-
-                <p class="mt-2 text-sm leading-6 text-slate-600">
-                    Buka halaman Nearby untuk membaca daftar hambatan
-                    terverifikasi berdasarkan lokasi Anda.
-                </p>
-
-                <span class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-                    Lihat Nearby
-
-                    <i
-                        class="fa-solid fa-arrow-right"
-                        aria-hidden="true"
-                    ></i>
-                </span>
+                <div class="warga-secondary-link__body">
+                    <h2>Nearby</h2>
+                    <p>
+                        Buka halaman Nearby untuk membaca daftar hambatan
+                        terverifikasi berdasarkan lokasi Anda.
+                    </p>
+                    <span class="warga-secondary-link__action">
+                        Lihat Nearby
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </span>
+                </div>
+                <i class="warga-secondary-link__arrow fa-solid fa-arrow-right" aria-hidden="true"></i>
             </a>
 
             {{-- NAVIGASI --}}
             <a
                 href="{{ route('navigasi.index') }}"
-                class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                class="warga-secondary-link group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
             >
-                <div class="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
+                <div class="warga-secondary-link__icon warga-secondary-link__icon--teal flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-700">
                     <i
                         class="fa-solid fa-route"
                         aria-hidden="true"
                     ></i>
                 </div>
 
-                <h2 class="text-lg font-bold text-slate-900 transition group-hover:text-emerald-700">
-                    Navigasi Aktif
-                </h2>
-
-                <p class="mt-2 text-sm leading-6 text-slate-600">
-                    Tentukan tujuan perjalanan dan gunakan panduan suara
-                    serta peringatan hambatan pada halaman navigasi.
-                </p>
-
-                <span class="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-teal-700">
-                    Mulai Navigasi
-
-                    <i
-                        class="fa-solid fa-arrow-right"
-                        aria-hidden="true"
-                    ></i>
-                </span>
+                <div class="warga-secondary-link__body">
+                    <h2>Navigasi Aktif</h2>
+                    <p>
+                        Tentukan tujuan perjalanan dan gunakan panduan suara
+                        serta peringatan hambatan pada halaman navigasi.
+                    </p>
+                    <span class="warga-secondary-link__action">
+                        Mulai Navigasi
+                        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                    </span>
+                </div>
+                <i class="warga-secondary-link__arrow fa-solid fa-arrow-right" aria-hidden="true"></i>
             </a>
 
         </section>
 
         {{-- CATATAN ACCESSIBILITY --}}
         <aside
-            class="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4"
+            class="warga-accessibility-note mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4"
             aria-label="Informasi aksesibilitas"
         >
             <div class="flex gap-3">
@@ -451,6 +435,8 @@
         </aside>
 
     </main>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')

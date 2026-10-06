@@ -15,7 +15,7 @@
             <li>
                 <a
                     href="{{ route('laporan.index') }}"
-                    class="hover:text-emerald-700 transition-colors"
+                    class="hover:text-slate-700 transition-colors"
                 >
                     Laporan
                 </a>

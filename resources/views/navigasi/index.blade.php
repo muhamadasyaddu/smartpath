@@ -2,9 +2,18 @@
 
 @section('title', 'Navigasi SmartPath')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/smartpath-warga.css') }}">
+@endpush
+
 @section('content')
 
-@include('partials.nav-public')
+<div class="warga-shell">
+    @include('partials.sidebar-warga')
+
+    <div class="warga-workspace">
+        @include('partials.nav-public')
+        @include('partials.bar-mobile-warga')
 
 <style>
     .smartpath-navigation {
@@ -15,11 +24,11 @@
     .navigation-shell {
         max-width: 1440px;
         margin: 0 auto;
-        padding: 28px 24px 48px;
+        padding: 24px 24px 40px;
     }
 
     .navigation-header {
-        margin-bottom: 18px;
+        margin-bottom: 16px;
     }
 
     .navigation-eyebrow {
@@ -50,9 +59,14 @@
 
     .navigation-map-card {
         position: relative;
+        display: grid;
+        grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+        grid-template-rows: clamp(560px, 72vh, 720px);
         overflow: hidden;
-        min-height: 620px;
-        height: min(78vh, 780px);
+        min-height: 0;
+        height: auto;
+        margin-top: 16px;
+        scroll-margin-top: 80px;
         border: 1px solid #dbe4e9;
         border-radius: 16px;
         background: #e2e8f0;
@@ -60,10 +74,12 @@
     }
 
     .navigation-map {
-        position: absolute;
-        inset: 0;
+        position: relative;
+        grid-column: 2;
+        grid-row: 1;
         width: 100%;
         height: 100%;
+        min-height: 0;
     }
 
     .navigation-map .leaflet-container {
@@ -74,7 +90,7 @@
         position: absolute;
         z-index: 800;
         top: 16px;
-        left: 16px;
+        left: calc(max(280px, min(320px, 34%)) + 16px);
         right: 16px;
         display: flex;
         justify-content: space-between;
@@ -116,18 +132,42 @@
     }
 
     .navigation-overlay {
-        position: absolute;
+        position: relative;
         z-index: 900;
-        left: 18px;
-        bottom: 18px;
-        width: min(430px, calc(100% - 36px));
-        max-height: calc(100% - 118px);
+        grid-column: 1;
+        grid-row: 1;
+        width: auto;
+        max-height: none;
+        min-height: 0;
         overflow-y: auto;
-        border: 1px solid rgba(226, 232, 240, .96);
-        border-radius: 16px;
-        background: rgba(255, 255, 255, .97);
-        box-shadow: 0 16px 45px rgba(15, 23, 42, .16);
-        backdrop-filter: blur(12px);
+        border: 0;
+        border-right: 1px solid #e2e8f0;
+        border-radius: 0;
+        background: #ffffff;
+        box-shadow: none;
+        backdrop-filter: none;
+    }
+
+    .navigation-map-card.is-navigation-active .navigation-overlay {
+        width: auto;
+        max-height: none;
+    }
+
+    .navigation-map-card.is-navigation-active .navigation-overlay__header {
+        display: none;
+    }
+
+    .navigation-map-card.is-navigation-active .navigation-overlay__body {
+        padding: 10px 12px 12px;
+    }
+
+    .navigation-map-card.is-navigation-active .navigation-overlay__body > :not(#kontrol-navigasi):not(#status-perjalanan) {
+        display: none;
+    }
+
+    .navigation-map-card.is-navigation-active #kontrol-navigasi,
+    .navigation-map-card.is-navigation-active #status-perjalanan {
+        margin-top: 0;
     }
 
     .navigation-overlay__header {
@@ -472,8 +512,39 @@
         }
 
         .navigation-map-card {
+            display: block;
+            position: relative;
             min-height: 620px;
             height: 76vh;
+        }
+
+        .navigation-map {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .navigation-map-topbar {
+            left: 16px;
+        }
+
+        .navigation-overlay {
+            position: absolute;
+            left: 18px;
+            bottom: 18px;
+            width: min(430px, calc(100% - 36px));
+            max-height: calc(100% - 118px);
+            border: 1px solid rgba(226, 232, 240, .96);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, .97);
+            box-shadow: 0 16px 45px rgba(15, 23, 42, .16);
+            backdrop-filter: blur(12px);
+        }
+
+        .navigation-map-card.is-navigation-active .navigation-overlay {
+            width: min(340px, calc(100% - 36px));
+            max-height: min(190px, calc(100% - 118px));
         }
 
     }
@@ -538,9 +609,53 @@
                     dan peringatan hambatan aksesibilitas yang telah terverifikasi.
                 </p>
 
+                <button
+                    type="button"
+                    class="warga-dashboard__voice-button mt-4"
+                    data-read-page
+                    data-read-status="navigation-read-status"
+                    data-read-text="Halaman Navigasi Aksesibilitas SmartPath. Masukkan nama tempat atau alamat pada kolom Tujuan perjalanan, lalu pilih Cari Rute. Setelah rute ditemukan, tekan Mulai Perjalanan untuk memulai panduan suara dan pemantauan GPS. Tombol Posisi menampilkan posisi kamu pada peta. Hambatan sepanjang rute ditampilkan sebagai informasi teks."
+                    aria-controls="navigation-read-status"
+                    aria-pressed="false"
+                >
+                    <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                    <span data-read-label>Dengar Panduan</span>
+                </button>
+                <span id="navigation-read-status" class="sr-only" role="status" aria-live="polite"></span>
+
             </div>
 
         </header>
+
+        {{-- ACCESSIBILITY --}}
+        <section class="navigation-accessibility-note">
+
+            <div class="flex gap-3">
+
+                <i
+                    class="fa-solid fa-universal-access mt-0.5 text-emerald-700"
+                    aria-hidden="true"
+                ></i>
+
+                <div>
+
+                    <div class="navigation-accessibility-note__title">
+                        Informasi aksesibilitas
+                    </div>
+
+                    <p>
+                        Informasi hambatan tetap tersedia dalam bentuk teks
+                        dan dapat dibacakan melalui fitur suara perangkat.
+                        Kontrol utama navigasi ditempatkan langsung di dalam
+                        area peta agar pengguna tidak perlu berpindah ke panel
+                        jauh di bawah halaman.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
 
 
         {{-- ==========================================================
@@ -723,44 +838,20 @@
         ></section>
 
 
-        {{-- ACCESSIBILITY --}}
-        <section class="navigation-accessibility-note">
-
-            <div class="flex gap-3">
-
-                <i
-                    class="fa-solid fa-universal-access mt-0.5 text-emerald-700"
-                    aria-hidden="true"
-                ></i>
-
-                <div>
-
-                    <div class="navigation-accessibility-note__title">
-                        Informasi aksesibilitas
-                    </div>
-
-                    <p>
-                        Informasi hambatan tetap tersedia dalam bentuk teks
-                        dan dapat dibacakan melalui fitur suara perangkat.
-                        Kontrol utama navigasi ditempatkan langsung di dalam
-                        area peta agar pengguna tidak perlu berpindah ke panel
-                        jauh di bawah halaman.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
-
     </div>
 
 </main>
+
+    </div>
+</div>
 
 @endsection
 
 
 @push('scripts')
+
+<script src="{{ asset('js/smartpath-warga.js') }}" defer></script>
+<script src="{{ asset('js/smartpath-read-page.js') }}" defer></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -774,6 +865,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const kontrolNavigasi = document.getElementById('kontrol-navigasi');
     const statusPerjalanan = document.getElementById('status-perjalanan');
     const hasilHambatan = document.getElementById('hasil-hambatan');
+    const navigationMapCard = document.querySelector('.navigation-map-card');
+    const btnMapCenter = document.getElementById('btn-map-center');
 
     // ==========================================================
     // STATE NAVIGASI
@@ -809,6 +902,72 @@ document.addEventListener('DOMContentLoaded', function () {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(petaNavigasi);
     }
+
+    btnMapCenter.addEventListener('click', function () {
+        if (!petaNavigasi) {
+            tampilkanPesanPerjalanan('Peta tidak dapat dimuat. Silakan muat ulang halaman.', 'error');
+            return;
+        }
+
+        if (!navigator.geolocation) {
+            tampilkanPesanPerjalanan('Browser atau perangkat ini tidak mendukung GPS.', 'error');
+            return;
+        }
+
+        btnMapCenter.disabled = true;
+        statusNavigasi.innerHTML = `
+            <div class="alert alert-info">
+                Sedang mencari posisi kamu...
+            </div>
+        `;
+
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+
+                posisiSekarang = { latitude, longitude, accuracy };
+                perbaruiMarkerPengguna(latitude, longitude, accuracy);
+
+                if (markerPengguna) {
+                    markerPengguna.openPopup();
+                }
+
+                statusNavigasi.innerHTML = `
+                    <div class="alert alert-success">
+                        Posisi kamu ditampilkan di peta.
+                        Akurasi GPS sekitar ±${Math.round(accuracy)} meter.
+                    </div>
+                `;
+                btnMapCenter.disabled = false;
+            },
+            function (error) {
+                console.error('GPS Error:', error);
+                let pesan = 'Terjadi kesalahan saat mendapatkan lokasi.';
+
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        pesan = 'Izin lokasi ditolak. Izinkan akses lokasi pada browser untuk menampilkan posisi.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        pesan = 'Lokasi tidak tersedia. Pastikan layanan lokasi perangkat aktif.';
+                        break;
+                    case error.TIMEOUT:
+                        pesan = 'Waktu untuk mendapatkan lokasi habis. Silakan coba lagi.';
+                        break;
+                }
+
+                tampilkanPesanPerjalanan(pesan, 'error');
+                btnMapCenter.disabled = false;
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    });
 
     // ==========================================================
     // EVENT LISTENER TOMBOL CARI RUTE
@@ -851,6 +1010,7 @@ document.addEventListener('DOMContentLoaded', function () {
         kontrolNavigasi.innerHTML = '';
         statusPerjalanan.innerHTML = '';
         hasilHambatan.innerHTML = '';
+        navigationMapCard.classList.remove('is-navigation-active');
 
         // Loading state
         btnNavigasi.disabled = true;
@@ -1172,6 +1332,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hentikanPemantauanGPS();
 
         navigasiAktif = true;
+        navigationMapCard.classList.add('is-navigation-active');
         hambatanSudahDiumumkan.clear();
         langkahSudahDiumumkan.clear();
 
@@ -1201,6 +1362,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('btn-hentikan-navigasi').addEventListener('click', hentikanNavigasi);
 
         bacakanTeks('Navigasi dimulai. Tujuan kamu adalah ' + tujuanNavigasi.nama);
+        navigationMapCard.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            block: 'start'
+        });
         mulaiPemantauanGPS();
     }
 
@@ -1640,6 +1805,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==========================================================
     function hentikanNavigasi() {
         navigasiAktif = false;
+        navigationMapCard.classList.remove('is-navigation-active');
         hentikanPemantauanGPS();
 
         statusPerjalanan.innerHTML = `
