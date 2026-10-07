@@ -3,247 +3,438 @@
 @section('title', 'Peta Interaktif')
 
 @push('styles')
-
 <style>
-    .smartpath-map-page {
-        min-height: 100vh;
-        background: #f8fafc;
-        overflow-x: hidden;
+    /* ==========================================================
+       SMARTPATH MAP — Refactor 2026
+       ========================================================== */
+    :root {
+        --sp-border: #111827;
+        --sp-border-soft: #e5e7eb;
+        --sp-text: #111827;
+        --sp-muted: #64748b;
+        --sp-emerald: #059669;
+        --sp-teal: #0d9488;
+        --sp-green: #16a34a;
+        --sp-red: #dc2626;
+        --sp-amber: #d97706;
+        --sp-slate: #94a3b8;
     }
 
-    /* Layout utama: daftar hambatan + ringkasan di atas,
-       lalu sidebar filter + peta di bawah. */
-    .smartpath-map-shell {
-        display: grid;
-        grid-template-columns: 270px minmax(0, 1fr);
-        width: 100%;
-        min-height: 650px;
-        background: #f8fafc;
-    }
-
-    .smartpath-map-sidebar {
-        background: #ffffff;
-        border-right: 1px solid #e2e8f0;
+    .sp-map-page {
+        min-height: calc(100vh - 32px);
+        margin: 16px 28px;
+        background: #fff;
+        border: 1px solid var(--sp-border);
+        border-radius: 8px;
         overflow: hidden;
-        z-index: 900;
-        min-height: 774px;
+        box-sizing: border-box;
+        font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
     }
 
-    .smartpath-map-content {
+    .sp-map-shell {
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+        width: 100%;
+        height: 680px;
+        background: #fff;
+    }
+
+    .sp-map-sidebar {
+        background: #fff;
+        border-right: 1px solid #1f2937;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 900;
+        box-sizing: border-box;
+    }
+
+    .sp-map-content {
         min-width: 0;
-        min-height: 774px;
+        min-height: 0;
+        height: 100%;
         position: relative;
         display: flex;
         flex-direction: column;
-        background: #f8fafc;
+        background: #fff;
+        overflow: hidden;
     }
 
     #map-container {
         width: 100%;
-        height: auto;
-        min-height: 500px;
-        background: #e2e8f0;
+        height: 100%;
+        background: #e5e7eb;
         flex: 1 1 auto;
     }
 
-    .map-filter-section {
-        padding: 15px;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .map-filter-title {
+    /* ============ HEADER ============ */
+    .sp-header {
+        height: 52px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-        color: #0f172a;
-        font-size: 13px;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 0 14px;
+        border-bottom: 1px solid var(--sp-border);
+        background: #fff;
+        box-sizing: border-box;
+    }
+
+    .sp-brand {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 180px;
+        color: var(--sp-text);
+    }
+
+    .sp-brand-logo {
+        width: 28px;
+        height: 28px;
+        border: 1px solid var(--sp-border);
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+
+    .sp-brand-logo svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .sp-brand-name {
+        font-size: 15px;
         font-weight: 700;
+        letter-spacing: -0.3px;
     }
 
-    .map-filter-description {
-        margin-bottom: 10px;
-        color: #64748b;
-        font-size: 12px;
-        line-height: 1.6;
-    }
-
-    .map-check {
+    .sp-header-stats {
         display: flex;
         align-items: center;
+        justify-content: center;
+        gap: 20px;
+        flex: 1 1 auto;
+        color: var(--sp-text);
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .sp-header-stats > span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .sp-dot {
+        width: 8px;
+        height: 8px;
+        border: 1px solid var(--sp-border);
+        border-radius: 50%;
+        box-sizing: border-box;
+    }
+
+    .sp-square {
+        width: 8px;
+        height: 8px;
+        border: 1px solid var(--sp-border);
+        box-sizing: border-box;
+    }
+
+    .sp-header-actions {
+        min-width: 180px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
         gap: 8px;
-        padding: 5px 0;
-        color: #475569;
-        font-size: 12px;
+    }
+
+    .sp-header-btn {
+        height: 30px;
+        padding: 0 11px;
+        border: 1px solid var(--sp-border);
+        border-radius: 6px;
+        background: #fff;
+        color: var(--sp-text);
+        font-size: 11px;
+        font-family: inherit;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        box-sizing: border-box;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background .15s ease;
+    }
+
+    .sp-header-btn:hover {
+        background: #f3f4f6;
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sp-filter-section {
+        padding: 10px 12px;
+        border-bottom: 1px solid #d1d5db;
+    }
+
+    .sp-filter-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 7px;
+        color: var(--sp-text);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .sp-filter-desc {
+        margin: 0 0 8px;
+        color: var(--sp-muted);
+        font-size: 10px;
+        line-height: 1.4;
+    }
+
+    .sp-check {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        min-height: 22px;
+        padding: 2px 0;
+        color: var(--sp-text);
+        font-size: 11px;
+        cursor: pointer;
+        line-height: 1.3;
+    }
+
+    .sp-check input {
+        width: 13px;
+        height: 13px;
+        margin: 0;
+        accent-color: var(--sp-emerald);
+        flex: 0 0 auto;
         cursor: pointer;
     }
 
-    .map-check input {
-        width: 15px;
-        height: 15px;
-        accent-color: #059669;
-    }
-
-    .map-status-dot {
+    .sp-check .sp-status-dot {
         width: 8px;
         height: 8px;
         flex: 0 0 auto;
         border-radius: 50%;
     }
 
-    .map-status-dot.verified {
-        background: #059669;
+    .sp-check .sp-count {
+        margin-left: auto;
+        min-width: 26px;
+        padding: 1px 5px;
+        border: 1px solid #d1d5db;
+        border-radius: 3px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.4;
+        box-sizing: border-box;
+        color: var(--sp-muted);
     }
 
-    .map-status-dot.progress {
-        background: #0d9488;
-    }
-
-    .map-status-dot.done {
-        background: #16a34a;
-    }
-
-    .map-legend-item {
+    .sp-legend {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 4px 0;
-        color: #475569;
-        font-size: 12px;
+        gap: 7px;
+        padding: 3px 0;
+        color: var(--sp-text);
+        font-size: 10px;
     }
 
-    .map-legend-pin {
-        width: 11px;
-        height: 11px;
+    .sp-legend-pin {
+        width: 9px;
+        height: 9px;
         border-radius: 50%;
-        border: 2px solid #fff;
-        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
+        border: 1px solid var(--sp-border);
+        box-sizing: border-box;
     }
 
-    .map-legend-pin.high {
-        background: #dc2626;
+    .sp-legend-pin.high   { background: var(--sp-red); }
+    .sp-legend-pin.medium { background: var(--sp-amber); }
+    .sp-legend-pin.low    { background: var(--sp-green); }
+
+    .sp-legend-score {
+        margin-left: auto;
+        white-space: nowrap;
+        font-size: 9px;
+        color: var(--sp-muted);
     }
 
-    .map-legend-pin.medium {
-        background: #d97706;
+    .sp-info-box {
+        padding: 9px 10px;
+        border: 1px solid var(--sp-border);
+        border-radius: 5px;
+        font-size: 10px;
+        line-height: 1.5;
+        color: var(--sp-text);
+        background: #f9fafb;
     }
 
-    .map-legend-pin.low {
-        background: #16a34a;
-    }
-
-    .facility-marker {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 3px solid #ffffff;
-        background: #0d9488;
-        color: #ffffff;
-        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.25);
-    }
-
-    .facility-marker svg {
-        width: 12px;
-        height: 12px;
-    }
-
-    .smartpath-pin-wrapper {
-        position: relative;
-        width: 34px;
-        height: 42px;
-    }
-
-    .smartpath-pin-pulse {
+    /* ============ OVERLAY: NEARBY NAVBAR ============ */
+    .sp-nearby-navbar {
         position: absolute;
-        left: 50%;
-        top: 11px;
-        width: 18px;
-        height: 18px;
+        top: 12px;
+        right: 12px;
+        z-index: 1000;
+        padding: 6px 10px;
+        background: #fff;
+        border: 1px solid var(--sp-border);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    .sp-nearby-title {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0;
+        color: var(--sp-text);
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .sp-location-btn {
+        border: 1px solid var(--sp-border);
+        border-radius: 5px;
+        padding: 5px 10px;
+        background: #fff;
+        color: var(--sp-text);
+        font-size: 10px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        box-sizing: border-box;
+    }
+
+    .sp-location-btn:hover { background: #f3f4f6; }
+    .sp-location-btn:disabled { opacity: .6; cursor: wait; }
+    .sp-location-btn:focus-visible {
+        outline: 3px solid #34d399;
+        outline-offset: 2px;
+    }
+
+    /* ============ OVERLAY: SUMMARY ============ */
+    .sp-summary {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        z-index: 1000;
+        width: 140px;
+        background: #fff;
+        border: 1px solid var(--sp-border);
+        border-radius: 7px;
+        overflow: hidden;
+    }
+
+    .sp-summary-item {
+        padding: 5px 10px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        column-gap: 8px;
+        border-bottom: 1px solid var(--sp-border-soft);
+        font-size: 10px;
+    }
+
+    .sp-summary-item:last-child { border-bottom: 0; }
+
+    .sp-summary-num {
+        order: 2;
+        color: var(--sp-text);
+        font-weight: 700;
+    }
+
+    .sp-summary-label {
+        order: 1;
+        color: var(--sp-text);
+        font-size: 9px;
+    }
+
+    /* ============ LEAFLET ============ */
+    .leaflet-top.leaflet-left { top: 12px; left: 8px; }
+    .leaflet-popup-content-wrapper { border-radius: 8px; }
+    .leaflet-popup-content { margin: 10px 12px; }
+
+    .sp-facility-marker {
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        border: 3px solid #fff;
+        background: var(--sp-teal);
+        color: #fff;
+        box-shadow: 0 3px 10px rgba(15,23,42,.25);
+    }
+    .sp-facility-marker svg { width: 12px; height: 12px; }
+
+    .sp-pin-wrap {
+        position: relative;
+        width: 34px; height: 42px;
+    }
+
+    .sp-pin-pulse {
+        position: absolute;
+        left: 50%; top: 11px;
+        width: 18px; height: 18px;
         transform: translate(-50%, -50%);
         border-radius: 50%;
         opacity: 0;
     }
 
-    .smartpath-pin {
+    .sp-pin {
         position: absolute;
-        left: 50%;
-        top: 2px;
-        width: 27px;
-        height: 27px;
+        left: 50%; top: 2px;
+        width: 27px; height: 27px;
         transform: translateX(-50%) rotate(-45deg);
         border-radius: 50% 50% 50% 0;
-        border: 3px solid #ffffff;
-        box-shadow: 0 3px 9px rgba(15, 23, 42, 0.30);
+        border: 3px solid #fff;
+        box-shadow: 0 3px 9px rgba(15,23,42,.30);
     }
 
-    .smartpath-pin::after {
+    .sp-pin::after {
         content: "";
         position: absolute;
-        left: 7px;
-        top: 7px;
-        width: 7px;
-        height: 7px;
+        left: 7px; top: 7px;
+        width: 7px; height: 7px;
         border-radius: 50%;
-        background: #ffffff;
+        background: #fff;
     }
 
-    .smartpath-pin-wrapper.high .smartpath-pin {
-        background: #dc2626;
+    .sp-pin-wrap.high   .sp-pin { background: var(--sp-red); }
+    .sp-pin-wrap.medium .sp-pin { background: var(--sp-amber); }
+    .sp-pin-wrap.low    .sp-pin { background: var(--sp-green); }
+
+    .sp-pin-wrap.high .sp-pin-pulse {
+        background: rgba(220,38,38,.20);
+        animation: sp-pulse 2s infinite;
     }
 
-    .smartpath-pin-wrapper.medium .smartpath-pin {
-        background: #d97706;
+    @keyframes sp-pulse {
+        0%   { transform: translate(-50%,-50%) scale(.8); opacity: .8; }
+        70%  { transform: translate(-50%,-50%) scale(2.3); opacity: 0; }
+        100% { opacity: 0; }
     }
 
-    .smartpath-pin-wrapper.low .smartpath-pin {
-        background: #16a34a;
-    }
-
-    .smartpath-pin-wrapper.high .smartpath-pin-pulse {
-        background: rgba(220, 38, 38, 0.20);
-        animation: smartpath-map-pulse 2s infinite;
-    }
-
-    @keyframes smartpath-map-pulse {
-        0% {
-            transform: translate(-50%, -50%) scale(.8);
-            opacity: .8;
-        }
-
-        70% {
-            transform: translate(-50%, -50%) scale(2.3);
-            opacity: 0;
-        }
-
-        100% {
-            opacity: 0;
-        }
-    }
-
-    .leaflet-popup-content-wrapper {
-        border-radius: 12px;
-    }
-
-    .leaflet-popup-content {
-        margin: 12px 14px;
-    }
-
-    /* Keep Leaflet controls clear of the summary cards. */
-    .leaflet-top.leaflet-left {
-        top: 88px;
-        left: 8px;
-    }
-
-
-    .smartpath-popup {
+    /* ============ POPUP ============ */
+    .sp-popup {
         width: 250px;
-        font-family: Inter, sans-serif;
+        font-family: inherit;
     }
 
-    .smartpath-popup-image {
+    .sp-popup-img {
         width: 100%;
         height: 125px;
         object-fit: cover;
@@ -252,1399 +443,631 @@
         background: #f1f5f9;
     }
 
-    .smartpath-popup-title {
-        color: #0f172a;
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 1.4;
-    }
+    .sp-popup-title    { color: #0f172a; font-size: 14px; font-weight: 700; line-height: 1.4; }
+    .sp-popup-category { margin-top: 4px; color: var(--sp-emerald); font-size: 11px; font-weight: 600; }
+    .sp-popup-address  { margin-top: 7px; color: var(--sp-muted); font-size: 11px; line-height: 1.55; }
+    .sp-popup-meta     { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
+    .sp-popup-badge    { display: inline-flex; padding: 4px 7px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+    .sp-popup-score    { color: var(--sp-muted); font-size: 12px; }
+    .sp-popup-footer   { margin-top: 7px; color: var(--sp-muted); font-size: 12px; }
 
-    .smartpath-popup-category {
-        margin-top: 4px;
-        color: #059669;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .smartpath-popup-address {
-        margin-top: 7px;
-        color: #64748b;
-        font-size: 11px;
-        line-height: 1.55;
-    }
-
-    .smartpath-popup-meta {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-top: 9px;
-    }
-
-    .smartpath-popup-badge {
-        display: inline-flex;
-        padding: 4px 7px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .smartpath-popup-score {
-        color: #64748b;
-        font-size: 12px;
-    }
-
+    /* ============ RESPONSIVE ============ */
     @media (max-width: 1023px) {
+        .sp-map-page { margin: 8px; }
+        .sp-header { padding: 0 10px; }
+        .sp-brand, .sp-header-actions { min-width: 140px; }
+        .sp-header-stats { gap: 10px; }
 
-        .smartpath-map-shell {
+        .sp-map-shell {
             grid-template-columns: 1fr;
-            min-height: 600px;
-        }
-
-        .smartpath-map-sidebar {
-            position: fixed;
-            inset: 64px auto 0 0;
-            width: 290px;
-            max-height: calc(100vh - 64px);
-            transform: translateX(-100%);
-            transition: transform .25s ease;
-            box-shadow: 8px 0 24px rgba(15, 23, 42, .10);
-            overflow-y: auto;
-        }
-
-        .smartpath-map-sidebar.open {
-            transform: translateX(0);
-        }
-
-        .smartpath-map-content {
-            width: 100%;
-            min-height: 600px;
-        }
-
-        .smartpath-map-sidebar {
-            min-height: 0;
-        }
-
-        #map-container {
-            height: 600px;
-            flex-basis: 600px;
-        }
-
-    }
-
-    @media (max-width: 640px) {
-
-        .smartpath-map-shell,
-        .smartpath-map-content {
+            height: calc(100vh - 90px);
             min-height: 520px;
         }
 
-        #map-container {
-            height: 520px;
-            min-height: 420px;
-            flex-basis: 520px;
+        .sp-map-sidebar {
+            position: fixed;
+            inset: 64px auto 0 0;
+            width: 280px;
+            max-height: calc(100vh - 64px);
+            transform: translateX(-100%);
+            transition: transform .25s ease;
+            box-shadow: 8px 0 24px rgba(15,23,42,.10);
         }
 
-    }
+        .sp-map-sidebar.open { transform: translateX(0); }
+        #map-container { height: 520px; flex-basis: 520px; }
 
-    /* ==============================
-       NAVBAR DAFTAR HAMBATAN TERDEKAT
-       ============================== */
-
-    .nearby-navbar {
-        position: absolute;
-        top: 16px;
-        left: 16px;
-        right: 16px;
-        z-index: 1000;
-        min-height: 64px;
-        padding: 12px 24px;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        margin: 0;
-
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-    }
-
-    .nearby-navbar-title {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        margin: 0;
-
-        color: #0f172a;
-        font-size: 17px;
-        font-weight: 700;
-    }
-
-    .nearby-location-btn {
-        border: 0;
-        border-radius: 8px;
-        padding: 10px 16px;
-
-        background: #047857;
-        color: #ffffff;
-
-        font-size: 12px;
-        font-weight: 700;
-
-        cursor: pointer;
-
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-    }
-
-    .nearby-location-btn:hover {
-        background: #065f46;
-    }
-
-    .nearby-location-btn:disabled {
-        opacity: .65;
-        cursor: wait;
-    }
-
-    .nearby-location-btn:focus-visible {
-        outline: 3px solid #34d399;
-        outline-offset: 3px;
-    }
-
-    .leaflet-top.leaflet-left {
-        top: 88px;
-        left: 8px;
-    }
-
-    /* ==============================
-       SUMMARY DI DALAM AREA PETA
-       ============================== */
-
-    .map-summary {
-        position: absolute;
-        top: auto;
-        bottom: 16px;
-        left: auto;
-        right: 16px;
-
-        z-index: 1000;
-
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-
-        width: min(510px, calc(100% - 32px));
-        margin: 0;
-
-        background: transparent;
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-        overflow: visible;
-
-        pointer-events: none;
-    }
-
-    .map-summary-item {
-        min-width: 0;
-        min-height: 72px;
-        background: rgba(255, 255, 255, 0.96);
-        padding: 10px 12px;
-        text-align: center;
-
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
-        pointer-events: auto;
-    }
-
-    .map-summary-item:last-child {
-        border-right: 1px solid #e2e8f0;
-    }
-
-    .map-summary-number {
-        display: block;
-        color: #047857;
-        font-size: 18px;
-        font-weight: 700;
-    }
-
-    .map-summary-label {
-        display: block;
-        margin-top: 3px;
-        color: #64748b;
-        font-size: 12px;
-    }
-
-    @media (max-width: 1023px) {
-        .nearby-navbar {
-            top: 12px;
-            left: 12px;
-            right: 12px;
-        }
-
-        .map-summary {
-            right: 12px;
-            width: min(480px, calc(100% - 24px));
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        .map-summary-item {
-            padding: 9px 6px;
-        }
+        .sp-mobile-only { display: block !important; }
     }
 
     @media (max-width: 640px) {
-        .nearby-navbar {
-            top: 8px;
-            left: 8px;
-            right: 8px;
-            min-height: 56px;
-            padding: 9px 10px;
-            gap: 8px;
-        }
-
-        .nearby-navbar-title {
-            min-width: 0;
-            flex: 1 1 auto;
-            gap: 6px;
-            font-size: 13px;
-            line-height: 1.35;
-        }
-
-        .nearby-location-btn {
-            flex: 0 0 auto;
-            gap: 6px;
-            min-height: 38px;
-            padding: 8px 9px;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-
-        .map-summary {
-            right: 8px;
-            width: min(420px, calc(100% - 16px));
-            top: auto;
-            bottom: 10px;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 5px;
-        }
-
-        .map-summary-item {
-            min-height: 60px;
-            padding: 7px 4px;
-        }
-
-        .map-summary-number {
-            font-size: 14px;
-        }
-
-        .map-summary-label {
-            font-size: 12px;
-        }
-
-        .leaflet-top.leaflet-left {
-            top: 78px;
-            left: 6px;
-        }
+        .sp-map-page { margin: 4px; border-radius: 5px; }
+        .sp-header { height: 46px; }
+        .sp-header-stats { display: none; }
+        .sp-header-actions { min-width: 0; }
+        .sp-header-btn { height: 28px; padding: 0 8px; font-size: 10px; }
+        #map-container { min-height: 520px; }
+        .sp-summary { width: 120px; right: 8px; bottom: 8px; }
+        .sp-nearby-navbar { top: 8px; right: 8px; padding: 5px 8px; }
+        .sp-nearby-title { font-size: 9px; }
     }
 
-    @media (max-width: 380px) {
-        .nearby-navbar-title {
-            font-size: 11px;
-        }
-
-        .nearby-location-btn {
-            padding-inline: 7px;
-            font-size: 12px;
-        }
-
-        .map-summary-label {
-            font-size: 12px;
-        }
-    }
-
+    .sp-mobile-only { display: none; }
 </style>
-
 @endpush
 
 @section('content')
 
-<div class="smartpath-map-page">
+<div class="sp-map-page">
 
-    <div class="smartpath-map-shell">
+    {{-- ============ HEADER ============ --}}
+    <header class="sp-header">
+        <div class="sp-brand">
+            <span aria-hidden="true" style="font-size:18px;line-height:1;">☰</span>
+            <span class="sp-brand-logo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <path d="M5 17l4-4 3 3 3-5 4 6"/>
+                    <circle cx="16.5" cy="8" r="1.5"/>
+                </svg>
+            </span>
+            <span class="sp-brand-name">SmartPath</span>
+        </div>
 
-        <aside
-            id="map-sidebar"
-            class="smartpath-map-sidebar"
-            aria-label="Filter peta"
-        >
+        <div class="sp-header-stats">
+            <span><i class="sp-dot"></i> Prioritas Tinggi: <b id="header-high">0</b></span>
+            <span><i class="sp-square"></i> Total: <b id="header-total">0</b></span>
+        </div>
 
-            <div class="map-filter-section">
+        <div class="sp-header-actions">
+            <a href="{{ route('laporan.create') }}" class="sp-header-btn">＋ Lapor</a>
+            <button type="button" id="btn-export" class="sp-header-btn">⇩ Ekspor</button>
+        </div>
+    </header>
 
-                <div class="map-filter-title">
-                    <span aria-hidden="true">☷</span>
-                    <span>Filter Peta</span>
-                </div>
+    <div class="sp-map-shell">
 
-                <p class="map-filter-description">
-                    Sesuaikan tampilan data pada peta
-                </p>
+        {{-- ============ SIDEBAR ============ --}}
+        <aside id="map-sidebar" class="sp-map-sidebar" aria-label="Filter peta">
 
-                <button
-                    id="close-sidebar"
-                    type="button"
-                    class="lg:hidden"
-                    aria-label="Tutup filter"
-                >
-                    Tutup
+            <div class="sp-filter-section">
+                <div class="sp-filter-title">⌕ Filter Peta</div>
+                <p class="sp-filter-desc">Sesuaikan tampilan data pada peta</p>
+                <button id="close-sidebar" type="button" class="sp-mobile-only"
+                        style="width:100%;padding:6px;border:1px solid #111827;border-radius:5px;background:#fff;cursor:pointer;font-size:11px;font-family:inherit;">
+                    Tutup Filter
                 </button>
-
             </div>
 
-            <div class="map-filter-section">
-                <div class="map-filter-title">Status Laporan</div>
+            {{-- STATUS --}}
+            <div class="sp-filter-section">
+                <div class="sp-filter-title">Status Laporan</div>
 
-                <label class="map-check">
-                    <input type="checkbox" class="filter-status" value="diverifikasi" checked>
-                    <span class="map-status-dot verified"></span>
-                    <span>Diverifikasi</span>
-                </label>
+                @php
+                    $statusList = [
+                        ['value' => 'menunggu_verifikasi', 'label' => 'Menunggu Verifikasi', 'color' => '#94a3b8'],
+                        ['value' => 'diverifikasi',        'label' => 'Diverifikasi',        'color' => '#059669'],
+                        ['value' => 'dalam_perbaikan',     'label' => 'Dalam Perbaikan',     'color' => '#0d9488'],
+                        ['value' => 'selesai',             'label' => 'Selesai',             'color' => '#16a34a'],
+                    ];
+                @endphp
 
-                <label class="map-check">
-                    <input type="checkbox" class="filter-status" value="dalam_perbaikan" checked>
-                    <span class="map-status-dot progress"></span>
-                    <span>Dalam Perbaikan</span>
-                </label>
-
-                <label class="map-check">
-                    <input type="checkbox" class="filter-status" value="selesai" checked>
-                    <span class="map-status-dot done"></span>
-                    <span>Selesai</span>
-                </label>
-            </div>
-
-            <div class="map-filter-section">
-                <div class="map-filter-title">Kategori Hambatan</div>
-
-                @foreach($kategoriHambatan as $kategori)
-                    <label class="map-check">
-                        <input
-                            type="checkbox"
-                            class="filter-kategori"
-                            value="{{ $kategori->id }}"
-                            checked
-                        >
-                        <span
-                            class="map-status-dot"
-                            style="background: {{ $kategori->warna_penanda ?: '#64748b' }}"
-                        ></span>
-                        <span>{{ $kategori->nama }}</span>
+                @foreach($statusList as $status)
+                    <label class="sp-check">
+                        <input type="checkbox" class="filter-status"
+                               value="{{ $status['value'] }}" checked>
+                        <span class="sp-status-dot" style="background:{{ $status['color'] }}"></span>
+                        <span>{{ $status['label'] }}</span>
+                        <span class="sp-count" data-count-for="{{ $status['value'] }}">0</span>
                     </label>
                 @endforeach
             </div>
 
-            <div class="map-filter-section">
-                <label class="map-check">
+            {{-- KATEGORI --}}
+            <div class="sp-filter-section">
+                <div class="sp-filter-title">Kategori Hambatan</div>
+
+                @forelse($kategoriHambatan as $kategori)
+                    <label class="sp-check">
+                        <input type="checkbox" class="filter-kategori"
+                               value="{{ $kategori->id }}" checked>
+                        <span class="sp-status-dot"
+                              style="background:{{ $kategori->warna_penanda ?: '#64748b' }}"></span>
+                        <span>{{ $kategori->nama }}</span>
+                    </label>
+                @empty
+                    <p class="sp-filter-desc">Belum ada kategori.</p>
+                @endforelse
+            </div>
+
+            {{-- FASILITAS --}}
+            <div class="sp-filter-section">
+                <label class="sp-check">
                     <input type="checkbox" id="toggle-fasilitas">
-                    <span class="map-status-dot" style="background:#0d9488"></span>
+                    <span class="sp-status-dot" style="background:#0d9488"></span>
                     <span>Tampilkan Fasilitas Publik</span>
                 </label>
             </div>
 
-            <div class="map-filter-section">
-                <div class="map-filter-title">Prioritas</div>
+            {{-- PRIORITAS --}}
+            <div class="sp-filter-section">
+                <div class="sp-filter-title">Prioritas</div>
 
-                <div class="map-legend-item">
-                    <span class="map-legend-pin high"></span>
-                    <span>Tinggi skor ≥ 70</span>
+                <div class="sp-legend">
+                    <span class="sp-legend-pin high"></span>
+                    <span>Tinggi</span>
+                    <span class="sp-legend-score">Skor ≥ 70</span>
                 </div>
-                <div class="map-legend-item">
-                    <span class="map-legend-pin medium"></span>
-                    <span>Sedang skor 40–69</span>
+                <div class="sp-legend">
+                    <span class="sp-legend-pin medium"></span>
+                    <span>Sedang</span>
+                    <span class="sp-legend-score">Skor 40–69</span>
                 </div>
-                <div class="map-legend-item">
-                    <span class="map-legend-pin low"></span>
-                    <span>Rendah skor &lt; 40</span>
+                <div class="sp-legend">
+                    <span class="sp-legend-pin low"></span>
+                    <span>Rendah</span>
+                    <span class="sp-legend-score">Skor &lt; 40</span>
                 </div>
             </div>
 
-            <div class="map-filter-section">
-                <button
-                    id="toggle-sidebar"
-                    type="button"
-                    class="nearby-button"
-                    aria-label="Buka atau tutup filter peta"
-                >
-                    Filter Peta
-                </button>
+            <div class="sp-filter-section">
+                <div class="sp-info-box">
+                    <strong>ⓘ</strong> Klik marker untuk melihat detail laporan.
+                </div>
             </div>
-
         </aside>
 
-        <section
-            class="smartpath-map-content"
-            aria-label="Peta interaktif hambatan aksesibilitas"
-            role="region"
-        >
-            <header class="nearby-navbar" aria-labelledby="nearby-map-title">
-                <h1 id="nearby-map-title" class="nearby-navbar-title">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-                        <circle cx="12" cy="10" r="2.5" />
-                    </svg>
-                    <span>Daftar Hambatan Terdekat</span>
-                </h1>
+        {{-- ============ MAP CONTENT ============ --}}
+        <section class="sp-map-content" aria-label="Peta interaktif" role="region">
 
-                <button
-                    id="nearby-location"
-                    type="button"
-                    class="nearby-location-btn"
-                    aria-label="Gunakan lokasi saya untuk mencari hambatan terdekat"
-                >
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
-                        <circle cx="12" cy="12" r="3" />
-                        <path stroke-linecap="round" d="M12 2v3m0 14v3M2 12h3m14 0h3" />
+            {{-- NEARBY NAVBAR (overlay) --}}
+            <header class="sp-nearby-navbar">
+                <h1 class="sp-nearby-title">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                         stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                        <circle cx="12" cy="10" r="2.5"/>
                     </svg>
-                    <span>Gunakan Lokasi Saya</span>
+                    <span>Hambatan Terdekat</span>
+                </h1>
+                <button id="nearby-location" type="button" class="sp-location-btn"
+                        aria-label="Gunakan lokasi saya">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
+                         stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path stroke-linecap="round" d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+                    </svg>
+                    <span>Lokasi Saya</span>
                 </button>
             </header>
 
-            <section class="map-summary" aria-label="Ringkasan peta">
-
-                <div class="map-summary-item">
-                    <span id="summary-total" class="map-summary-number">0</span>
-                    <span class="map-summary-label">Total Marker</span>
+            {{-- SUMMARY --}}
+            <section class="sp-summary" aria-label="Ringkasan peta">
+                <div class="sp-summary-item">
+                    <span id="summary-total" class="sp-summary-num">0</span>
+                    <span class="sp-summary-label">Total</span>
                 </div>
-
-                <div class="map-summary-item">
-                    <span id="summary-high" class="map-summary-number">0</span>
-                    <span class="map-summary-label">Prioritas Tinggi</span>
+                <div class="sp-summary-item">
+                    <span id="summary-high" class="sp-summary-num">0</span>
+                    <span class="sp-summary-label">Tinggi</span>
                 </div>
-
-                <div class="map-summary-item">
-                    <span id="summary-area" class="map-summary-number">Depok</span>
-                    <span class="map-summary-label">Wilayah</span>
+                <div class="sp-summary-item">
+                    <span id="summary-area" class="sp-summary-num">Depok</span>
+                    <span class="sp-summary-label">Area</span>
                 </div>
-
             </section>
 
             <div id="map-container"></div>
         </section>
-
     </div>
-
-
-
 </div>
 
 @endsection
 
-
 @push('scripts')
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
     'use strict';
 
-    const mapElement =
-        document.getElementById('map-container');
-
+    const mapElement = document.getElementById('map-container');
     if (!mapElement || typeof window.L === 'undefined') {
-        console.error(
-            'SmartPath: Leaflet tidak tersedia pada halaman Peta.'
-        );
-
+        console.error('SmartPath: Leaflet tidak tersedia.');
         return;
     }
 
-    const sidebar =
-        document.getElementById('map-sidebar');
+    // ============ INIT MAP ============
+    const map = window.L.map(mapElement, {
+        center: [-6.4025, 106.7942],
+        zoom: 13,
+        zoomControl: true
+    });
 
-    const toggleSidebar =
-        document.getElementById('toggle-sidebar');
+    window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-    const closeSidebar =
-        document.getElementById('close-sidebar');
+    const laporanLayer   = window.L.layerGroup().addTo(map);
+    const fasilitasLayer = window.L.layerGroup();
 
-    const map =
-        window.L.map(
-            mapElement,
-            {
-                center: [
-                    -6.4025,
-                    106.7942
-                ],
-                zoom: 13,
-                zoomControl: true
-            }
-        );
-
-    window.L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {
-            maxZoom: 19,
-            attribution:
-                '&copy; OpenStreetMap contributors'
-        }
-    ).addTo(map);
-
-
-    const laporanLayer =
-        window.L.layerGroup().addTo(map);
-
-    const fasilitasLayer =
-        window.L.layerGroup();
-
-
-    let laporanData = [];
-
-    let fasilitasData = [];
-
+    let laporanData    = [];
+    let fasilitasData  = [];
     const reportMarkers = new Map();
-
-    let userLocationMarker = null;
-
-    let userLocationCircle = null;
-
+    let userMarker = null;
+    let userCircle = null;
     let initialFitDone = false;
 
-
-    function escapeHtml(value) {
-
-        return String(value ?? '').replace(
-            /[&<>'"]/g,
-            function (character) {
-
-                const entities = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    "'": '&#039;',
-                    '"': '&quot;'
-                };
-
-                return entities[character];
-            }
-        );
+    // ============ HELPERS ============
+    function escapeHtml(v) {
+        return String(v ?? '').replace(/[&<>'"]/g, c => ({
+            '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#039;', '"':'&quot;'
+        })[c]);
     }
-
 
     function getPriority(score) {
-
         if (score === null || score === undefined || score === '') {
-            return {
-                key: 'low',
-                label: 'Belum Dinilai',
-                color: '#64748b'
-            };
+            return { key: 'low', label: 'Belum Dinilai', color: '#64748b' };
         }
-
-        const value =
-            Number(score);
-
-        if (value >= 70) {
-            return {
-                key: 'high',
-                label: 'Tinggi',
-                color: '#dc2626'
-            };
-        }
-
-        if (value >= 40) {
-            return {
-                key: 'medium',
-                label: 'Sedang',
-                color: '#d97706'
-            };
-        }
-
-        return {
-            key: 'low',
-            label: 'Rendah',
-            color: '#16a34a'
-        };
+        const n = Number(score);
+        if (n >= 70) return { key: 'high',   label: 'Tinggi', color: '#dc2626' };
+        if (n >= 40) return { key: 'medium', label: 'Sedang', color: '#d97706' };
+        return              { key: 'low',    label: 'Rendah', color: '#16a34a' };
     }
 
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371000;
+        const φ1 = lat1 * Math.PI / 180;
+        const φ2 = lat2 * Math.PI / 180;
+        const Δφ = (lat2 - lat1) * Math.PI / 180;
+        const Δλ = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
 
+    // ============ ICONS ============
     function createReportIcon(report) {
-
-        const priority =
-            getPriority(
-                report.skor_prioritas
-            );
-
+        const p = getPriority(report.skor_prioritas);
         return window.L.divIcon({
-
-            className:
-                'smartpath-report-icon',
-
+            className: 'sp-report-icon',
             html: `
-                <div
-                    class="smartpath-pin-wrapper ${priority.key}"
-                    role="img"
-                    aria-label="Marker laporan ${escapeHtml(priority.label)}"
-                >
-                    <span class="smartpath-pin-pulse"></span>
-                    <span class="smartpath-pin"></span>
+                <div class="sp-pin-wrap ${p.key}" role="img"
+                     aria-label="Marker laporan ${escapeHtml(p.label)}">
+                    <span class="sp-pin-pulse"></span>
+                    <span class="sp-pin"></span>
                 </div>
             `,
-
-            iconSize: [
-                34,
-                42
-            ],
-
-            iconAnchor: [
-                17,
-                41
-            ],
-
-            popupAnchor: [
-                0,
-                -36
-            ]
+            iconSize: [34, 42],
+            iconAnchor: [17, 41],
+            popupAnchor: [0, -36]
         });
     }
 
+    function createFacilityIcon() {
+        return window.L.divIcon({
+            className: 'sp-facility-icon',
+            html: `
+                <div class="sp-facility-marker">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M4 20h16M6 20V7a2 2 0 012-2h8a2 2 0 012 2v13M9 9h1m-1 3h1m4-3h1m-1 3h1M9 20v-4h6v4"/>
+                    </svg>
+                </div>
+            `,
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+    }
 
+    // ============ POPUPS ============
     function createReportPopup(report) {
+        const p = getPriority(report.skor_prioritas);
+        const scoreText = (report.skor_prioritas === null || report.skor_prioritas === undefined)
+            ? 'Belum dinilai'
+            : Number(report.skor_prioritas).toFixed(2);
 
-        const priority =
-            getPriority(
-                report.skor_prioritas
-            );
-
-        const scoreText =
-            report.skor_prioritas === null
-                || report.skor_prioritas === undefined
-                ? 'Belum dinilai'
-                : Number(
-                    report.skor_prioritas
-                ).toFixed(2);
-
-        const image =
-            report.foto_utama
-                ? `
-                    <img
-                        class="smartpath-popup-image"
-                        src="${escapeHtml(report.foto_utama)}"
-                        alt="Foto hambatan ${escapeHtml(report.judul)}"
-                    >
-                `
-                : '';
+        const image = report.foto_utama
+            ? `<img class="sp-popup-img" src="${escapeHtml(report.foto_utama)}"
+                    alt="Foto ${escapeHtml(report.judul)}">`
+            : '';
 
         return `
-            <article class="smartpath-popup">
-
+            <article class="sp-popup">
                 ${image}
-
-                <div class="smartpath-popup-title">
-                    ${escapeHtml(report.judul || 'Laporan Hambatan')}
-                </div>
-
-                <div class="smartpath-popup-category">
-                    ${escapeHtml(report.kategori || 'Kategori tidak tersedia')}
-                </div>
-
-                <div class="smartpath-popup-address">
-                    ${escapeHtml(
-                        report.alamat_lengkap
-                        || 'Alamat tidak tersedia'
-                    )}
-                </div>
-
-                <div class="smartpath-popup-meta">
-
-                    <span
-                        class="smartpath-popup-badge"
-                        style="
-                            color:${priority.color};
-                            background:${priority.color}15;
-                            border:1px solid ${priority.color}35;
-                        "
-                    >
-                        Prioritas ${escapeHtml(priority.label)}
+                <div class="sp-popup-title">${escapeHtml(report.judul || 'Laporan Hambatan')}</div>
+                <div class="sp-popup-category">${escapeHtml(report.kategori || 'Kategori tidak tersedia')}</div>
+                <div class="sp-popup-address">${escapeHtml(report.alamat_lengkap || 'Alamat tidak tersedia')}</div>
+                <div class="sp-popup-meta">
+                    <span class="sp-popup-badge"
+                          style="color:${p.color};background:${p.color}15;border:1px solid ${p.color}35;">
+                        Prioritas ${escapeHtml(p.label)}
                     </span>
-
-                    <span class="smartpath-popup-score">
-                        Skor ${escapeHtml(scoreText)}
-                    </span>
-
+                    <span class="sp-popup-score">Skor ${escapeHtml(scoreText)}</span>
                 </div>
-
-                <div
-                    style="
-                        margin-top:7px;
-                        color:#64748b;
-                        font-size:12px;
-                    "
-                >
-                    ${escapeHtml(report.status_label || report.status)}
-                    ·
-                    ${escapeHtml(report.jumlah_pelapor || 1)}
-                    pelapor
+                <div class="sp-popup-footer">
+                    ${escapeHtml(report.status_label || report.status)} ·
+                    ${escapeHtml(report.jumlah_pelapor || 1)} pelapor
                 </div>
-
             </article>
         `;
     }
 
+    function createFacilityPopup(f) {
+        return `
+            <div style="min-width:190px;font-family:inherit;">
+                <strong style="color:#0f172a;font-size:13px;">${escapeHtml(f.nama)}</strong>
+                <div style="margin-top:4px;color:#0d9488;font-size:11px;font-weight:600;">
+                    ${escapeHtml(f.jenis_label)}
+                </div>
+                <div style="margin-top:5px;color:#64748b;font-size:12px;line-height:1.5;">
+                    ${escapeHtml(f.alamat || 'Alamat tidak tersedia')}
+                </div>
+            </div>
+        `;
+    }
 
+    // ============ COUNTERS ============
+    function updateCounters(allReports) {
+        // Header stats
+        const total = document.getElementById('header-total');
+        const high  = document.getElementById('header-high');
+        if (total) total.textContent = allReports.length;
+        if (high) {
+            high.textContent = allReports.filter(r =>
+                r.skor_prioritas !== null && Number(r.skor_prioritas) >= 70
+            ).length;
+        }
+
+        // Per-status counters
+        document.querySelectorAll('[data-count-for]').forEach(el => {
+            const status = el.getAttribute('data-count-for');
+            const count = allReports.filter(r => String(r.status) === status).length;
+            el.textContent = count;
+        });
+    }
+
+    // ============ RENDER ============
     function renderReports() {
-
         laporanLayer.clearLayers();
         reportMarkers.clear();
 
-        const activeStatuses =
-            Array.from(
-                document.querySelectorAll(
-                    '.filter-status:checked'
-                )
-            ).map(
-                checkbox => checkbox.value
-            );
+        const activeStatuses  = Array.from(document.querySelectorAll('.filter-status:checked')).map(c => c.value);
+        const activeCategories = Array.from(document.querySelectorAll('.filter-kategori:checked')).map(c => String(c.value));
 
-        const activeCategories =
-            Array.from(
-                document.querySelectorAll(
-                    '.filter-kategori:checked'
-                )
-            ).map(
-                checkbox => String(
-                    checkbox.value
-                )
-            );
+        const visible = laporanData.filter(r => {
+            const okStatus = activeStatuses.includes(String(r.status));
+            const okCat = activeCategories.length === 0 ||
+                          activeCategories.includes(String(r.kategori_id));
+            return okStatus && okCat;
+        });
 
-        const visibleReports =
-            laporanData.filter(function (report) {
+        updateCounters(laporanData);
 
-                const statusAllowed =
-                    activeStatuses.includes(
-                        report.status
-                    );
+        visible.forEach(report => {
+            const lat = Number(report.latitude);
+            const lng = Number(report.longitude);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
-                const categoryAllowed =
-                    activeCategories.length === 0
-                        ||
-                        activeCategories.includes(
-                            String(
-                                report.kategori_id
-                            )
-                        );
-
-                return (
-                    statusAllowed
-                    &&
-                    categoryAllowed
-                );
+            const marker = window.L.marker([lat, lng], {
+                icon: createReportIcon(report),
+                title: report.judul,
+                alt: `Lokasi hambatan ${report.judul}`
             });
 
+            marker.bindPopup(createReportPopup(report), { maxWidth: 320, minWidth: 220 });
+            laporanLayer.addLayer(marker);
+            reportMarkers.set(String(report.id ?? report.uuid ?? report.judul), marker);
 
-        visibleReports.forEach(
-            function (report) {
-
-                const latitude =
-                    Number(report.latitude);
-
-                const longitude =
-                    Number(report.longitude);
-
-                if (
-                    !Number.isFinite(latitude)
-                    ||
-                    !Number.isFinite(longitude)
-                ) {
-                    return;
-                }
-
-                const marker =
-                    window.L.marker(
-                        [
-                            latitude,
-                            longitude
-                        ],
-                        {
-                            icon:
-                                createReportIcon(
-                                    report
-                                ),
-                            title:
-                                report.judul,
-                            alt:
-                                `Lokasi hambatan ${report.judul}`
-                        }
-                    );
-
-                marker.bindPopup(
-                    createReportPopup(
-                        report
-                    ),
-                    {
-                        maxWidth: 320,
-                        minWidth: 220
+            const el = marker.getElement();
+            if (el) {
+                const p = getPriority(report.skor_prioritas);
+                el.setAttribute('role', 'button');
+                el.setAttribute('tabindex', '0');
+                el.setAttribute('aria-label',
+                    `Laporan ${report.judul || 'hambatan'}. Prioritas ${p.label}. Skor ${report.skor_prioritas ?? 'belum dinilai'}.`
+                );
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        marker.openPopup();
                     }
-                );
-
-                laporanLayer.addLayer(
-                    marker
-                );
-
-                reportMarkers.set(
-                    String(report.id ?? report.uuid ?? report.judul),
-                    marker
-                );
-
-
-                const markerElement =
-                    marker.getElement();
-
-                if (markerElement) {
-
-                    const priority =
-                        getPriority(
-                            report.skor_prioritas
-                        );
-
-                    markerElement.setAttribute(
-                        'role',
-                        'button'
-                    );
-
-                    markerElement.setAttribute(
-                        'tabindex',
-                        '0'
-                    );
-
-                    markerElement.setAttribute(
-                        'aria-label',
-                        `Laporan ${
-                            report.judul || 'hambatan aksesibilitas'
-                        }. Prioritas ${
-                            priority.label
-                        }. Skor ${
-                            report.skor_prioritas ?? 'belum dinilai'
-                        }.`
-                    );
-
-                    markerElement.addEventListener(
-                        'keydown',
-                        function (event) {
-
-                            if (
-                                event.key === 'Enter'
-                                ||
-                                event.key === ' '
-                            ) {
-
-                                event.preventDefault();
-
-                                marker.openPopup();
-
-                            }
-
-                        }
-                    );
-                }
+                });
             }
-        );
+        });
 
+        const highCount = visible.filter(r =>
+            r.skor_prioritas !== null && Number(r.skor_prioritas) >= 70
+        ).length;
 
+        document.getElementById('summary-total').textContent = visible.length;
+        document.getElementById('summary-high').textContent  = highCount;
 
+        if (!initialFitDone && visible.length > 0) {
+            const points = visible
+                .map(r => [Number(r.latitude), Number(r.longitude)])
+                .filter(p => Number.isFinite(p[0]) && Number.isFinite(p[1]));
 
-        const highCount =
-            visibleReports.filter(
-                function (report) {
-                    return (
-                        report.skor_prioritas !== null
-                        &&
-                        Number(
-                            report.skor_prioritas
-                        ) >= 70
-                    );
-                }
-            ).length;
-
-
-        document.getElementById(
-            'summary-total'
-        ).textContent =
-            visibleReports.length;
-
-        document.getElementById(
-            'summary-high'
-        ).textContent =
-            highCount;
-
-
-        if (
-            !initialFitDone
-            &&
-            visibleReports.length > 0
-        ) {
-
-            const points =
-                visibleReports
-                    .map(
-                        report => [
-                            Number(report.latitude),
-                            Number(report.longitude)
-                        ]
-                    )
-                    .filter(
-                        point =>
-                            Number.isFinite(point[0])
-                            &&
-                            Number.isFinite(point[1])
-                    );
-
-            if (points.length === 1) {
-
-                map.setView(
-                    points[0],
-                    16
-                );
-
-            } else if (points.length > 1) {
-
-                map.fitBounds(
-                    points,
-                    {
-                        padding: [
-                            30,
-                            30
-                        ],
-                        maxZoom: 15
-                    }
-                );
-            }
+            if (points.length === 1)      map.setView(points[0], 16);
+            else if (points.length > 1)   map.fitBounds(points, { padding: [30, 30], maxZoom: 15 });
 
             initialFitDone = true;
         }
     }
 
-
     function renderFacilities() {
-
         fasilitasLayer.clearLayers();
+        fasilitasData.forEach(f => {
+            const lat = Number(f.latitude);
+            const lng = Number(f.longitude);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
-        fasilitasData.forEach(
-            function (facility) {
-
-                const latitude =
-                    Number(
-                        facility.latitude
-                    );
-
-                const longitude =
-                    Number(
-                        facility.longitude
-                    );
-
-                if (
-                    !Number.isFinite(latitude)
-                    ||
-                    !Number.isFinite(longitude)
-                ) {
-                    return;
-                }
-
-                const icon =
-                    window.L.divIcon({
-
-                        className:
-                            'smartpath-facility-icon',
-
-                        html: `
-                            <div class="facility-marker">
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="1.8"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M4 20h16M6 20V7a2 2 0 012-2h8a2 2 0 012 2v13M9 9h1m-1 3h1m4-3h1m-1 3h1M9 20v-4h6v4"
-                                    />
-                                </svg>
-                            </div>
-                        `,
-
-                        iconSize: [
-                            24,
-                            24
-                        ],
-
-                        iconAnchor: [
-                            12,
-                            12
-                        ]
-                    });
-
-                const marker =
-                    window.L.marker(
-                        [
-                            latitude,
-                            longitude
-                        ],
-                        {
-                            icon: icon,
-                            title: facility.nama
-                        }
-                    );
-
-                marker.bindPopup(`
-                    <div style="min-width:190px;font-family:Inter,sans-serif;">
-                        <strong style="color:#0f172a;font-size:13px;">
-                            ${escapeHtml(facility.nama)}
-                        </strong>
-
-                        <div style="margin-top:4px;color:#0d9488;font-size:11px;font-weight:600;">
-                            ${escapeHtml(facility.jenis_label)}
-                        </div>
-
-                        <div style="margin-top:5px;color:#64748b;font-size:12px;line-height:1.5;">
-                            ${escapeHtml(facility.alamat || 'Alamat tidak tersedia')}
-                        </div>
-                    </div>
-                `);
-
-                fasilitasLayer.addLayer(
-                    marker
-                );
-            }
-        );
+            const marker = window.L.marker([lat, lng], {
+                icon: createFacilityIcon(),
+                title: f.nama
+            });
+            marker.bindPopup(createFacilityPopup(f));
+            fasilitasLayer.addLayer(marker);
+        });
     }
 
-
+    // ============ LOAD DATA ============
     async function loadReports() {
-
         try {
+            const res = await fetch('{{ route("peta.data") }}', {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!res.ok) throw new Error('Gagal mengambil laporan.');
+            laporanData = await res.json();
 
-            const response =
-                await fetch(
-                    '{{ route("peta.data") }}',
-                    {
-                        headers: {
-                            'Accept':
-                                'application/json'
-                        }
-                    }
-                );
-
-            if (!response.ok) {
-                throw new Error(
-                    'Gagal mengambil laporan.'
-                );
-            }
-
-            laporanData =
-                await response.json();
+            // Debug: cek status unik di data
+            const uniqueStatuses = [...new Set(laporanData.map(r => r.status))];
+            console.log('[SmartPath] Status unik di data:', uniqueStatuses);
+            console.log('[SmartPath] Contoh data:', laporanData[0]);
 
             renderReports();
-
-        } catch (error) {
-
-            console.error(
-                'SmartPath Peta:',
-                error
-            );
+        } catch (err) {
+            console.error('SmartPath Peta:', err);
         }
     }
-
 
     async function loadFacilities() {
-
         try {
-
-            const response =
-                await fetch(
-                    '{{ route("peta.fasilitas") }}',
-                    {
-                        headers: {
-                            'Accept':
-                                'application/json'
-                        }
-                    }
-                );
-
-            if (!response.ok) {
-                throw new Error(
-                    'Gagal mengambil fasilitas.'
-                );
-            }
-
-            fasilitasData =
-                await response.json();
-
+            const res = await fetch('{{ route("peta.fasilitas") }}', {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!res.ok) throw new Error('Gagal mengambil fasilitas.');
+            fasilitasData = await res.json();
             renderFacilities();
-
-        } catch (error) {
-
-            console.error(
-                'SmartPath Fasilitas:',
-                error
-            );
+        } catch (err) {
+            console.error('SmartPath Fasilitas:', err);
         }
     }
 
+    // ============ EVENTS ============
+    document.querySelectorAll('.filter-status, .filter-kategori').forEach(el => {
+        el.addEventListener('change', renderReports);
+    });
 
-    document
-        .querySelectorAll(
-            '.filter-status, .filter-kategori'
-        )
-        .forEach(
-            function (element) {
+    document.getElementById('toggle-fasilitas').addEventListener('change', function () {
+        if (this.checked) fasilitasLayer.addTo(map);
+        else map.removeLayer(fasilitasLayer);
+    });
 
-                element.addEventListener(
-                    'change',
-                    renderReports
-                );
-            }
-        );
-
-
-    const fasilitasToggle =
-        document.getElementById(
-            'toggle-fasilitas'
-        );
-
-    fasilitasToggle.addEventListener(
-        'change',
-        function () {
-
-            if (this.checked) {
-                fasilitasLayer.addTo(map);
-            } else {
-                map.removeLayer(
-                    fasilitasLayer
-                );
-            }
+    // Location button
+    document.getElementById('nearby-location').addEventListener('click', function () {
+        const button = this;
+        if (!navigator.geolocation) {
+            alert('Browser tidak mendukung fitur lokasi.');
+            return;
         }
-    );
+        button.disabled = true;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<span>Mengambil...</span>';
 
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                const uLat = pos.coords.latitude;
+                const uLng = pos.coords.longitude;
+                const radius = 50;
 
-    document
-        .getElementById('nearby-location')
-        .addEventListener(
-            'click',
-            function () {
+                if (userMarker) map.removeLayer(userMarker);
+                if (userCircle) map.removeLayer(userCircle);
 
-                const button = this;
+                userMarker = window.L.circleMarker([uLat, uLng], {
+                    radius: 7, color: '#fff', weight: 3,
+                    fillColor: '#2563eb', fillOpacity: 1, zIndexOffset: 1000
+                }).addTo(map).bindPopup('<strong>Lokasi Anda</strong>');
 
-                if (!navigator.geolocation) {
-                    alert('Browser tidak mendukung fitur lokasi.');
-                    return;
-                }
+                userCircle = window.L.circle([uLat, uLng], {
+                    radius: radius, color: '#2563eb', weight: 1,
+                    fillColor: '#2563eb', fillOpacity: 0.08
+                }).addTo(map);
 
-                button.disabled = true;
-                button.innerHTML = '<span aria-hidden="true">⌖</span><span>Mengambil...</span>';
+                const nearby = laporanData
+                    .map(r => ({
+                        report: r,
+                        distance: calculateDistance(uLat, uLng, Number(r.latitude), Number(r.longitude))
+                    }))
+                    .filter(i => i.distance <= radius)
+                    .sort((a, b) => a.distance - b.distance)
+                    .slice(0, 6);
 
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
+                map.setView([uLat, uLng], 17);
 
-                        const userLat = position.coords.latitude;
-                        const userLng = position.coords.longitude;
-                        const radius = 50;
+                nearby.forEach(item => {
+                    const r = item.report;
+                    const m = reportMarkers.get(String(r.id ?? r.uuid ?? r.judul));
+                    if (m) m.openPopup();
+                });
 
-                        if (userLocationMarker) {
-                            map.removeLayer(userLocationMarker);
-                        }
-
-                        if (userLocationCircle) {
-                            map.removeLayer(userLocationCircle);
-                        }
-
-                        userLocationMarker = window.L.circleMarker(
-                            [userLat, userLng],
-                            {
-                                radius: 7,
-                                color: '#ffffff',
-                                weight: 3,
-                                fillColor: '#2563eb',
-                                fillOpacity: 1,
-                                zIndexOffset: 1000
-                            }
-                        )
-                        .addTo(map)
-                        .bindPopup('<strong>Lokasi Anda</strong><br>Hambatan terdekat ditampilkan pada marker peta.');
-
-                        userLocationCircle = window.L.circle(
-                            [userLat, userLng],
-                            {
-                                radius: radius,
-                                color: '#2563eb',
-                                weight: 1,
-                                fillColor: '#2563eb',
-                                fillOpacity: 0.08
-                            }
-                        ).addTo(map);
-
-                        const nearby = laporanData
-                            .map(function (report) {
-                                return {
-                                    report: report,
-                                    distance: calculateDistance(
-                                        userLat,
-                                        userLng,
-                                        Number(report.latitude),
-                                        Number(report.longitude)
-                                    )
-                                };
-                            })
-                            .filter(function (item) {
-                                return item.distance <= radius;
-                            })
-                            .sort(function (a, b) {
-                                return a.distance - b.distance;
-                            })
-                            .slice(0, 6);
-
-                        map.setView([userLat, userLng], 17);
-
-                        // Hambatan terdekat ditampilkan langsung melalui marker.
-                        nearby.forEach(function (item) {
-                            const report = item.report;
-                            const marker = reportMarkers.get(
-                                String(report.id ?? report.uuid ?? report.judul)
-                            );
-
-                            if (marker) {
-                                marker.openPopup();
-                            }
-                        });
-
-                        button.disabled = false;
-                        button.innerHTML = '<span aria-hidden="true">⌖</span><span>Lokasi Saya</span>';
-
-                    },
-                    function () {
-
-                        button.disabled = false;
-                        button.innerHTML = '<span aria-hidden="true">⌖</span><span>Lokasi Saya</span>';
-
-                        alert(
-                            'Lokasi tidak dapat diperoleh. Pastikan izin lokasi pada browser telah diberikan.'
-                        );
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 15000,
-                        maximumAge: 60000
-                    }
-                );
-            }
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            },
+            () => {
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+                alert('Lokasi tidak dapat diperoleh. Pastikan izin lokasi diberikan.');
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
         );
+    });
 
+    // Export CSV
+    document.getElementById('btn-export').addEventListener('click', function () {
+        if (!laporanData.length) {
+            alert('Tidak ada data untuk diekspor.');
+            return;
+        }
 
-    function calculateDistance(
-        lat1,
-        lng1,
-        lat2,
-        lng2
-    ) {
+        const headers = ['ID', 'Judul', 'Kategori', 'Status', 'Skor Prioritas', 'Latitude', 'Longitude', 'Alamat'];
+        const rows = laporanData.map(r => [
+            r.id ?? '',
+            r.judul ?? '',
+            r.kategori ?? '',
+            r.status_label || r.status || '',
+            r.skor_prioritas ?? '',
+            r.latitude ?? '',
+            r.longitude ?? '',
+            (r.alamat_lengkap || '').replace(/[\r\n]+/g, ' ')
+        ]);
 
-        const earthRadius =
-            6371000;
+        const csv = [headers, ...rows]
+            .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+            .join('\n');
 
-        const latFrom =
-            lat1 * Math.PI / 180;
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `smartpath-laporan-${new Date().toISOString().slice(0,10)}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+    });
 
-        const latTo =
-            lat2 * Math.PI / 180;
+    // Sidebar toggle (mobile)
+    const sidebar = document.getElementById('map-sidebar');
+    const closeSidebar = document.getElementById('close-sidebar');
 
-        const latDelta =
-            (lat2 - lat1)
-            * Math.PI
-            / 180;
-
-        const lngDelta =
-            (lng2 - lng1)
-            * Math.PI
-            / 180;
-
-        const a =
-            Math.sin(
-                latDelta / 2
-            ) ** 2
-            +
-            Math.cos(latFrom)
-            *
-            Math.cos(latTo)
-            *
-            Math.sin(
-                lngDelta / 2
-            ) ** 2;
-
-        const c =
-            2 *
-            Math.atan2(
-                Math.sqrt(a),
-                Math.sqrt(1 - a)
-            );
-
-        return earthRadius * c;
+    if (closeSidebar) {
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            setTimeout(() => map.invalidateSize(), 250);
+        });
     }
 
-
-    toggleSidebar.addEventListener(
-        'click',
-        function () {
-            sidebar.classList.toggle(
-                'open'
-            );
-
-            setTimeout(
-                function () {
-                    map.invalidateSize();
-                },
-                250
-            );
+    // Open sidebar via menu icon on mobile
+    document.querySelector('.sp-brand span[aria-hidden="true"]').addEventListener('click', () => {
+        if (window.innerWidth < 1024) {
+            sidebar.classList.toggle('open');
+            setTimeout(() => map.invalidateSize(), 250);
         }
-    );
+    });
 
+    window.addEventListener('resize', () => map.invalidateSize(), { passive: true });
 
-    closeSidebar.addEventListener(
-        'click',
-        function () {
-            sidebar.classList.remove(
-                'open'
-            );
-        }
-    );
-
-
-    window.addEventListener(
-        'resize',
-        function () {
-            map.invalidateSize();
-        },
-        {
-            passive: true
-        }
-    );
-
-
+    // ============ BOOT ============
     loadReports();
     loadFacilities();
-
-    setTimeout(
-        function () {
-            map.invalidateSize();
-        },
-        250
-    );
+    setTimeout(() => map.invalidateSize(), 250);
 });
 </script>
-
 @endpush
