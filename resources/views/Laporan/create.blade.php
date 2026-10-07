@@ -7,10 +7,60 @@
 @endpush
 
 @section('content')
+
+{{-- Header / Navbar Berwarna (Struktur Persis Gambar Ke-2) --}}
+<header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            
+            {{-- Logo SmartPath --}}
+            <a href="/" class="flex items-center gap-2.5 text-decoration-none">
+                <div class="w-10 h-10 rounded-xl bg-[#059669] flex items-center justify-center shadow-sm">
+                    <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        <line x1="8" y1="2" x2="8" y2="18"></line>
+                        <line x1="16" y1="6" x2="16" y2="22"></line>
+                        <path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" fill="currentColor"></path>
+                    </svg>
+                </div>
+                <span class="font-extrabold text-xl tracking-tight leading-none">
+                    <span class="text-[#064e3b]">Smart</span><span class="text-[#10b981]">Path</span>
+                </span>
+            </a>
+
+            {{-- Navigation Menu (Beranda, Peta, Laporan, Tentang) --}}
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-700">
+                <a href="#" class="hover:text-emerald-600 transition-colors">Beranda</a>
+                <a href="#" class="hover:text-emerald-600 transition-colors">Peta</a>
+                <a href="{{ route('laporan.index') }}" class="text-emerald-600 font-semibold border-b-2 border-emerald-600 pb-1">Laporan</a>
+                <a href="#" class="hover:text-emerald-600 transition-colors">Tentang</a>
+            </nav>
+
+            {{-- Profile User --}}
+            <div class="flex items-center gap-2 border border-slate-200 bg-slate-50 rounded-full px-3 py-1.5 text-sm text-slate-700 cursor-pointer hover:bg-slate-100 transition">
+                <div class="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <span class="font-medium text-slate-800">Pengguna</span>
+                <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"></path>
+                </svg>
+            </div>
+
+        </div>
+    </div>
+</header>
+
 <div class="laporan-create-page max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
     {{-- Breadcrumb --}}
-    <nav class="text-sm text-slate-500 mb-4" aria-label="Breadcrumb">
+    <nav
+        class="text-sm text-slate-500 mb-4"
+        aria-label="Breadcrumb"
+    >
         <ol class="flex items-center gap-2 flex-wrap">
             <li>
                 <a
@@ -88,14 +138,17 @@
 
             {{-- 1. Kategori Hambatan --}}
             <section
-                class="sp-report-card"
+                class="sp-report-card bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm"
                 aria-labelledby="kategori-heading"
             >
-                <div class="sp-section-heading">
-                    <span class="sp-section-number">1.</span>
+                <div class="sp-section-heading mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
 
-                    <h2 id="kategori-heading">
-                        Kategori Hambatan
+                    <h2 id="kategori-heading" class="text-lg font-bold text-slate-950">
+                        1. Kategori Hambatan
                     </h2>
                 </div>
 
@@ -103,7 +156,7 @@
 
                     @foreach($kategoriHambatan as $kategori)
 
-                        <label class="sp-category-option">
+                        <label class="sp-category-option cursor-pointer">
 
                             <input
                                 type="radio"
@@ -114,15 +167,15 @@
                                 {{ old('kategori_hambatan_id') == $kategori->id ? 'checked' : '' }}
                             >
 
-                            <span class="sp-category-card">
+                            <span class="sp-category-card flex flex-col items-center justify-center p-3.5 rounded-xl border border-slate-200 bg-white text-slate-700 transition-all duration-200 peer-checked:bg-emerald-100 peer-checked:text-emerald-900 peer-checked:border-emerald-400 peer-checked:shadow-md hover:bg-slate-50">
 
                                 <span
-                                    class="sp-category-dot"
-                                    style="--category-color: {{ $kategori->warna_penanda ?? '#64748b' }}"
+                                    class="sp-category-dot w-3 h-3 rounded-full mb-2 border border-slate-300"
+                                    style="--category-color: {{ $kategori->warna_penanda ?? '#10b981' }}; background-color: var(--category-color);"
                                     aria-hidden="true"
                                 ></span>
 
-                                <span class="sp-category-label">
+                                <span class="sp-category-label text-center text-xs sm:text-sm font-semibold leading-snug">
                                     {{ $kategori->nama }}
                                 </span>
 
@@ -136,7 +189,7 @@
 
                 @error('kategori_hambatan_id')
                     <p
-                        class="sp-field-error"
+                        class="sp-field-error mt-2 text-sm text-red-600"
                         role="alert"
                     >
                         {{ $message }}
@@ -147,15 +200,20 @@
 
             {{-- 2. Detail Laporan --}}
             <section
-                class="sp-report-card"
+                class="sp-report-card bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm"
                 aria-labelledby="detail-heading"
             >
 
-                <div class="sp-section-heading">
-                    <span class="sp-section-number">2.</span>
+                <div class="sp-section-heading mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
 
-                    <h2 id="detail-heading">
-                        Detail Laporan
+                    <h2 id="detail-heading" class="text-lg font-bold text-slate-950">
+                        2. Detail Laporan
                     </h2>
                 </div>
 
@@ -165,7 +223,7 @@
 
                         <label
                             for="judul"
-                            class="sp-label"
+                            class="sp-label text-slate-900 font-medium text-sm block mb-1"
                         >
                             Judul Laporan
                             <span
@@ -182,15 +240,15 @@
                             name="judul"
                             value="{{ old('judul') }}"
                             maxlength="200"
-                            class="sp-input @error('judul') border-red-400 @enderror"
-                            placeholder="Contoh: Trotoar rusak di depan fasilitas publik"
+                            class="sp-input w-full bg-white rounded-xl border-slate-300 focus:border-emerald-500 focus:ring-emerald-500 @error('judul') border-red-400 @enderror"
+                            placeholder="Contoh: Trotoar rusak di depan RS"
                             required
                             aria-required="true"
                         >
 
                         @error('judul')
                             <p
-                                class="sp-field-error"
+                                class="sp-field-error text-sm text-red-600 mt-1"
                                 role="alert"
                             >
                                 {{ $message }}
@@ -204,7 +262,7 @@
 
                         <label
                             for="deskripsi"
-                            class="sp-label"
+                            class="sp-label text-slate-900 font-medium text-sm block mb-1"
                         >
                             Deskripsi
                             <span
@@ -220,7 +278,7 @@
                             name="deskripsi"
                             rows="5"
                             maxlength="5000"
-                            class="sp-input sp-textarea @error('deskripsi') border-red-400 @enderror"
+                            class="sp-input sp-textarea w-full bg-white rounded-xl border-slate-300 focus:border-emerald-500 focus:ring-emerald-500 @error('deskripsi') border-red-400 @enderror"
                             placeholder="Jelaskan secara detail hambatan yang Anda temui..."
                             required
                             aria-required="true"
@@ -237,7 +295,7 @@
 
                         @error('deskripsi')
                             <p
-                                class="sp-field-error"
+                                class="sp-field-error text-sm text-red-600 mt-1"
                                 role="alert"
                             >
                                 {{ $message }}
@@ -253,15 +311,18 @@
 
             {{-- 3. Lokasi Hambatan --}}
             <section
-                class="sp-report-card"
+                class="sp-report-card bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm"
                 aria-labelledby="lokasi-heading"
             >
 
-                <div class="sp-section-heading">
-                    <span class="sp-section-number">3.</span>
+                <div class="sp-section-heading mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
 
-                    <h2 id="lokasi-heading">
-                        Lokasi Hambatan
+                    <h2 id="lokasi-heading" class="text-lg font-bold text-slate-950">
+                        3. Lokasi Hambatan
                     </h2>
                 </div>
 
@@ -271,7 +332,7 @@
 
                 <p
                     id="location-status"
-                    class="sp-location-status mb-4"
+                    class="sp-location-status mb-4 text-xs sm:text-sm"
                     role="status"
                     aria-live="polite"
                 >
@@ -281,7 +342,7 @@
 
                 <div
                     id="location-map"
-                    class="sp-map mb-4"
+                    class="sp-map mb-4 rounded-xl overflow-hidden border border-slate-200"
                     data-pilot-bounds='@json(config("smartpath.pilot.bounds"))'
                     data-pilot-center='@json(config("smartpath.pilot.center"))'
                     data-gps-timeout="{{ config('smartpath.location.watch_timeout_ms', 15000) }}"
@@ -298,7 +359,7 @@
 
                         <label
                             for="latitude"
-                            class="sp-label"
+                            class="sp-label text-slate-900 font-medium text-sm block mb-1"
                         >
                             Latitude
                             <span
@@ -313,9 +374,9 @@
                             type="text"
                             id="latitude"
                             name="latitude"
-                            value="{{ old('latitude') }}"
-                            class="sp-input sp-coordinate"
-                            placeholder="-6.4025000"
+                            value="{{ old('latitude', '-6.2000') }}"
+                            class="sp-input sp-coordinate w-full bg-slate-50 rounded-xl border-slate-300"
+                            placeholder="-6.2000"
                             inputmode="decimal"
                             readonly
                             required
@@ -324,7 +385,7 @@
 
                         @error('latitude')
                             <p
-                                class="sp-field-error"
+                                class="sp-field-error text-sm text-red-600 mt-1"
                                 role="alert"
                             >
                                 {{ $message }}
@@ -338,7 +399,7 @@
 
                         <label
                             for="longitude"
-                            class="sp-label"
+                            class="sp-label text-slate-900 font-medium text-sm block mb-1"
                         >
                             Longitude
                             <span
@@ -353,9 +414,9 @@
                             type="text"
                             id="longitude"
                             name="longitude"
-                            value="{{ old('longitude') }}"
-                            class="sp-input sp-coordinate"
-                            placeholder="106.8197000"
+                            value="{{ old('longitude', '106.8167') }}"
+                            class="sp-input sp-coordinate w-full bg-slate-50 rounded-xl border-slate-300"
+                            placeholder="106.8167"
                             inputmode="decimal"
                             readonly
                             required
@@ -364,7 +425,7 @@
 
                         @error('longitude')
                             <p
-                                class="sp-field-error"
+                                class="sp-field-error text-sm text-red-600 mt-1"
                                 role="alert"
                             >
                                 {{ $message }}
@@ -380,7 +441,7 @@
 
                     <label
                         for="alamat_lengkap"
-                        class="sp-label"
+                        class="sp-label text-slate-900 font-medium text-sm block mb-1"
                     >
                         Alamat Lengkap
                     </label>
@@ -391,14 +452,14 @@
                         name="alamat_lengkap"
                         value="{{ old('alamat_lengkap') }}"
                         maxlength="255"
-                        class="sp-input @error('alamat_lengkap') border-red-400 @enderror"
-                        placeholder="Contoh: Jl. Margonda Raya, Depok"
+                        class="sp-input w-full bg-white rounded-xl border-slate-300 focus:border-emerald-500 focus:ring-emerald-500 @error('alamat_lengkap') border-red-400 @enderror"
+                        placeholder="Jl. Merdeka Raya No. 24, Jakarta"
                         autocomplete="street-address"
                     >
 
                     @error('alamat_lengkap')
                         <p
-                            class="sp-field-error"
+                            class="sp-field-error text-sm text-red-600 mt-1"
                             role="alert"
                         >
                             {{ $message }}
@@ -408,15 +469,14 @@
                 </div>
 
 
-
-
                 <button
                     type="button"
                     id="btn-locate"
-                    class="sp-location-button mt-4"
+                    class="sp-location-button mt-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2.5 transition flex items-center justify-center gap-2 font-medium text-sm"
                 >
 
                     <svg
+                        class="w-5 h-5"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -454,40 +514,25 @@
 
             {{-- 4. Prioritas --}}
             <section
-                class="sp-report-card"
+                class="sp-report-card bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm"
                 aria-labelledby="prioritas-heading"
             >
 
-                <div class="sp-section-heading">
+                <div class="sp-section-heading mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                        <line x1="4" y1="22" x2="4" y2="15"></line>
+                    </svg>
 
-                    <span class="sp-section-number">
-                        4.
-                    </span>
-
-                    <h2 id="prioritas-heading">
-                        Prioritas
+                    <h2 id="prioritas-heading" class="text-lg font-bold text-slate-950">
+                        4. Prioritas
                     </h2>
 
                 </div>
 
-
-                {{--
-
-                    PENTING:
-
-                    Prioritas tidak dikirim sebagai input database.
-
-                    Proposal SmartPath menetapkan bahwa prioritas
-                    dihitung otomatis menggunakan WSM setelah verifikasi.
-
-                    Karena itu dropdown hanya menjadi representasi
-                    UI seperti mock-up proposal dan dibuat non-editable.
-
-                --}}
-
                 <label
                     for="prioritas-preview"
-                    class="sp-label"
+                    class="sp-label text-slate-900 font-medium text-sm block mb-1"
                 >
                     Prioritas
                     <span
@@ -500,7 +545,7 @@
 
                 <select
                     id="prioritas-preview"
-                    class="sp-input sp-priority-preview"
+                    class="sp-input sp-priority-preview w-full rounded-xl border-slate-300 bg-slate-100"
                     disabled
                 >
                     <option>Pilih Prioritas</option>
@@ -520,18 +565,18 @@
 
             {{-- 5. Foto Hambatan --}}
             <section
-                class="sp-report-card"
+                class="sp-report-card bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-sm"
                 aria-labelledby="foto-heading"
             >
 
-                <div class="sp-section-heading">
+                <div class="sp-section-heading mb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-slate-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
 
-                    <span class="sp-section-number">
-                        5.
-                    </span>
-
-                    <h2 id="foto-heading">
-                        Foto Hambatan
+                    <h2 id="foto-heading" class="text-lg font-bold text-slate-950">
+                        5. Foto Hambatan
                     </h2>
 
                 </div>
@@ -539,14 +584,14 @@
 
                 <p class="text-sm text-slate-500 mb-3">
                     Unggah foto untuk mendukung laporan Anda
-                    (maks. {{ $maxFoto }} foto).
+                    (maks. {{ $maxFoto ?? 5 }} foto).
                     Maksimal 5MB per foto.
                 </p>
 
 
                 <div
                     id="drop-zone"
-                    class="sp-drop-zone"
+                    class="sp-drop-zone border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-white rounded-xl p-6 text-center cursor-pointer transition-all"
                     role="button"
                     tabindex="0"
                     aria-controls="foto-input"
@@ -554,7 +599,7 @@
                 >
 
                     <svg
-                        class="sp-upload-icon"
+                        class="sp-upload-icon w-8 h-8 mx-auto text-slate-400 mb-2"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -582,7 +627,7 @@
                         multiple
                         accept="image/jpeg,image/png,image/webp"
                         class="sr-only"
-                        data-max-foto="{{ (int) $maxFoto }}"
+                        data-max-foto="{{ (int) ($maxFoto ?? 5) }}"
                         aria-label="Pilih foto laporan"
                     >
 
@@ -598,7 +643,7 @@
 
                 @error('foto')
                     <p
-                        class="sp-field-error mt-3"
+                        class="sp-field-error text-sm text-red-600 mt-3"
                         role="alert"
                     >
                         {{ $message }}
@@ -611,7 +656,7 @@
                     @foreach($messages as $message)
 
                         <p
-                            class="sp-field-error mt-3"
+                            class="sp-field-error text-sm text-red-600 mt-3"
                             role="alert"
                         >
                             {{ $message }}
@@ -629,7 +674,7 @@
 
                 <a
                     href="{{ route('laporan.index') }}"
-                    class="sp-cancel-button"
+                    class="sp-cancel-button text-slate-600 hover:text-slate-900 font-medium text-sm"
                 >
                     ← Batal
                 </a>
@@ -638,10 +683,11 @@
                 <button
                     type="submit"
                     id="submit-laporan"
-                    class="sp-submit-button"
+                    class="sp-submit-button bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md"
                 >
 
                     <svg
+                        class="w-5 h-5"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"

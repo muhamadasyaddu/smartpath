@@ -68,18 +68,29 @@
 }
 
 .sp-category-option:hover .sp-category-card {
-    border-color: #94a3b8;
-    background: #f8fafc;
+    border-color: #a7f3d0;
+    background: #f0fdf4;
 }
 
+/* Card terpilih dengan warna hijau muda/soft mint */
 .sp-category-option input:checked + .sp-category-card {
-    border-color: #334155;
-    background: #f8fafc;
-    box-shadow: 0 0 0 2px rgba(51, 65, 85, 0.08);
+    border-color: #34d399 !important; /* Border hijau sedang */
+    background-color: #d1fae5 !important; /* Hijau muda/soft mint */
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Teks judul tetap gelap agar kontras & jelas dibaca */
+.sp-category-option input:checked + .sp-category-card .sp-category-label {
+    color: #065f46 !important; /* Hijau tua */
+}
+
+/* Bingkai dot penanda saat dipilih */
+.sp-category-option input:checked + .sp-category-card .sp-category-dot {
+    border-color: #047857 !important;
 }
 
 .sp-category-option input:focus-visible + .sp-category-card {
-    outline: 2px solid #475569;
+    outline: 2px solid #10b981;
     outline-offset: 2px;
 }
 
@@ -107,6 +118,7 @@
     line-height: 1.25;
     font-weight: 600;
     text-align: center;
+    transition: color 150ms ease;
 }
 
 .sp-label {
@@ -221,7 +233,7 @@
     border-radius: 9px;
     color: #0f172a;
     background: #ffffff;
-    font-size: 1.0;
+    font-size: 1.0rem;
     font-weight: 700;
 
     transition:
@@ -412,11 +424,6 @@
 
 @media (max-width: 639px) {
 
-    .sp-report-card {
-        border-radius: 12px;
-        padding: 16px;
-    }
-
     .sp-category-card {
         min-height: 68px;
         padding: 10px 6px;
@@ -425,7 +432,7 @@
     .sp-map {
         height: 330px;
         min-height: 280px;
-        border-radius: 9px;
+        border-radius: 99px;
     }
 
     .sp-location-button {
