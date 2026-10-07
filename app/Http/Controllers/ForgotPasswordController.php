@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Str;
 
 class ForgotPasswordController extends Controller
 {
@@ -19,6 +20,9 @@ class ForgotPasswordController extends Controller
     // Kirim link reset ke email pengguna
     public function sendResetLinkEmail(Request $request)
     {
+        $email = Str::lower(trim((string) $request->input('email')));
+        $request->merge(['email' => $email]);
+
         $request->validate([
             'email' => 'required|email|exists:users,email'
         ], [
@@ -37,15 +41,25 @@ class ForgotPasswordController extends Controller
     // Tampilkan form ubah password baru
     public function showResetForm(Request $request, $token)
     {
-        return view('auth.reset-password', [
+        $email = Str::lower(trim((string) $request->query('email', $request->email)));
+
+        if (blank($email)) {
+            return redirect()->route('password.request')
+                ->withErrors(['email' => 'Link reset kata sandi tidak valid atau sudah kedaluwarsa.']);
+        }
+
+        return view('Auth.reset-password', [
             'token' => $token,
-            'email' => $request->email
+            'email' => $email,
         ]);
     }
 
     // Update password di database
     public function resetPassword(Request $request)
     {
+        $email = Str::lower(trim((string) $request->input('email')));
+        $request->merge(['email' => $email]);
+
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
@@ -66,9 +80,19 @@ class ForgotPasswordController extends Controller
             }
         );
 
-        return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('status', 'Kata sandi berhasil diperbarui! Silakan login.')
-            : back()->withErrors(['email' => __($status)]);
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()->route('login')
+                ->with('status', 'Kata sandi berhasil diperbarui! Silakan login dengan kata sandi baru.');
+        }
+
+        $message = match ($status) {
+            Password::INVALID_TOKEN => 'Link reset kata sandi tidak valid, sudah digunakan, atau kedaluwarsa. Minta link reset yang baru.',
+            Password::INVALID_USER => 'Email akun tidak ditemukan. Periksa email atau minta link reset baru.',
+            default => __($status),
+        };
+
+        return back()
+            ->withErrors(['email' => $message])
+            ->withInput($request->only('email'));
     }
 }
-

@@ -2,7 +2,17 @@
 
 @section('title', 'Nearby Obstacles - SmartPath')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/smartpath-warga.css') }}">
+@endpush
+
 @section('content')
+<div class="warga-shell">
+    @include('partials.sidebar-warga')
+
+    <div class="warga-workspace">
+        @include('partials.nav-public')
+        @include('partials.bar-mobile-warga')
 
 <style>
     .nearby-page {
@@ -381,6 +391,20 @@
                 screen reader.
             </p>
 
+            <button
+                type="button"
+                class="warga-dashboard__voice-button mt-4"
+                data-read-page
+                data-read-status="nearby-read-status"
+                data-read-text="Halaman Nearby SmartPath. Gunakan tombol Gunakan Lokasi Saya untuk mencari hambatan aksesibilitas terverifikasi dalam radius 50 meter. Hasil ditampilkan sebagai daftar teks dan diurutkan berdasarkan jarak."
+                aria-controls="nearby-read-status"
+                aria-pressed="false"
+            >
+                <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                <span data-read-label>Dengar Panduan</span>
+            </button>
+            <span id="nearby-read-status" class="sr-only" role="status" aria-live="polite"></span>
+
         </header>
 
 
@@ -580,6 +604,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const alamat = item.alamat_lengkap ?? item.alamat ?? 'Alamat tidak tersedia';
             const judul = item.judul ?? 'Hambatan aksesibilitas';
 
+
+    function escapeHtml(value) {
+    const element = document.createElement('div');
+
+                element.textContent =
+                    value == null ? '' : String(value);
+
+                return element.innerHTML;
+            }
+
             return `
                 <article
                     class="obstacle-card"
@@ -595,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="obstacle-content">
                         <div class="obstacle-top">
                             <h3 class="obstacle-title" id="obs-title-${index}">
-                                ${judul}
+                                ${escapeHtml(judul)}
                             </h3>
                             <span 
                                 class="priority-badge ${priorityClass}" 
@@ -607,7 +641,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
 
                         <div class="obstacle-category" id="obs-cat-${index}">
-                            Kategori: ${kategori}
+                            Kategori: ${escapeHtml(kategori)}
                         </div>
 
                         <p class="obstacle-address" id="obs-addr-${index}">
@@ -616,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         <span class="obstacle-distance" id="obs-dist-${index}">
                             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                            ${distanceText} dari lokasi kamu
+                            ${escapeHtml(alamat)}
                         </span>
                     </div>
                 </article>
@@ -768,4 +802,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+</div>
+</div>
+
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/smartpath-warga.js') }}" defer></script>
+    <script src="{{ asset('js/smartpath-read-page.js') }}" defer></script>
+@endpush

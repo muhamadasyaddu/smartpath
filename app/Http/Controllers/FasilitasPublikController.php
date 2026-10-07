@@ -22,13 +22,13 @@ class FasilitasPublikController extends Controller
         }
 
         $fasilitasPublik = $query->orderBy('nama')->paginate(15);
-        return view('admin.fasilitas-publik.index', compact('fasilitasPublik'));
+        return view('Admin.fasilitas-publik.index', compact('fasilitasPublik'));
     }
 
     public function create()
     {
         $wilayahList = \App\Models\Wilayah::aktif()->level('kecamatan')->get();
-        return view('admin.fasilitas-publik.create', compact('wilayahList'));
+        return view('Admin.fasilitas-publik.create', compact('wilayahList'));
     }
 
     public function store(StoreFasilitasPublikRequest $request)
@@ -38,19 +38,19 @@ class FasilitasPublikController extends Controller
 
         Audit::log(auth()->id(), 'buat_fasilitas_publik', 'fasilitas_publik', $fasilitasPublik->id, null, $fasilitasPublik->toArray(), "Fasilitas publik baru: {$fasilitasPublik->nama}");
 
-        return redirect()->route('admin.fasilitas-publik.index')->with('sukses', 'Fasilitas publik berhasil ditambahkan.');
+        return redirect()->route('Admin.fasilitas-publik.index')->with('sukses', 'Fasilitas publik berhasil ditambahkan.');
     }
 
     public function show(FasilitasPublik $fasilitasPublik)
     {
         $fasilitasPublik->load(['wilayah', 'laporanTerdekat' => fn($q) => $q->orderByDesc('skor_prioritas')->limit(5)]);
-        return view('admin.fasilitas-publik.show', compact('fasilitasPublik'));
+        return view('Admin.fasilitas-publik.show', compact('fasilitasPublik'));
     }
 
     public function edit(FasilitasPublik $fasilitasPublik)
     {
         $wilayahList = \App\Models\Wilayah::aktif()->level('kecamatan')->get();
-        return view('admin.fasilitas-publik.edit', compact('fasilitasPublik', 'wilayahList'));
+        return view('Admin.fasilitas-publik.edit', compact('fasilitasPublik', 'wilayahList'));
     }
 
     public function update(UpdateFasilitasPublikRequest $request, FasilitasPublik $fasilitasPublik)
@@ -61,7 +61,7 @@ class FasilitasPublikController extends Controller
 
         Audit::log(auth()->id(), 'ubah_fasilitas_publik', 'fasilitas_publik', $fasilitasPublik->id, $dataLama, $fasilitasPublik->fresh()->toArray(), "Fasilitas publik diubah: {$fasilitasPublik->nama}");
 
-        return redirect()->route('admin.fasilitas-publik.index')->with('sukses', 'Fasilitas publik berhasil diperbarui.');
+        return redirect()->route('Admin.fasilitas-publik.index')->with('sukses', 'Fasilitas publik berhasil diperbarui.');
     }
 
     public function destroy(FasilitasPublik $fasilitasPublik)
@@ -69,6 +69,6 @@ class FasilitasPublikController extends Controller
         Audit::log(auth()->id(), 'hapus_fasilitas_publik', 'fasilitas_publik', $fasilitasPublik->id, $fasilitasPublik->toArray(), null, "Fasilitas publik dihapus: {$fasilitasPublik->nama}");
         $fasilitasPublik->delete();
 
-        return redirect()->route('admin.fasilitas-publik.index')->with('sukses', 'Fasilitas publik berhasil dihapus.');
+        return redirect()->route('Admin.fasilitas-publik.index')->with('sukses', 'Fasilitas publik berhasil dihapus.');
     }
 }

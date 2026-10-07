@@ -19,9 +19,11 @@ use App\Http\Controllers\AuditController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\RencanaPerbaikanController;
 use App\Http\Controllers\NavigasiController;
+use App\Http\Controllers\KinerjaAnggaranController;
+use App\Http\Controllers\BantuanController;
+
 // ============================================
 // RUTE PUBLIK
-// ============================================
 Route::get('/', [BerandaController::class, 'index'])->name('beranda');
 Route::get('/tentang', [BerandaController::class, 'tentang'])->name('tentang');
 
@@ -108,7 +110,14 @@ Route::post(
 // ============================================
 Route::middleware('auth')->group(function () {
     Route::resource('laporan', LaporanController::class)
-        ->except(['index']);
+    ->except(['index', 'store']);
+
+    Route::post(
+    '/laporan',
+    [LaporanController::class, 'store']
+)
+    ->middleware('throttle:10,10')
+    ->name('laporan.store');
 
     Route::get(
         '/laporan',
@@ -147,12 +156,59 @@ Route::middleware('auth')->group(function () {
 });
 
 // ============================================
+// VERIFIKASI — AKSES INTERNAL
+// Administrator + Dinas dapat melihat
+// ============================================
+
+Route::middleware(['auth', 'staff'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get(
+            '/verifikasi',
+            [VerifikasiController::class, 'index']
+        )->name('verifikasi.index');
+
+        Route::get(
+            '/verifikasi/{laporan}',
+            [VerifikasiController::class, 'show']
+        )->name('verifikasi.show');
+    });
+
+// ============================================
 // ADMINISTRATOR SAJA
 // ============================================
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
+
+        Route::get(
+        '/bantuan',
+            [BantuanController::class, 'index']
+        )->name('bantuan.index');
+
+
+        // ======================================================
+        // NOTIFIKASI ADMINISTRATOR
+        // ======================================================
+
+        Route::get(
+            '/notifikasi',
+            [NotifikasiController::class, 'adminIndex']
+        )->name('notifikasi.index');
+
+        Route::post(
+            '/notifikasi/baca-semua',
+            [NotifikasiController::class, 'adminMarkAllAsRead']
+        )->name('notifikasi.read-all');
+
+        Route::post(
+            '/notifikasi/{notifikasi}/baca',
+            [NotifikasiController::class, 'adminMarkAsRead']
+        )->name('notifikasi.read');
         // Dashboard
         Route::get(
             '/dashboard',
@@ -164,16 +220,11 @@ Route::middleware(['auth', 'admin'])
             [DashboardController::class, 'getChartData']
         )->name('dashboard.chart');
 
-        // Sprint 2: Verifikasi laporan
         Route::get(
-            '/verifikasi',
-            [VerifikasiController::class, 'index']
-        )->name('verifikasi.index');
+            '/dashboard/live',
+            [DashboardController::class, 'live']
+        )->name('dashboard.live');
 
-        Route::get(
-            '/verifikasi/{laporan}',
-            [VerifikasiController::class, 'show']
-        )->name('verifikasi.show');
 
         Route::post(
             '/verifikasi/{laporan}/setujui',
@@ -257,59 +308,143 @@ Route::middleware(['auth', 'admin'])
         )->name('audit.show');
     });
 
+
 // ============================================
 // DINAS
 // ============================================
+
 Route::middleware(['auth', 'dinas'])
     ->prefix('dinas')
     ->name('dinas.')
     ->group(function () {
-          Route::get('/dashboard', [DashboardController::class, 'indexDinas'])
-            ->name('dashboard');
 
-        Route::get('/laporan', [LaporanController::class, 'indexDinas'])
-            ->name('laporan.index');
+        Route::get(
+            '/dashboard',
+            [DashboardController::class, 'indexDinas']
+        )->name('dashboard');
 
-        Route::get('/laporan/unduh', [LaporanController::class, 'unduh'])
-            ->name('laporan.unduh');
-            Route::get(
-    '/laporan/{id}/pdf',
-    [LaporanController::class, 'unduhPdf']
-)->name('laporan.pdf');
+        Route::get(
+            '/peta',
+            [PetaController::class, 'indexDinas']
+        )->name('peta');
+
+        Route::get(
+            '/laporan',
+            [LaporanController::class, 'indexDinas']
+        )->name('laporan.index');
+
+        Route::get(
+            '/laporan/unduh',
+            [LaporanController::class, 'unduh']
+        )->name('laporan.unduh');
+
+        Route::get(
+            '/laporan/{id}/pdf',
+            [LaporanController::class, 'unduhPdf']
+        )->name('laporan.pdf');
+
+        Route::get(
+    '/laporan/{laporan}/detail',
+    [LaporanController::class, 'showDetail']
+)->name('laporan.detail');
+
+
+//rencana perbaikan
+         Route::get(
+        '/rencana-perbaikan',
+        [RencanaPerbaikanController::class, 'index']
+    )->name('rencana-perbaikan.index');
+
+        Route::get(
+    '/rencana-perbaikan/{laporan}/create',
+    [RencanaPerbaikanController::class, 'create']
+)->name('rencana-perbaikan.create');
+
+        Route::post(
+            '/rencana-perbaikan',
+            [RencanaPerbaikanController::class, 'store']
+        )->name('rencana-perbaikan.store');
+
+         Route::get(
+            '/rencana-perbaikan/{rencanaPerbaikan}/edit',
+            [RencanaPerbaikanController::class, 'edit']
+        )->name('rencana-perbaikan.edit');
+
+
+        Route::put(
+            '/rencana-perbaikan/{rencanaPerbaikan}',
+            [RencanaPerbaikanController::class, 'update']
+        )->name('rencana-perbaikan.update');
+
+        //kinerja anggaran
+  Route::get(
+            '/kinerja-anggaran',
+            [KinerjaAnggaranController::class, 'index']
+        )->name('kinerja-anggaran.index');
+
 
     });
 
-    //rencana perbaikan
-      Route::get(
-            '/rencana-perbaikan',
-            [RencanaPerbaikanController::class, 'index']
-        )->name('rencana perbaikan.index');
 
-        //nearby
-        Route::get('/peta/nearby', [PetaController::class, 'nearby'])
-    ->name('peta.nearby');
 
-    //navigasi
+// ============================================
+// FITUR PENGGUNA TERAUTENTIKASI
+// ============================================
 
-    Route::get('/navigasi', [NavigasiController::class, 'index'])
-    ->name('navigasi.index');
-    //tujuan
-Route::post('/navigasi/cari-tujuan', [NavigasiController::class, 'cariTujuan'])
+Route::middleware('auth')->group(function () {
+
+    // Detail laporan
+    Route::get(
+        '/laporan/{laporan}/detail',
+        [LaporanController::class, 'showDetail']
+    )->name('laporan.detail');
+
+    Route::get(
+        '/peta/nearby',
+        [PetaController::class, 'nearby']
+    )->name('peta.nearby');
+
+
+    // ========================================
+    // NAVIGASI AKTIF
+    // ========================================
+
+    Route::get(
+        '/navigasi',
+        [NavigasiController::class, 'index']
+    )->name('navigasi.index');
+
+    // Cari tujuan
+    Route::post(
+    '/navigasi/cari-tujuan',
+    [NavigasiController::class, 'cariTujuan']
+    )->middleware('throttle:10,1')
     ->name('navigasi.cari-tujuan');
-    //rute
-    Route::post('/navigasi/rute', [NavigasiController::class, 'rute'])
-    ->name('navigasi.rute');
-    
-    //cek hambatam
-    Route::post('/navigasi/cek-hambatan', [NavigasiController::class, 'cekHambatanRute'])
+
+    // Cari rute
+    Route::post(
+        '/navigasi/rute',
+        [NavigasiController::class, 'rute']
+    )->name('navigasi.rute');
+
+    // Cek hambatan di sepanjang rute
+    Route::post(
+    '/navigasi/cek-hambatan',
+    [NavigasiController::class, 'cekHambatanRute']
+    )->middleware('throttle:10,1')
     ->name('navigasi.cek-hambatan');
+});
+
+
 // ============================================
 // WARGA
 // ============================================
+
 Route::middleware('auth')
     ->prefix('warga')
     ->name('warga.')
     ->group(function () {
+
         Route::get(
             '/dashboard',
             [DashboardController::class, 'indexWarga']

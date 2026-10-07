@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\RencanaPerbaikan;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -305,43 +306,163 @@ class Laporan extends Model
         };
     }
 
-    /**
-     * Calculate priority score
-     */
     public function calculatePriorityScore(): array
-    {
-        $config = PengaturanPrioritas::where('adalah_aktif', true)->first();
+{
+    $config = PengaturanPrioritas::getActive();
 
-        if (!$config) {
-            $config = PengaturanPrioritas::first();
-        }
+    /*
+     * Fallback tetap tersedia agar sistem tidak gagal
+     * apabila konfigurasi prioritas belum tersedia.
+     */
+    $bobotKeparahan = (float) ($config?->bobot_keparahan ?? 0.40);
+    $bobotPelapor = (float) ($config?->bobot_pelapor ?? 0.35);
+    $bobotFasilitas = (float) ($config?->bobot_fasilitas ?? 0.25);
 
-        // Skor keparahan from category
-        $skorKeparahan = $this->kategoriHambatan->bobot_keparahan ?? 50;
+    /*
+     * Pastikan total bobot selalu 1.00.
+     */
+    $totalBobot =
+        $bobotKeparahan
+        + $bobotPelapor
+        + $bobotFasilitas;
 
-        // Skor pelapor (normalize: 1 = 0, max 10 = 100)
-        $skorPelapor = min(100, ($this->jumlah_pelapor - 1) * 10);
-
-        // Skor fasilitas (inverse: closer = higher)
-        $skorFasilitas = 0;
-        if ($this->jarak_fasilitas_meter !== null && $this->jarak_fasilitas_meter > 0) {
-            $radius = $config->radius_fasilitas_m ?? 500;
-            $skorFasilitas = max(0, 100 - (($this->jarak_fasilitas_meter / $radius) * 100));
-            $skorFasilitas = min(100, $skorFasilitas);
-        }
-
-        // Calculate weighted score
-        $skorPrioritas = (
-            ($skorKeparahan * $config->bobot_keparahan) +
-            ($skorPelapor * $config->bobot_pelapor) +
-            ($skorFasilitas * $config->bobot_fasilitas)
-        );
-
-        return [
-            'skor_prioritas' => round($skorPrioritas, 2),
-            'skor_keparahan' => round($skorKeparahan, 2),
-            'skor_pelapor' => round($skorPelapor, 2),
-            'skor_fasilitas' => round($skorFasilitas, 2),
-        ];
+    if ($totalBobot <= 0) {
+        $bobotKeparahan = 0.40;
+        $bobotPelapor = 0.35;
+        $bobotFasilitas = 0.25;
+        $totalBobot = 1.00;
     }
+
+    /*
+     * Normalisasi bobot jika konfigurasi admin
+     * belum berjumlah tepat 1.00.
+     */
+    if (abs($totalBobot - 1.00) > 0.001) {
+        $bobotKeparahan /= $totalBobot;
+        $bobotPelapor /= $totalBobot;
+        $bobotFasilitas /= $totalBobot;
+    }
+
+    /*
+     * ==========================================================
+     * 1. KEPARAHAN
+     * ==========================================================
+     *
+     * Nilai kategori sudah berada pada skala 0-100.
+     */
+    $skorKeparahan = (float) (
+        $this->kategoriHambatan?->bobot_keparahan ?? 50
+    );
+
+    $skorKeparahan = max(
+        0,
+        min(100, $skorKeparahan)
+    );
+
+    /*
+     * ==========================================================
+     * 2. JUMLAH PELAPOR
+     * ==========================================================
+     *
+     * Normalisasi MVP:
+     *
+     * 1 pelapor  = 10
+     * 5 pelapor  = 50
+     * 10+        = 100
+     *
+     * Cap 100 menjaga skala tetap konsisten.
+     *
+     * Formula ini sengaja dibuat transparan karena
+     * proposal belum menentukan formula normalisasi
+     * jumlah pelapor secara eksplisit.
+     */
+    $jumlahPelapor = max(
+        1,
+        (int) $this->jumlah_pelapor
+    );
+
+    $skorPelapor = min(
+        100,
+        $jumlahPelapor * 10
+    );
+
+    /*
+     * ==========================================================
+     * 3. KEDEKATAN FASILITAS
+     * ==========================================================
+     *
+     * Semakin dekat fasilitas publik,
+     * semakin tinggi skor.
+     */
+    $skorFasilitas = 0;
+
+    $jarakFasilitas =
+        $this->jarak_fasilitas_meter !== null
+            ? (float) $this->jarak_fasilitas_meter
+            : null;
+
+    $radiusFasilitas = max(
+        1,
+        (int) ($config?->radius_fasilitas_m ?? 500)
+    );
+
+    if ($jarakFasilitas !== null) {
+        $skorFasilitas =
+            100
+            -
+            (
+                ($jarakFasilitas / $radiusFasilitas)
+                * 100
+            );
+
+        $skorFasilitas = max(
+            0,
+            min(100, $skorFasilitas)
+        );
+    }
+
+    /*
+     * ==========================================================
+     * WSM
+     * ==========================================================
+     */
+    $skorPrioritas =
+        ($skorKeparahan * $bobotKeparahan)
+        +
+        ($skorPelapor * $bobotPelapor)
+        +
+        ($skorFasilitas * $bobotFasilitas);
+
+    return [
+        'skor_prioritas' => round(
+            max(0, min(100, $skorPrioritas)),
+            2
+        ),
+
+        'skor_keparahan' => round(
+            $skorKeparahan,
+            2
+        ),
+
+        'skor_pelapor' => round(
+            $skorPelapor,
+            2
+        ),
+
+        'skor_fasilitas' => round(
+            $skorFasilitas,
+            2
+        ),
+    ];
+}
+
+
+         public function rencanaPerbaikan()
+        {
+            return $this->hasOne(
+                RencanaPerbaikan::class,
+                'laporan_id'
+            );
+        }
+
 }

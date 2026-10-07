@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Audit;
 use App\Models\KategoriHambatan;
 use App\Models\Laporan;
+use App\Models\RencanaPerbaikan;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -69,13 +70,15 @@ class DashboardController extends Controller
             ->count();
 
         /*
-         * Terverifikasi mencakup:
-         * diverifikasi
-         * dalam_perbaikan
-         * selesai
-         */
+        * KPI mengikuti mock-up proposal:
+        * hanya laporan dengan status "diverifikasi"
+        * yang dihitung sebagai Laporan Diverifikasi.
+        *
+        * Dalam Perbaikan dan Selesai tetap menjadi
+        * kategori status terpisah pada Distribusi Status.
+        */
         $laporanTerverifikasi = (clone $laporanDasar)
-            ->terverifikasi()
+            ->status('diverifikasi')
             ->count();
 
         $dalamPerbaikan = (clone $laporanDasar)
@@ -133,18 +136,18 @@ class DashboardController extends Controller
          */
 
         $laporanPrioritasTinggi = (clone $laporanDasar)
-            ->with([
-                'kategoriHambatan',
-                'wilayah',
-                'pelapor',
-                'foto'
-            ])
-            ->whereNotNull('skor_prioritas')
-            ->where('skor_prioritas', '>=', 70)
-            ->orderByDesc('skor_prioritas')
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
+        ->with([
+            'kategoriHambatan',
+            'wilayah',
+            'pelapor',
+            'foto',
+            'fasilitasTerdekat',
+        ])
+        ->whereNotNull('skor_prioritas')
+        ->orderByDesc('skor_prioritas')
+        ->orderByDesc('created_at')
+        ->limit(5)
+        ->get();
 
         /*
          * ==========================================================
@@ -245,55 +248,93 @@ class DashboardController extends Controller
          */
 
         $petaLaporan = (clone $laporanDasar)
-            ->with([
-                'kategoriHambatan',
-                'wilayah',
-                'foto'
-            ])
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get()
-            ->map(function (Laporan $laporan) {
+        ->with([
+            'kategoriHambatan',
+            'wilayah',
+            'foto',
+        ])
+        ->whereNotNull('latitude')
+        ->whereNotNull('longitude')
+        ->get()
+        ->map(function (Laporan $laporan) {
 
-                return [
-                    'id' => $laporan->id,
+            $fotoUtama =
+                $laporan->foto->firstWhere(
+                    'adalah_utama',
+                    true
+                )
+                ??
+                $laporan->foto->sortBy('urutan')->first();
 
-                    'kode' => $laporan->kode_laporan,
+            return [
+                'id' =>
+                    $laporan->id,
 
-                    'judul' => $laporan->judul,
+                'kode' =>
+                    $laporan->kode_laporan,
 
-                    'latitude' => (float) $laporan->latitude,
+                'judul' =>
+                    $laporan->judul,
 
-                    'longitude' => (float) $laporan->longitude,
+                'latitude' =>
+                    (float) $laporan->latitude,
 
-                    'status' => $laporan->status,
+                'longitude' =>
+                    (float) $laporan->longitude,
 
-                    'status_label' => $laporan->status_label,
+                'status' =>
+                    $laporan->status,
 
-                    'prioritas' => $laporan->tingkat_prioritas,
+                'status_label' =>
+                    $laporan->status_label,
 
-                    'skor_prioritas' =>
-                        $laporan->skor_prioritas !== null
-                            ? (float) $laporan->skor_prioritas
-                            : null,
+                'prioritas' =>
+                    $laporan->tingkat_prioritas,
 
-                    'kategori_id' =>
-                        $laporan->kategori_hambatan_id,
+                'skor_prioritas' =>
+                    $laporan->skor_prioritas !== null
+                        ? (float) $laporan->skor_prioritas
+                        : null,
 
-                    'kategori' =>
-                        $laporan->kategoriHambatan?->nama,
+                'kategori_id' =>
+                    $laporan->kategori_hambatan_id,
 
-                    'warna' =>
-                        $laporan->kategoriHambatan?->warna_penanda,
+                'kategori' =>
+                    $laporan->kategoriHambatan?->nama,
 
-                    'alamat' =>
-                        $laporan->alamat_lengkap,
+                'warna' =>
+                    $laporan->kategoriHambatan?->warna_penanda
+                    ?? '#64748b',
 
-                    'created_at' =>
-                        $laporan->created_at?->toISOString(),
-                ];
-            })
-            ->values();
+                'alamat' =>
+                    $laporan->alamat_lengkap
+                    ?: $laporan->wilayah?->nama,
+
+                'wilayah' =>
+                    $laporan->wilayah?->nama,
+
+                'jumlah_pelapor' =>
+                    (int) $laporan->jumlah_pelapor,
+
+                'jarak_fasilitas_meter' =>
+                $laporan->jarak_fasilitas_meter !== null
+                    ? (float) $laporan->jarak_fasilitas_meter
+                    : null,
+
+                'foto_utama' =>
+                    $fotoUtama?->url,
+
+                'detail_url' =>
+                    route(
+                        'admin.verifikasi.show',
+                        $laporan
+                    ),
+
+                'created_at' =>
+                    $laporan->created_at?->toISOString(),
+            ];
+        })
+        ->values();
 
         /*
          * ==========================================================
@@ -399,26 +440,195 @@ class DashboardController extends Controller
         ]);
     }
 
+    
     /**
-     * Dashboard DINAS.
+     * Data real-time Dashboard Administrator.
      *
-     * Jangan diarahkan ke index() karena index()
-     * sekarang khusus administrator.
+     * Endpoint ini digunakan oleh AJAX polling setiap 60 detik.
+     * Tidak melakukan reload halaman.
      */
-    public function indexDinas()
+    public function live()
     {
         $laporanDasar = Laporan::query()
             ->induk()
             ->aktif();
 
-        $statistik = [
+        $total =
+            (clone $laporanDasar)->count();
 
-            'total' =>
-                (clone $laporanDasar)->count(),
+        $menunggu =
+            (clone $laporanDasar)
+                ->status('menunggu_verifikasi')
+                ->count();
 
-            'menunggu' =>
+        $diverifikasi =
+        (clone $laporanDasar)
+            ->terverifikasi()
+            ->count();
+
+        $dalamPerbaikan =
+            (clone $laporanDasar)
+                ->status('dalam_perbaikan')
+                ->count();
+
+        $selesai =
+            (clone $laporanDasar)
+                ->status('selesai')
+                ->count();
+
+        $prioritasTinggi =
+            (clone $laporanDasar)
+                ->whereNotNull('skor_prioritas')
+                ->where('skor_prioritas', '>=', 70)
+                ->count();
+
+        $areaDipantau =
+            (clone $laporanDasar)
+                ->whereNotNull('wilayah_id')
+                ->distinct()
+                ->count('wilayah_id');
+
+        $petaLaporan =
+            (clone $laporanDasar)
+                ->with([
+                    'kategoriHambatan',
+                    'wilayah',
+                    'foto',
+                ])
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude')
+                ->orderByDesc('skor_prioritas')
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(function (Laporan $laporan) {
+
+                    $fotoUtama =
+                        $laporan->foto
+                            ->firstWhere(
+                                'adalah_utama',
+                                true
+                            )
+                        ??
+                        $laporan->foto
+                            ->sortBy('urutan')
+                            ->first();
+
+                    return [
+                        'id' =>
+                            $laporan->id,
+
+                        'kode' =>
+                            $laporan->kode_laporan,
+
+                        'judul' =>
+                            $laporan->judul,
+
+                        'latitude' =>
+                            (float) $laporan->latitude,
+
+                        'longitude' =>
+                            (float) $laporan->longitude,
+
+                        'status' =>
+                            $laporan->status,
+
+                        'status_label' =>
+                            $laporan->status_label,
+
+                        'skor_prioritas' =>
+                            $laporan->skor_prioritas !== null
+                                ? (float) $laporan->skor_prioritas
+                                : null,
+
+                        'prioritas' =>
+                            $laporan->tingkat_prioritas,
+
+                        'kategori_id' =>
+                            $laporan->kategori_hambatan_id,
+
+                        'kategori' =>
+                            $laporan->kategoriHambatan?->nama,
+
+                        'warna' =>
+                            $laporan->kategoriHambatan?->warna_penanda
+                            ?? '#64748b',
+
+                        'alamat' =>
+                            $laporan->alamat_lengkap,
+
+                        'jumlah_pelapor' =>
+                            (int) $laporan->jumlah_pelapor,
+
+                        'foto_utama' =>
+                            $fotoUtama?->url,
+
+                        'created_at' =>
+                            $laporan->created_at?->toISOString(),
+                    ];
+                })
+                ->values();
+
+        $topPrioritas =
+            (clone $laporanDasar)
+                ->with([
+                    'kategoriHambatan',
+                    'wilayah',
+                    'foto',
+                ])
+                ->whereNotNull('skor_prioritas')
+                ->orderByDesc('skor_prioritas')
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get()
+                ->map(function (Laporan $laporan) {
+
+                    $fotoUtama =
+                        $laporan->foto
+                            ->firstWhere(
+                                'adalah_utama',
+                                true
+                            )
+                        ??
+                        $laporan->foto
+                            ->sortBy('urutan')
+                            ->first();
+
+                    return [
+                        'id' =>
+                            $laporan->id,
+
+                        'judul' =>
+                            $laporan->judul,
+
+                        'alamat' =>
+                            $laporan->alamat_lengkap
+                            ?:
+                            $laporan->wilayah?->nama,
+
+                        'skor' =>
+                            (float) $laporan->skor_prioritas,
+
+                        'jumlah_pelapor' =>
+                            (int) $laporan->jumlah_pelapor,
+
+                        'foto' =>
+                            $fotoUtama?->url,
+
+                        'kategori' =>
+                            $laporan->kategoriHambatan?->nama,
+                    ];
+                })
+                ->values();
+
+                $statusChart = [
+            'menunggu_verifikasi' =>
                 (clone $laporanDasar)
                     ->status('menunggu_verifikasi')
+                    ->count(),
+
+            'diverifikasi' =>
+                (clone $laporanDasar)
+                    ->status('diverifikasi')
                     ->count(),
 
             'dalam_perbaikan' =>
@@ -431,67 +641,309 @@ class DashboardController extends Controller
                     ->status('selesai')
                     ->count(),
 
-            'kritis' =>
+            'ditolak' =>
                 (clone $laporanDasar)
-                    ->where('skor_prioritas', '>=', 70)
+                    ->status('ditolak')
                     ->count(),
         ];
 
-        $laporanPrioritasTinggi = (clone $laporanDasar)
-            ->with([
-                'kategoriHambatan',
-                'wilayah',
-                'pelapor',
-                'foto',
-                'fasilitasTerdekat'
+        $perKategori = KategoriHambatan::query()
+            ->aktif()
+            ->urutTampil()
+            ->withCount([
+                'laporan' => fn ($query) =>
+                    $query
+                        ->induk()
+                        ->aktif(),
             ])
-            ->where('skor_prioritas', '>=', 70)
-            ->orderByDesc('skor_prioritas')
-            ->limit(10)
-            ->get();
+            ->get()
+            ->sortByDesc('laporan_count')
+            ->take(5)
+            ->values();
 
-        $laporanTerbaru = (clone $laporanDasar)
-            ->with([
-                'kategoriHambatan',
-                'pelapor',
-                'wilayah',
-                'foto'
-            ])
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
-
-        $petaLaporan = (clone $laporanDasar)
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->get([
-                'id',
-                'kode_laporan',
-                'judul',
-                'latitude',
-                'longitude',
-                'status',
-                'skor_prioritas',
-            ]);
-
-        /*
-         * Belum ada tabel anggaran dalam schema SmartPath.
-         * Gunakan collection kosong agar Dashboard Dinas
-         * menggunakan fallback yang sudah tersedia di view.
-         */
-        $dataAnggaran = collect();
-
-        return view(
-            'Dashboard.dinas',
-            compact(
-                'statistik',
-                'laporanPrioritasTinggi',
-                'laporanTerbaru',
-                'petaLaporan',
-                'dataAnggaran'
+        $trenRaw = (clone $laporanDasar)
+            ->where(
+                'created_at',
+                '>=',
+                now()->startOfDay()->subDays(6)
             )
-        );
-    }
+            ->selectRaw(
+                'DATE(created_at) as tanggal, COUNT(*) as jumlah'
+            )
+            ->groupByRaw('DATE(created_at)')
+            ->orderBy('tanggal')
+            ->pluck(
+                'jumlah',
+                'tanggal'
+            );
+
+        $tren7Hari = collect(range(6, 0))
+            ->map(function ($daysAgo) use ($trenRaw) {
+
+                $date =
+                    now()
+                        ->startOfDay()
+                        ->subDays($daysAgo);
+
+                $key =
+                    $date->format('Y-m-d');
+
+                return [
+                    'tanggal' => $key,
+                    'label' =>
+                        $date->format('d M'),
+                    'jumlah' =>
+                        (int) (
+                            $trenRaw[$key] ?? 0
+                        ),
+                ];
+            })
+            ->values();
+
+        return response()->json([ 'generated_at' => now()->toISOString(), 'statistik' => [ 'total' => $total, 'menunggu' => $menunggu, 'diverifikasi' => $diverifikasi, 'dalam_perbaikan' => $dalamPerbaikan, 'selesai' => $selesai, 'kritis' => $prioritasTinggi, ], 'area_dipantau' => $areaDipantau, 'peta_laporan' => $petaLaporan, 'top_prioritas' => $topPrioritas, ]); }
+    
+    /**
+     * Dashboard DINAS.
+     *
+     * Jangan diarahkan ke index() karena index()
+     * sekarang khusus administrator.
+     */
+   /**
+ * Dashboard DINAS.
+ *
+ * Dashboard Dinas menampilkan:
+ * - statistik laporan
+ * - laporan prioritas tinggi
+ * - laporan terbaru
+ * - peta sebaran laporan
+ * - ringkasan realisasi anggaran dari rencana perbaikan
+ *
+ * Data anggaran bukan anggaran resmi pemerintah.
+ * Data berasal dari data simulasi/prototype pada rencana_perbaikan.
+ */
+public function indexDinas()
+{
+    /*
+    |--------------------------------------------------------------------------
+    | DATA DASAR LAPORAN
+    |--------------------------------------------------------------------------
+    */
+
+    $laporanDasar = Laporan::query()
+        ->induk()
+        ->aktif();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATISTIK DASHBOARD DINAS
+    |--------------------------------------------------------------------------
+    */
+
+    $statistik = [
+
+        'total' =>
+            (clone $laporanDasar)
+                ->count(),
+
+        'menunggu' =>
+            (clone $laporanDasar)
+                ->status('menunggu_verifikasi')
+                ->count(),
+
+        'dalam_perbaikan' =>
+            (clone $laporanDasar)
+                ->status('dalam_perbaikan')
+                ->count(),
+
+        'selesai' =>
+            (clone $laporanDasar)
+                ->status('selesai')
+                ->count(),
+
+        'kritis' =>
+            (clone $laporanDasar)
+                ->whereNotNull('skor_prioritas')
+                ->where('skor_prioritas', '>=', 70)
+                ->count(),
+    ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LAPORAN PRIORITAS TINGGI
+    |--------------------------------------------------------------------------
+    */
+
+    $laporanPrioritasTinggi = (clone $laporanDasar)
+        ->with([
+            'kategoriHambatan',
+            'wilayah',
+            'pelapor',
+            'foto',
+            'fasilitasTerdekat',
+        ])
+        ->whereNotNull('skor_prioritas')
+        ->where('skor_prioritas', '>=', 70)
+        ->orderByDesc('skor_prioritas')
+        ->orderByDesc('created_at')
+        ->limit(10)
+        ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LAPORAN TERBARU
+    |--------------------------------------------------------------------------
+    */
+
+    $laporanTerbaru = (clone $laporanDasar)
+        ->with([
+            'kategoriHambatan',
+            'pelapor',
+            'wilayah',
+            'foto',
+        ])
+        ->orderByDesc('created_at')
+        ->limit(10)
+        ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA PETA
+    |--------------------------------------------------------------------------
+    */
+
+    $petaLaporan = (clone $laporanDasar)
+        ->whereNotNull('latitude')
+        ->whereNotNull('longitude')
+        ->get([
+            'id',
+            'kode_laporan',
+            'judul',
+            'latitude',
+            'longitude',
+            'status',
+            'skor_prioritas',
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA REALISASI ANGGARAN
+    |--------------------------------------------------------------------------
+    |
+    | Sumber:
+    | rencana_perbaikan
+    |
+    | estimasi_anggaran   = nilai estimasi/pagu prototype
+    | realisasi_anggaran  = nilai realisasi prototype
+    |
+    | Data dikelompokkan berdasarkan kategori hambatan.
+    |
+    */
+
+    $rencanaAnggaran = RencanaPerbaikan::query()
+        ->with([
+            'laporan.kategoriHambatan',
+        ])
+        ->whereHas('laporan', function ($query) {
+
+            $query
+                ->induk()
+                ->aktif();
+
+        })
+        ->get([
+            'id',
+            'laporan_id',
+            'estimasi_anggaran',
+            'realisasi_anggaran',
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KELOMPOKKAN BERDASARKAN KATEGORI
+    |--------------------------------------------------------------------------
+    */
+
+    $dataAnggaran = $rencanaAnggaran
+        ->groupBy(function ($rencana) {
+
+            return optional(
+                optional($rencana->laporan)
+                    ->kategoriHambatan
+            )->nama ?? 'Kategori Lainnya';
+
+        })
+        ->map(function ($items, $namaKategori) {
+
+            $pagu = (float) $items
+                ->sum('estimasi_anggaran');
+
+            $realisasi = (float) $items
+                ->sum('realisasi_anggaran');
+
+            return (object) [
+
+                'nama_kategori' =>
+                    $namaKategori,
+
+                'pagu' =>
+                    $pagu,
+
+                'realisasi' =>
+                    $realisasi,
+            ];
+
+        })
+        ->values();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TOTAL ANGGARAN
+    |--------------------------------------------------------------------------
+    */
+
+    $totalAnggaran = (float) $dataAnggaran
+        ->sum('pagu');
+
+
+    $totalRealisasi = (float) $dataAnggaran
+        ->sum('realisasi');
+
+
+    $persentaseRealisasi = $totalAnggaran > 0
+        ? round(
+            ($totalRealisasi / $totalAnggaran) * 100,
+            1
+        )
+        : 0;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KIRIM DATA KE VIEW
+    |--------------------------------------------------------------------------
+    */
+
+    return view(
+        'Dashboard.dinas',
+        compact(
+            'statistik',
+            'laporanPrioritasTinggi',
+            'laporanTerbaru',
+            'petaLaporan',
+            'dataAnggaran',
+            'totalAnggaran',
+            'totalRealisasi',
+            'persentaseRealisasi'
+        )
+    );
+}
 
     /**
      * Dashboard warga.

@@ -1,0 +1,1455 @@
+/* ==========================================================
+   SmartPath — Dashboard Warga
+   Clean / Enterprise / Accessibility-first
+   ========================================================== */
+
+.warga-shell {
+    display: flex;
+    min-height: 100vh;
+    background: #f8fafc;
+}
+
+.warga-sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    width: 260px;
+    height: 100vh;
+    flex: 0 0 260px;
+    flex-direction: column;
+    padding: 22px 16px 16px;
+    border-right: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+
+.warga-sidebar__brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px 20px;
+}
+
+.warga-sidebar__logo,
+.warga-mobile-bar__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #064e3b;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -.04em;
+    text-decoration: none;
+}
+
+.warga-sidebar__logo > span:last-child > span,
+.warga-mobile-bar__brand > span {
+    color: #10b981;
+}
+
+.warga-sidebar__logo-icon {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #059669;
+    color: #ffffff;
+    font-size: 17px;
+}
+
+.warga-sidebar__profile {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 20px;
+    padding: 13px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    background: #f8fafc;
+}
+
+.warga-sidebar__avatar,
+.warga-mobile-bar__user {
+    display: inline-flex;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #d1fae5;
+    color: #047857;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.warga-sidebar__profile-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.warga-sidebar__profile-copy strong {
+    overflow: hidden;
+    color: #0f172a;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.warga-sidebar__profile-copy > span {
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.warga-sidebar__nav {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.warga-sidebar__label {
+    margin: 0 10px 8px;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.warga-sidebar__label--spaced {
+    margin-top: 22px;
+}
+
+.warga-sidebar__link {
+    display: flex;
+    width: 100%;
+    min-height: 43px;
+    align-items: center;
+    gap: 12px;
+    margin: 2px 0;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #475569;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .16s ease, color .16s ease;
+}
+
+.warga-sidebar__link > i {
+    width: 18px;
+    color: #64748b;
+    font-size: 15px;
+    text-align: center;
+}
+
+.warga-sidebar__link:hover,
+.warga-sidebar__link.is-active {
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-sidebar__link:hover > i,
+.warga-sidebar__link.is-active > i {
+    color: #059669;
+}
+
+.warga-sidebar__link:focus-visible,
+.warga-sidebar__logo:focus-visible,
+.warga-mobile-bar__menu:focus-visible,
+.warga-mobile-bar__brand:focus-visible,
+.warga-sidebar__close:focus-visible {
+    outline: 3px solid rgba(5, 150, 105, .3);
+    outline-offset: 2px;
+}
+
+.warga-sidebar__badge {
+    min-width: 20px;
+    margin-left: auto;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.warga-sidebar__footer {
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.warga-sidebar__logout {
+    color: #b91c1c;
+}
+
+.warga-sidebar__logout > i {
+    color: #dc2626;
+}
+
+.warga-sidebar__logout:hover {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.warga-sidebar__close,
+.warga-sidebar__backdrop,
+.warga-mobile-bar {
+    display: none;
+}
+
+.warga-workspace {
+    min-width: 0;
+    flex: 1;
+}
+
+.warga-workspace > nav[aria-label="Navigasi utama"] {
+    z-index: 2000;
+}
+
+.warga-navbar-brand--hidden {
+    display: none !important;
+}
+
+.warga-dashboard {
+    width: min(100% - 48px, 1320px);
+    margin: 0 auto;
+    padding: 42px 0 56px;
+    color: #0f172a;
+}
+
+.warga-dashboard__flash {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding: 13px 16px;
+    border: 1px solid #a7f3d0;
+    border-radius: 10px;
+    background: #ecfdf5;
+    color: #065f46;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 600;
+}
+
+.warga-dashboard__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 28px;
+    margin-bottom: 24px;
+}
+
+.warga-dashboard__eyebrow {
+    margin: 0;
+    color: #047857;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 750;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.warga-dashboard__title {
+    margin: 7px 0 0;
+    color: #0f172a;
+    font-size: clamp(28px, 3vw, 36px);
+    line-height: 1.18;
+    font-weight: 800;
+    letter-spacing: -.025em;
+}
+
+.warga-dashboard__intro {
+    max-width: 760px;
+    margin: 10px 0 0;
+    color: #475569;
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+.warga-dashboard__voice-button,
+.warga-control-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        border-color .16s ease,
+        background-color .16s ease,
+        color .16s ease;
+}
+
+.warga-dashboard__voice-button:hover,
+.warga-control-button:hover:not(:disabled) {
+    border-color: #34d399;
+    background: #f0fdf4;
+    color: #047857;
+}
+
+.warga-control-button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+.warga-control-button--accent {
+    border-color: #a7f3d0;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-dashboard__voice-button:focus-visible,
+.warga-control-button:focus-visible,
+.warga-map-link:focus-visible,
+.warga-action:focus-visible,
+.warga-secondary-link:focus-visible {
+    outline: 3px solid rgba(5, 150, 105, .25);
+    outline-offset: 2px;
+}
+
+.warga-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.warga-action {
+    position: relative;
+    display: flex;
+    min-height: 126px;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 19px;
+    border: 1px solid #dbe4e9;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #0f172a;
+    text-decoration: none;
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease,
+        transform .16s ease;
+}
+
+.warga-action:hover {
+    border-color: #86efac;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+    transform: translateY(-1px);
+}
+
+.warga-action--primary {
+    border-color: #047857;
+    background: #047857;
+    color: #ffffff;
+}
+
+.warga-action--primary:hover {
+    border-color: #065f46;
+    background: #065f46;
+}
+
+.warga-action__icon {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-action--primary .warga-action__icon {
+    background: rgba(255, 255, 255, .14);
+    color: #ffffff;
+}
+
+.warga-action__body {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+}
+
+.warga-action__body h2 {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.4;
+    font-weight: 750;
+}
+
+.warga-action__body span {
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.warga-action--primary .warga-action__body span {
+    color: #d1fae5;
+}
+
+.warga-action__arrow {
+    margin-top: 3px;
+    color: #64748b;
+}
+
+.warga-action--primary .warga-action__arrow {
+    color: #d1fae5;
+}
+
+.warga-map-card {
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid #dbe4e9;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+}
+
+.warga-map-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 17px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.warga-section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.warga-section-heading__icon {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 38px;
+    border-radius: 9px;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-section-heading h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 750;
+}
+
+.warga-section-heading p {
+    margin: 3px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.warga-verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1px solid #a7f3d0;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.warga-verified-badge > span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.warga-dashboard__map {
+    width: 100%;
+    height: min(52vh, 480px);
+    min-height: 380px;
+    background: #e2e8f0;
+}
+
+.warga-map-card .leaflet-container {
+    font-family: 'Inter', sans-serif;
+    background: #e2e8f0;
+}
+
+.warga-map-card .leaflet-popup-content-wrapper,
+.warga-map-card .leaflet-popup-tip {
+    border-radius: 10px;
+}
+
+.warga-map-card .leaflet-popup-content {
+    margin: 13px 15px;
+    min-width: 210px;
+}
+
+.warga-map-card .leaflet-control-zoom a {
+    width: 34px !important;
+    height: 34px !important;
+    line-height: 32px !important;
+    color: #334155;
+    font-size: 18px !important;
+}
+
+.warga-map-card .leaflet-control-attribution {
+    font-size: 10px;
+}
+
+.warga-map-card__footer {
+    padding: 13px 20px 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.warga-map-status {
+    min-height: 22px;
+    margin: 0 0 10px;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.warga-map-card__controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.warga-map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+    color: #047857;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.warga-map-link:hover {
+    color: #065f46;
+}
+
+.warga-report-marker,
+.warga-facility-marker {
+    background: transparent;
+    border: 0;
+}
+
+.warga-report-marker__dot {
+    display: block;
+    width: 19px;
+    height: 19px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .28);
+}
+
+.warga-facility-marker__dot {
+    display: flex;
+    width: 29px;
+    height: 29px;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #ffffff;
+    border-radius: 9px;
+    background: #0f766e;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .28);
+    font-size: 12px;
+}
+
+.warga-popup h3 {
+    margin: 0 0 6px;
+    color: #0f172a;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 750;
+}
+
+.warga-popup p {
+    margin: 0 0 6px;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.warga-popup__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.warga-popup__meta span {
+    display: inline-flex;
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+.warga-popup a {
+    display: inline-flex;
+    margin-top: 2px;
+    color: #059669;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.warga-popup a:hover {
+    color: #047857;
+    text-decoration: underline;
+}
+
+.warga-map-control.is-active {
+    border-color: #059669;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-nearby {
+    margin-top: 30px;
+}
+
+.warga-nearby__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 14px;
+}
+
+.warga-nearby__header h2 {
+    margin: 5px 0 0;
+    color: #0f172a;
+    font-size: 22px;
+    line-height: 1.35;
+    font-weight: 800;
+    letter-spacing: -.015em;
+}
+
+.warga-nearby__header p:not(.warga-dashboard__eyebrow) {
+    max-width: 780px;
+    margin: 6px 0 0;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.warga-nearby__tools {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.warga-location-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 11px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 650;
+}
+
+.warga-nearby-list {
+    display: grid;
+    gap: 10px;
+}
+
+.warga-nearby-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 17px;
+    border: 1px solid #dbe4e9;
+    border-radius: 11px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .03);
+    transition:
+        border-color .16s ease,
+        box-shadow .16s ease;
+}
+
+.warga-nearby-item:hover,
+.warga-nearby-item:focus-visible {
+    border-color: #86efac;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+}
+
+.warga-nearby-item:focus-visible {
+    outline: 3px solid rgba(5, 150, 105, .25);
+    outline-offset: 2px;
+}
+
+.warga-nearby-item__icon,
+.warga-nearby-empty__icon {
+    display: flex;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.warga-nearby-item__body {
+    min-width: 0;
+    flex: 1;
+}
+
+.warga-nearby-item__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.warga-nearby-item__top h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 750;
+}
+
+.warga-nearby-item__category {
+    margin: 5px 0 0;
+    color: #047857;
+    font-size: 13px;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+.warga-nearby-item__address {
+    margin: 5px 0 0;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.warga-nearby-item__distance {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 9px 0 0;
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.5;
+    font-weight: 700;
+}
+
+.warga-priority-badge {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.warga-priority-badge.is-high {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.warga-priority-badge.is-medium {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.warga-priority-badge.is-low {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.warga-priority-badge.is-unknown {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.warga-nearby-empty {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 20px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 11px;
+    background: #ffffff;
+}
+
+.warga-nearby-empty__icon.is-warning {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.warga-nearby-empty h3 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 750;
+}
+
+.warga-nearby-empty p {
+    margin: 5px 0 0;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.warga-secondary-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.warga-secondary-link {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 16px;
+    border: 1px solid #dbe4e9;
+    border-radius: 11px;
+    background: #ffffff;
+    color: #0f172a;
+    text-decoration: none;
+    transition:
+        border-color .16s ease,
+        background-color .16s ease;
+}
+
+.warga-secondary-link:hover {
+    border-color: #86efac;
+    background: #fbfffd;
+}
+
+.warga-secondary-link__icon {
+    display: flex;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #ecfdf5;
+    color: #047857;
+}
+
+.warga-secondary-link__icon--teal {
+    background: #f0fdfa;
+    color: #0f766e;
+}
+
+.warga-secondary-link__body {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+}
+
+.warga-secondary-link__body h2 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 750;
+}
+
+.warga-secondary-link__body p {
+    margin: 3px 0 0;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.warga-secondary-link__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 3px;
+    color: #047857;
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 750;
+}
+
+.warga-secondary-link__arrow {
+    flex: 0 0 auto;
+}
+
+.warga-secondary-link:hover .warga-secondary-link__action {
+    color: #065f46;
+}
+
+.warga-secondary-link > i {
+    color: #64748b;
+}
+
+.warga-accessibility-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1px solid #d1fae5;
+    border-radius: 10px;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.warga-accessibility-note > i {
+    margin-top: 2px;
+    color: #047857;
+}
+
+.warga-accessibility-note p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.warga-dashboard__sr-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 980px) {
+
+    .warga-quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .warga-action {
+        min-height: auto;
+    }
+
+    .warga-dashboard__map {
+        height: 48vh;
+        min-height: 350px;
+    }
+
+}
+
+@media (max-width: 900px) {
+
+    .warga-shell {
+        display: block;
+    }
+
+    .warga-sidebar {
+        position: fixed;
+        z-index: 61;
+        top: 64px;
+        bottom: 0;
+        left: 0;
+        width: min(290px, calc(100vw - 56px));
+        height: calc(100dvh - 64px);
+        padding-top: max(18px, env(safe-area-inset-top));
+        box-shadow: 18px 0 48px rgba(15, 23, 42, .16);
+        transform: translateX(-105%);
+        visibility: hidden;
+        transition: transform .2s ease, visibility .2s ease;
+    }
+
+    .warga-sidebar.is-open {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    .warga-sidebar__close {
+        display: inline-flex;
+        width: 38px;
+        height: 38px;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        border-radius: 10px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 17px;
+        cursor: pointer;
+    }
+
+    .warga-sidebar__backdrop {
+        position: fixed;
+        z-index: 60;
+        inset: 64px 0 0;
+        border: 0;
+        background: rgba(15, 23, 42, .48);
+        cursor: pointer;
+    }
+
+    .warga-sidebar__backdrop.is-visible {
+        display: block;
+    }
+
+    .warga-mobile-bar {
+        position: sticky;
+        z-index: 2000;
+        top: 64px;
+        display: flex;
+        height: 62px;
+        align-items: center;
+        gap: 14px;
+        padding: 0 18px;
+        border-bottom: 1px solid #e2e8f0;
+        background: rgba(255, 255, 255, .96);
+        backdrop-filter: blur(12px);
+    }
+
+    .warga-mobile-bar__menu {
+        display: inline-flex;
+        width: 40px;
+        height: 40px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 11px;
+        background: #ffffff;
+        color: #334155;
+        font-size: 17px;
+        cursor: pointer;
+    }
+
+    .warga-mobile-bar__brand {
+        display: none;
+    }
+
+    .warga-mobile-bar__user {
+        width: 34px;
+        height: 34px;
+        flex-basis: 34px;
+        margin-left: auto;
+        font-size: 13px;
+    }
+
+    .warga-sidebar-open {
+        overflow: hidden;
+    }
+
+}
+
+@media (max-width: 760px) {
+
+    .warga-dashboard {
+        width: min(100% - 28px, 680px);
+        padding: 28px 0 40px;
+    }
+
+    .warga-dashboard__header,
+    .warga-nearby__header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .warga-dashboard__voice-button {
+        width: 100%;
+    }
+
+    .warga-map-card__header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .warga-map-card__controls,
+    .warga-nearby__tools {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .warga-map-link {
+        margin-left: 0;
+    }
+
+    .warga-secondary-links {
+        grid-template-columns: 1fr;
+    }
+
+    .warga-nearby-item__top {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+}
+
+@media (max-width: 520px) {
+
+    .warga-dashboard {
+        width: min(100% - 20px, 680px);
+    }
+
+    .warga-dashboard__title {
+        font-size: 28px;
+    }
+
+    .warga-dashboard__intro,
+    .warga-nearby__header p:not(.warga-dashboard__eyebrow) {
+        font-size: 14px;
+    }
+
+    .warga-dashboard__map {
+        height: 44vh;
+        min-height: 300px;
+    }
+
+    .warga-map-card__header,
+    .warga-map-card__footer {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .warga-map-card__controls {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .warga-control-button,
+    .warga-map-link {
+        width: 100%;
+    }
+
+    .warga-map-link {
+        justify-content: center;
+        padding-top: 4px;
+    }
+
+    .warga-nearby__tools {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .warga-location-status,
+    .warga-nearby__tools .warga-control-button {
+        width: 100%;
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .warga-sidebar,
+    .warga-action,
+    .warga-dashboard__voice-button,
+    .warga-control-button,
+    .warga-secondary-link,
+    .warga-nearby-item {
+        transition: none;
+    }
+
+}
+
+/* Dashboard visual refinement */
+.warga-workspace {
+    background:
+        radial-gradient(ellipse at 92% 0, rgba(209, 250, 229, .42), transparent 34rem),
+        #f7faf9;
+}
+
+.warga-dashboard {
+    padding-top: 34px;
+}
+
+.warga-dashboard__header {
+    position: relative;
+    align-items: center;
+    margin-bottom: 28px;
+    padding: clamp(22px, 3vw, 34px);
+    border: 1px solid #dceee5;
+    border-radius: 22px;
+    background: linear-gradient(115deg, #ffffff 0%, #f1fbf5 100%);
+    box-shadow: 0 12px 32px rgba(15, 66, 48, .055);
+}
+
+.warga-dashboard__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #047857;
+    letter-spacing: .09em;
+}
+
+.warga-dashboard__eyebrow::before {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 4px #d1fae5;
+    content: "";
+}
+
+.warga-dashboard__title {
+    margin-top: 12px;
+    font-size: clamp(30px, 3.4vw, 40px);
+    letter-spacing: -.04em;
+}
+
+.warga-dashboard__intro {
+    max-width: 680px;
+    margin-top: 12px;
+    color: #52635c;
+    font-size: 15px;
+    line-height: 1.75;
+}
+
+.warga-dashboard__voice-button {
+    flex: 0 0 auto;
+    border-color: #c3e8d4;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 66, 48, .06);
+}
+
+.warga-quick-actions {
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.warga-action {
+    min-height: 138px;
+    align-items: center;
+    padding: 22px;
+    border-color: #e1eae5;
+    border-radius: 17px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .035);
+}
+
+.warga-action:hover {
+    border-color: #86efac;
+    box-shadow: 0 12px 26px rgba(15, 66, 48, .09);
+    transform: translateY(-2px);
+}
+
+.warga-action--primary {
+    border-color: #047857;
+    background: linear-gradient(135deg, #047857, #059669);
+    box-shadow: 0 10px 24px rgba(4, 120, 87, .18);
+}
+
+.warga-action--primary:hover {
+    border-color: #065f46;
+    background: linear-gradient(135deg, #065f46, #047857);
+    box-shadow: 0 14px 28px rgba(4, 120, 87, .22);
+}
+
+.warga-action__icon {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+    border-radius: 13px;
+}
+
+.warga-action__body h2 {
+    font-size: 16px;
+    letter-spacing: -.01em;
+}
+
+.warga-action__body span {
+    margin-top: 7px;
+    line-height: 1.65;
+}
+
+.warga-action:not(.warga-action--primary) .warga-action__body span {
+    color: #64756d;
+}
+
+.warga-map-card {
+    border-color: #dce9e2;
+    border-radius: 19px;
+    box-shadow: 0 12px 30px rgba(15, 66, 48, .07);
+}
+
+.warga-map-card__header {
+    padding: 19px 22px;
+    background: linear-gradient(90deg, #ffffff, #f8fcf9);
+}
+
+.warga-section-heading__icon {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    border-radius: 12px;
+}
+
+.warga-section-heading h2 {
+    font-size: 18px;
+    letter-spacing: -.015em;
+}
+
+.warga-dashboard__map {
+    background: #edf4f0;
+}
+
+.warga-map-card__footer {
+    background: #ffffff;
+}
+
+.warga-nearby {
+    padding: clamp(18px, 2.5vw, 26px);
+    border: 1px solid #e1eae5;
+    border-radius: 19px;
+    background: rgba(255, 255, 255, .86);
+    box-shadow: 0 6px 20px rgba(15, 66, 48, .04);
+}
+
+.warga-nearby__header {
+    margin-bottom: 18px;
+}
+
+.warga-nearby__header h2 {
+    font-size: 23px;
+    letter-spacing: -.025em;
+}
+
+.warga-nearby-item,
+.warga-nearby-empty {
+    border-color: #e2ebe6;
+    border-radius: 14px;
+}
+
+.warga-nearby-empty {
+    background: #fbfdfc;
+}
+
+.warga-secondary-links {
+    gap: 16px;
+    margin-top: 22px;
+}
+
+.warga-secondary-link {
+    min-height: 132px;
+    padding: 20px;
+    border-color: #e1eae5;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .03);
+}
+
+.warga-secondary-link:hover {
+    border-color: #86efac;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 66, 48, .07);
+    transform: translateY(-1px);
+}
+
+.warga-secondary-link__icon {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+    border-radius: 12px;
+}
+
+.warga-accessibility-note {
+    border-radius: 14px;
+}
+
+@media (min-width: 761px) and (max-width: 980px) {
+    .warga-quick-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .warga-action--primary {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 760px) {
+    .warga-dashboard {
+        padding-top: 22px;
+    }
+
+    .warga-dashboard__header {
+        gap: 18px;
+        margin-bottom: 20px;
+        padding: 22px 19px;
+        border-radius: 18px;
+    }
+
+    .warga-dashboard__title {
+        font-size: clamp(28px, 7vw, 34px);
+    }
+
+    .warga-action {
+        min-height: 112px;
+        padding: 18px;
+        border-radius: 15px;
+    }
+
+    .warga-map-card,
+    .warga-nearby {
+        border-radius: 16px;
+    }
+
+    .warga-nearby {
+        padding: 18px;
+    }
+
+    .warga-secondary-link {
+        min-height: 0;
+        padding: 17px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .warga-action:hover,
+    .warga-secondary-link:hover {
+        transform: none;
+    }
+}

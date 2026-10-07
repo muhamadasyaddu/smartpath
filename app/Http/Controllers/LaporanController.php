@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\User;
 use Throwable;
 
 class LaporanController extends Controller
@@ -78,11 +79,6 @@ class LaporanController extends Controller
             ->urutTampil()
             ->get();
 
-        $wilayahList = Wilayah::aktif()
-            ->level('kecamatan')
-            ->orderBy('nama')
-            ->get();
-
         $maxFoto = (int) KonfigurasiSistem::getValue(
             'max_foto_per_laporan',
             5
@@ -90,7 +86,7 @@ class LaporanController extends Controller
 
         return view(
             'Laporan.create',
-            compact('kategoriHambatan', 'wilayahList', 'maxFoto')
+            compact('kategoriHambatan', 'maxFoto')
         );
     }
 
@@ -102,6 +98,9 @@ class LaporanController extends Controller
      */
     public function store(StoreLaporanRequest $request)
     {
+
+        
+
         $validated = $request->validated();
         $storedPaths = [];
 
@@ -202,6 +201,38 @@ class LaporanController extends Controller
                     'tautan' => route('laporan.show', $laporan),
                 ]);
 
+                /*
+                * Notifikasi administrator.
+                *
+                * Administrator perlu mengetahui bahwa ada
+                * laporan baru yang masuk ke antrean verifikasi.
+                */
+                $adminIds = User::query()
+                    ->whereIn('peran', [
+                        'administrator',
+                        'admin',
+                    ])
+                    ->where('aktif', true)
+                    ->pluck('id');
+
+                foreach ($adminIds as $adminId) {
+
+                    Notifikasi::create([
+                        'penerima_id' => $adminId,
+                        'laporan_id' => $laporan->id,
+                        'jenis' => 'sistem',
+                        'judul' => 'Laporan Baru Masuk',
+                        'pesan' =>
+                            "Laporan {$laporan->kode_laporan} "
+                            . "menunggu verifikasi administrator.",
+                        'tautan' =>
+                            route(
+                                'admin.verifikasi.show',
+                                $laporan
+                            ),
+                    ]);
+                }
+
                 if ($laporanInduk) {
                     Notifikasi::create([
                         'penerima_id' => auth()->id(),
@@ -233,8 +264,11 @@ class LaporanController extends Controller
                     'Laporan berhasil dikirim dan menunggu verifikasi.'
                 );
         } catch (Throwable $e) {
+
     foreach ($storedPaths as $path) {
-        Storage::disk('public')->delete($path);
+
+        Storage::disk('public')
+            ->delete($path);
     }
 
     report($e);
@@ -242,11 +276,10 @@ class LaporanController extends Controller
     return back()
         ->withInput()
         ->withErrors([
-            'laporan' => config('app.debug')
-                ? 'Laporan gagal disimpan: ' . $e->getMessage()
-                : 'Laporan belum dapat disimpan. Silakan coba lagi.',
+            'laporan' =>
+                'Laporan belum dapat disimpan. Silakan coba lagi.',
         ]);
-}
+    }
     }
 
     /**
@@ -416,13 +449,20 @@ public function unduhPdf($id)
 
         $dataLama = $laporan->toArray();
 
+        /*
+        * Simpan ID parent sebelum soft delete.
+        * Ini penting karena setelah delete(), model tetap memiliki
+        * nilai atribut tetapi kita tidak perlu bergantung pada relasi.
+        */
+        $laporanIndukId = $laporan->laporan_induk_id;
+
         $laporan->delete();
 
         /*
-         * Jika child dihapus, jumlah pelapor parent harus disinkronkan.
-         */
-        if ($laporan->laporan_induk_id) {
-            $parent = Laporan::find($laporan->laporan_induk_id);
+        * Jika child dihapus, jumlah pelapor parent harus disinkronkan.
+        */
+        if ($laporanIndukId) {
+            $parent = Laporan::find($laporanIndukId);
 
             if ($parent) {
                 $this->syncParentReporterCount($parent);
@@ -445,6 +485,41 @@ public function unduhPdf($id)
     }
 
     /**
+     * Detail laporan untuk kebutuhan operasional.
+     *
+     * Digunakan oleh:
+     * - Administrator
+     * - Dinas
+     * - Pemilik laporan
+     *
+     * Endpoint tetap menggunakan authorization agar
+     * pengguna biasa tidak dapat melihat laporan milik orang lain.
+     */
+    public function showDetail(Laporan $laporan)
+    {
+        $this->authorizeView($laporan);
+
+        $laporan->load([
+            'kategoriHambatan',
+            'pelapor',
+            'wilayah',
+            'fotoLaporan',
+            'verifikasi.admin',
+            'riwayatStatus.diubahOleh',
+            'laporanInduk',
+            'laporanAnak.pelapor',
+            'fasilitasTerdekat',
+            'rencanaPerbaikan',
+        ]);
+
+        return view(
+            'Dinas.laporan-detail',
+            compact('laporan')
+        );
+    }
+
+
+    /**
      * Cari parent aktif dengan kategori sama dalam radius deduplikasi.
      *
      * Radius 50 meter adalah parameter MVP sesuai tugas Sprint 2
@@ -455,12 +530,17 @@ public function unduhPdf($id)
         float $longitude,
         int $kategoriHambatanId
     ): ?Laporan {
-        $radiusMeter = (int) KonfigurasiSistem::getValue(
-            'radius_deduplikasi_meter',
-            50
+        $pengaturan = \App\Models\PengaturanPrioritas::getActive();
+
+        $radiusMeter = (int) (
+            $pengaturan?->radius_deduplikasi_m
+            ?? KonfigurasiSistem::getValue(
+                'radius_deduplikasi_meter',
+                50
+            )
         );
 
-        $latitudeDelta = $radiusMeter / 111320;
+                $latitudeDelta = $radiusMeter / 111320;
         $cosLatitude = max(
             cos(deg2rad($latitude)),
             0.01
@@ -581,6 +661,9 @@ public function unduhPdf($id)
             abort(403, 'Anda tidak memiliki izin untuk melihat laporan ini.');
         }
     }
+
+
+
 
     /**
      * Hanya pemilik atau admin yang boleh mengubah laporan.

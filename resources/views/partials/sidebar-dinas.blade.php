@@ -11,6 +11,8 @@
     aria-label="Menu dinas"
 >
 
+
+
     {{-- ======================================================
          BAGIAN MENU
     ======================================================= --}}
@@ -85,9 +87,9 @@
             </div>
 
 
-            {{-- VERIFIKASI LAPORAN --}}
-            <a
-                href="{{ route('admin.verifikasi.index') }}"
+            
+              {{-- VERIFIKASI LAPORAN --}}
+                <a href="{{ route('admin.verifikasi.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors
                     {{ request()->routeIs('admin.verifikasi.*')
                         ? 'bg-emerald-50 text-emerald-700'
@@ -121,14 +123,19 @@
 
             {{-- PETA --}}
             <a
-                href="{{ route('peta.fasilitas') }}"
-                class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                href="{{ route('dinas.peta') }}"
+                class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors
+                    {{ request()->routeIs('dinas.peta')
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    }}"
             >
                 <svg
                     class="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                 >
                     <path
                         stroke-linecap="round"
@@ -151,7 +158,7 @@
 
             {{-- RENCANA PERBAIKAN --}}
             <a
-                href="{{ route('rencana perbaikan.index') }}"
+                href="{{ route('dinas.rencana-perbaikan.index') }}"
                 class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
             >
                 <svg
@@ -179,7 +186,7 @@
             </a>
             {{-- KINERJA & ANGGARAN --}}
 <a
-    href="#"
+    href="{{ route('dinas.kinerja-anggaran.index') }}"
     class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
 >
     {{-- ICON KINERJA & ANGGARAN --}}
@@ -380,7 +387,7 @@
                         />
                     </svg>
 
-                    Logout
+                    Keluar
 
                 </button>
 

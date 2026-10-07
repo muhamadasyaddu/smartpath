@@ -74,6 +74,32 @@
             transition: var(--transition);
         }
 
+        a:focus-visible,
+        button:focus-visible {
+            outline: 3px solid currentColor;
+            outline-offset: 3px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -9999px;
+            left: 1rem;
+            z-index: 1100;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background: #047857;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .skip-link:focus {
+            top: 1rem;
+        }
+
+        .skip-link:focus-visible {
+            outline-color: #047857;
+        }
+
         /* ---------- SECTION LABEL ---------- */
         .section-label {
             display: flex;
@@ -90,11 +116,15 @@
         }
 
         .label-text {
-            font-size: 0.75rem;
+            font-size: 1.0rem;
             font-weight: 700;
             letter-spacing: 2px;
-            color: var(--primary-mint);
+            color: #047857;
             text-transform: uppercase;
+        }
+
+        .hero-about .label-text {
+            color: #6ee7b7;
         }
 
         /* ---------- SECTION TITLE & DESC ---------- */
@@ -112,7 +142,7 @@
         }
 
         .text-mint {
-            color: var(--primary-mint) !important;
+            color: #6ee7b7 !important;
         }
 
         .text-light-muted {
@@ -163,7 +193,7 @@
         .navbar-nav .nav-link {
             color: rgba(255, 255, 255, 0.8);
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 1.0rem;
             padding: 0.5rem 1rem;
             position: relative;
             transition: var(--transition);
@@ -189,8 +219,25 @@
             border-radius: 2px;
         }
 
+        @media (min-width: 992px) {
+            .navbar-expand-lg .navbar-nav {
+                gap: 2rem;
+            }
+
+            .navbar-expand-lg .navbar-nav .nav-link {
+                padding-right: 0;
+                padding-left: 0;
+            }
+
+            .navbar-expand-lg .navbar-nav .nav-link.active::after {
+                left: 0;
+                right: 0;
+            }
+        }
+
         .navbar-toggler {
             border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--white);
             padding: 0.4rem 0.6rem;
         }
 
@@ -204,10 +251,10 @@
 
         /* ---------- BUTTONS ---------- */
         .btn-primary-custom {
-            background-color: var(--primary-mint);
+            background-color: #047857;
             color: var(--white);
             font-weight: 700;
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             padding: 0.6rem 1.5rem;
             border-radius: var(--btn-radius);
             border: none;
@@ -215,7 +262,7 @@
         }
 
         .btn-primary-custom:hover {
-            background-color: var(--primary-mint-dark);
+            background-color: #065f46;
             color: var(--white);
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
@@ -332,14 +379,14 @@
 
         .hero-cards .card-title {
             color: var(--white);
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             margin-bottom: 0.35rem;
         }
 
         .hero-cards .card-text {
             color: rgba(255, 255, 255, 0.65);
-            font-size: 0.8rem;
+            font-size: 1.0;
             line-height: 1.5;
             margin: 0;
         }
@@ -404,7 +451,7 @@
         }
 
         .floating-card p {
-            font-size: 0.75rem;
+            font-size: 1.0rem;
             color: var(--secondary-text);
             margin: 0;
         }
@@ -469,7 +516,7 @@
         }
 
         .problem-card p {
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             color: var(--secondary-text);
             margin: 0;
         }
@@ -631,7 +678,7 @@
         }
 
         .value-card p {
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             color: var(--secondary-text);
             margin: 0;
         }
@@ -691,7 +738,7 @@
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             color: var(--secondary-text);
             padding: 0.5rem 0;
             border-bottom: 1px solid rgba(6, 42, 37, 0.04);
@@ -703,7 +750,7 @@
 
         .benefit-list li i {
             color: var(--primary-mint);
-            font-size: 0.75rem;
+            font-size: 1.0rem;
             margin-top: 4px;
             flex-shrink: 0;
         }
@@ -744,13 +791,13 @@
 
         .footer-desc {
             color: rgba(255, 255, 255, 0.55);
-            font-size: 0.9rem;
+            font-size: 1.0rem;
             max-width: 280px;
         }
 
         .footer-title {
             color: var(--white);
-            font-size: 0.9rem;
+            font-size: 1.0rem;
             font-weight: 700;
             margin-bottom: 1rem;
             letter-spacing: 0.5px;
@@ -765,12 +812,12 @@
         .footer-links li {
             margin-bottom: 0.5rem;
             color: rgba(255, 255, 255, 0.55);
-            font-size: 0.875rem;
+            font-size: 1.0rem;
         }
 
         .footer-links a {
             color: rgba(255, 255, 255, 0.55);
-            font-size: 0.875rem;
+            font-size: 1.0rem;
             transition: var(--transition);
         }
 
@@ -815,12 +862,12 @@
 
         .footer-copy {
             color: rgba(255, 255, 255, 0.5);
-            font-size: 0.8rem;
+            font-size: 1rem;
         }
 
         .footer-tagline {
             color: var(--primary-mint-light);
-            font-size: 0.8rem;
+            font-size: 1rem;
             font-weight: 600;
         }
 
@@ -1015,21 +1062,23 @@
             }
 
             .hero-desc {
-                font-size: 0.9rem;
+                font-size: 1rem;
             }
 
             .btn-primary-custom,
             .btn-outline-light-custom {
                 padding: 0.5rem 1.25rem;
-                font-size: 0.8rem;
+                font-size: 1rem;
             }
         }
     </style>
 </head>
 <body>
 
+    <a href="#main-content" class="skip-link">Langsung ke konten utama</a>
+
     <!-- ================= NAVBAR (Bootstrap 5) ================= -->
-    <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar">
+    <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar" aria-label="Navigasi utama">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('beranda') }}">
                 <div class="logo-icon">
@@ -1038,8 +1087,8 @@
                 <span class="logo-text">SmartPath</span>
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Buka atau tutup navigasi">
+                <span class="navbar-toggler-icon" aria-hidden="true"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -1055,14 +1104,15 @@
                 <div class="d-flex align-items-center gap-2 nav-actions">
                     <a href="{{ route('login') }}" class="btn btn-outline-light-custom">Masuk</a>
                     <a href="{{ route('auth.register') }}" class="btn btn-primary-custom">Daftar</a>
-                    <button class="btn btn-dark-mode" id="darkModeToggle" aria-label="Toggle Dark Mode">
-                        <i class="fa-solid fa-moon"></i>
+                    <button class="btn btn-dark-mode" id="darkModeToggle" aria-label="Mode gelap" aria-pressed="false">
+                        <i class="fa-solid fa-moon" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
         </div>
     </nav>
 
+    <main id="main-content" tabindex="-1">
     <!-- ================= SECTION 1: HERO TENTANG ================= -->
     <section class="hero-about" id="heroAbout">
         <div class="container">
@@ -1326,6 +1376,8 @@
         </div>
     </section>
 
+    </main>
+
     <!-- ================= FOOTER ================= -->
     <footer id="kontak" class="footer pt-5 pb-4">
         <div class="container">
@@ -1371,7 +1423,7 @@
                     <h6 class="footer-title">Alamat</h6>
                     <ul class="footer-links">
                         <li><i class="fa-solid fa-location-dot me-2"></i>Kota Depok, Jawa Barat, Indonesia</li>
-                        <li><i class="fa-solid fa-envelope me-2"></i>hello@smartpath.id</li>
+                        <li><i class="fa-solid fa-envelope me-2"></i>smartpath.official.id@gmail.com</li>
                         <li><i class="fa-solid fa-phone me-2"></i>(021) 1234 5678</li>
                     </ul>
                 </div>
@@ -1423,6 +1475,7 @@
                 const icon = darkModeToggle.querySelector('i');
 
                 function updateIcon(theme) {
+                    darkModeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
                     if (!icon) return;
                     if (theme === 'dark') {
                         icon.classList.remove('fa-moon');
@@ -1503,6 +1556,15 @@
 
             if (navbarCollapse && typeof bootstrap !== 'undefined') {
                 const bsCollapse = new bootstrap.Collapse(navbarCollapse, { toggle: false });
+                const navbarToggler = document.querySelector('.navbar-toggler');
+
+                document.addEventListener('keydown', event => {
+                    if (event.key === 'Escape' && window.innerWidth < 992 && navbarCollapse.classList.contains('show')) {
+                        event.preventDefault();
+                        bsCollapse.hide();
+                        if (navbarToggler) navbarToggler.focus();
+                    }
+                });
 
                 document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
                     link.addEventListener('click', () => {

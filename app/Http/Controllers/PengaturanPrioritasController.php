@@ -197,70 +197,141 @@ class PengaturanPrioritasController extends Controller
             );
     }
 
-    /**
-     * Hitung ulang skor laporan terverifikasi.
-     */
     public function recalculate()
-    {
-        $laporanList = Laporan::induk()
-            ->terverifikasi()
-            ->whereNotNull('skor_prioritas')
-            ->get();
+{
+    $laporanList = Laporan::query()
+        ->induk()
+        ->terverifikasi()
+        ->with([
+            'kategoriHambatan',
+            'laporanAnak',
+        ])
+        ->get();
 
-        $count = 0;
+    $count = 0;
 
-        foreach ($laporanList as $laporan) {
+    foreach ($laporanList as $laporan) {
 
-            $fasilitasTerdekat = FasilitasPublik::getNearest(
+        /*
+         * Pastikan jumlah pelapor parent selalu
+         * sinkron sebelum WSM dihitung.
+         */
+        $pelaporIds = Laporan::query()
+            ->where(function ($query) use ($laporan) {
+                $query
+                    ->where('id', $laporan->id)
+                    ->orWhere(
+                        'laporan_induk_id',
+                        $laporan->id
+                    );
+            })
+            ->whereNotIn(
+                'status',
+                [
+                    'ditolak',
+                    'diarsipkan',
+                ]
+            )
+            ->pluck('pelapor_id')
+            ->unique();
+
+        $laporan->update([
+            'jumlah_pelapor' => max(
+                1,
+                $pelaporIds->count()
+            ),
+        ]);
+
+        $pengaturan =
+            PengaturanPrioritas::getActive();
+
+        $radiusFasilitas = max(
+            1,
+            (int) (
+                $pengaturan?->radius_fasilitas_m
+                ?? 500
+            )
+        );
+
+        /*
+         * Cari fasilitas publik terdekat.
+         */
+        $fasilitasTerdekat =
+            FasilitasPublik::getNearest(
                 (float) $laporan->latitude,
                 (float) $laporan->longitude,
-                500
+                $radiusFasilitas
             );
 
-            if ($fasilitasTerdekat) {
+        if ($fasilitasTerdekat) {
 
-                $jarak = $fasilitasTerdekat->calculateDistance(
+            $jarak =
+                $fasilitasTerdekat->calculateDistance(
                     (float) $laporan->latitude,
                     (float) $laporan->longitude
                 );
 
-                $laporan->fasilitas_terdekat_id
-                    = $fasilitasTerdekat->id;
+            $laporan->fasilitas_terdekat_id =
+                $fasilitasTerdekat->id;
 
-                $laporan->jarak_fasilitas_meter
-                    = round($jarak, 2);
-            }
+            $laporan->jarak_fasilitas_meter =
+                round($jarak, 2);
 
-            $skor = $laporan->calculatePriorityScore();
+        } else {
 
-            $laporan->update([
-                'skor_keparahan' => $skor['skor_keparahan'],
-                'skor_pelapor' => $skor['skor_pelapor'],
-                'skor_fasilitas' => $skor['skor_fasilitas'],
-                'skor_prioritas' => $skor['skor_prioritas'],
-                'dihitung_pada' => now(),
-            ]);
-
-            $count++;
+            /*
+             * Jangan meninggalkan data fasilitas lama
+             * apabila setelah recalculation fasilitas
+             * sudah tidak ditemukan.
+             */
+            $laporan->fasilitas_terdekat_id = null;
+            $laporan->jarak_fasilitas_meter = null;
         }
 
-        Audit::log(
-            auth()->id(),
-            'hitung_ulang_prioritas',
-            'laporan',
-            null,
-            null,
-            null,
-            "Hitung ulang skor prioritas untuk {$count} laporan"
-        );
+        $laporan->refresh();
 
-        return redirect()
-            ->route('admin.pengaturan-prioritas.index')
-            ->with(
-                'sukses',
-                "Skor prioritas berhasil dihitung ulang untuk {$count} laporan."
-            );
+        $skor =
+            $laporan->calculatePriorityScore();
+
+        $laporan->update([
+            'skor_keparahan' =>
+                $skor['skor_keparahan'],
+
+            'skor_pelapor' =>
+                $skor['skor_pelapor'],
+
+            'skor_fasilitas' =>
+                $skor['skor_fasilitas'],
+
+            'skor_prioritas' =>
+                $skor['skor_prioritas'],
+
+            'dihitung_pada' =>
+                now(),
+        ]);
+
+        $count++;
     }
+
+    Audit::log(
+        auth()->id(),
+        'hitung_ulang_prioritas',
+        'laporan',
+        null,
+        null,
+        null,
+        "Hitung ulang skor prioritas untuk {$count} laporan"
+    );
+
+    return redirect()
+        ->route(
+            'admin.pengaturan-prioritas.index'
+        )
+        ->with(
+            'sukses',
+            "Skor prioritas berhasil dihitung ulang untuk {$count} laporan."
+        );
+}
 
     /**
      * Menghapus konfigurasi nonaktif.

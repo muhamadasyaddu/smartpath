@@ -1,34 +1,28 @@
-/*
-|--------------------------------------------------------------------------
-| SMARTPATH ADMIN DASHBOARD
-|--------------------------------------------------------------------------
-| Fungsi:
-| - Inisialisasi Leaflet
-| - OpenStreetMap
-| - Marker laporan
-| - Filter kategori
-| - Filter periode
-| - Recenter Kota Depok
-| - Secure popup rendering
-|
-| Tidak mengubah:
-| - routes/web.php
-| - controller
-| - database
-| - business logic Laravel
-|--------------------------------------------------------------------------
-*/
-
 (() => {
-
     'use strict';
 
+    const dashboard =
+        document.getElementById(
+            'admin-dashboard'
+        );
 
-    /*
-    |--------------------------------------------------------------------------
-    | CONSTANT
-    |--------------------------------------------------------------------------
-    */
+    const mapElement =
+        document.getElementById(
+            'admin-map'
+        );
+
+    const dataElement =
+        document.getElementById(
+            'smartpath-map-data'
+        );
+
+    if (
+        !dashboard ||
+        !mapElement ||
+        typeof window.L === 'undefined'
+    ) {
+        return;
+    }
 
     const DEFAULT_CENTER = [
         -6.4025,
@@ -37,372 +31,369 @@
 
     const DEFAULT_ZOOM = 12;
 
+    let reports = [];
 
-    /*
-    |--------------------------------------------------------------------------
-    | HTML ESCAPE
-    |--------------------------------------------------------------------------
-    | Data laporan berasal dari database.
-    | Sebelum dimasukkan ke popup Leaflet, data di-escape.
-    |--------------------------------------------------------------------------
-    */
+async function loadHomeReports() {
+
+    try {
+
+        const response =
+            await fetch(
+                '{{ route("peta.data") }}',
+                {
+                    headers: {
+                        'Accept':
+                            'application/json'
+                    }
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                'Gagal mengambil data laporan.'
+            );
+        }
+
+        reports =
+            await response.json();
+
+        renderHomeMarkers();
+
+    } catch (error) {
+
+        console.error(
+            'SmartPath Home Map:',
+            error
+        );
+
+    }
+}
+
 
     const escapeHtml = (value) => {
 
-        return String(value ?? '').replace(
+        return String(
+            value ?? ''
+        ).replace(
             /[&<>'"]/g,
-            (character) => {
-
-                const entities = {
-
-                    '&': '&amp;',
-
-                    '<': '&lt;',
-
-                    '>': '&gt;',
-
-                    "'": '&#039;',
-
-                    '"': '&quot;'
-
-                };
-
-                return entities[character];
-
-            }
+            (character) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#039;',
+                '"': '&quot;'
+            })[character]
         );
 
     };
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | PRIORITY
-    |--------------------------------------------------------------------------
-    */
+    const priority = (score) => {
 
-    const getPriorityLevel = (score) => {
+        if (
+            score === null ||
+            score === undefined ||
+            score === ''
+        ) {
+            return {
+                key: 'pending',
+                label: 'Belum Dinilai',
+                color: '#64748B'
+            };
+        }
 
-        const numericScore = Number(score);
+        const value =
+            Number(score);
 
-        if (numericScore >= 70) {
+        if (value >= 70) {
 
             return {
-                level: 'high',
+                key: 'high',
                 label: 'Tinggi',
-                color: '#dc2626'
+                color: '#DC2626'
             };
 
         }
 
-        if (numericScore >= 40) {
+        if (value >= 40) {
 
             return {
-                level: 'medium',
+                key: 'medium',
                 label: 'Sedang',
-                color: '#d97706'
+                color: '#D97706'
             };
 
         }
 
         return {
-
-            level: 'low',
-
+            key: 'low',
             label: 'Rendah',
-
-            color: '#16a34a'
-
+            color: '#16A34A'
         };
 
     };
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | POPUP
-    |--------------------------------------------------------------------------
-    */
+    const formatNumber =
+        (value) =>
+            Number(value || 0)
+                .toLocaleString('id-ID');
 
-    const createPopup = (report) => {
 
-        const score = Number(
-            report.skor_prioritas ?? 0
+    const createMarkerIcon =
+        (report) => {
+
+            const level =
+                priority(
+                    report.skor_prioritas
+                );
+
+            const label =
+                `Lokasi ${
+                    report.judul ||
+                    'laporan hambatan'
+                }, prioritas ${
+                    level.label
+                }`;
+
+            return L.divIcon({
+
+                className:
+                    'smartpath-admin-marker',
+
+                html: `
+                    <span
+                        class="sp-marker-pin ${level.key}"
+                        role="img"
+                        aria-label="${escapeHtml(label)}"
+                    >
+                        <span aria-hidden="true"></span>
+                    </span>
+                `,
+
+                iconSize: [
+                    30,
+                    38
+                ],
+
+                iconAnchor: [
+                    15,
+                    37
+                ],
+
+                popupAnchor: [
+                    0,
+                    -34
+                ]
+
+            });
+
+        };
+
+
+    const createPopup =
+        (report) => {
+
+            const level =
+                priority(
+                    report.skor_prioritas
+                );
+
+            const score =
+                report.skor_prioritas === null ||
+                report.skor_prioritas === undefined
+
+                    ? 'Belum dinilai'
+
+                    : Number(
+                        report.skor_prioritas
+                    ).toFixed(2);
+
+
+            const photo =
+                report.foto_utama
+
+                    ? `
+                        <img
+                            src="${escapeHtml(
+                                report.foto_utama
+                            )}"
+                            alt="Foto hambatan: ${escapeHtml(
+                                report.judul
+                            )}"
+                            class="sp-map-popup-photo"
+                        >
+                    `
+
+                    : '';
+
+
+            const distance =
+                report.jarak_fasilitas_meter !== null &&
+                report.jarak_fasilitas_meter !== undefined
+
+                    ? `
+                        <div class="sp-map-popup-detail">
+                            Fasilitas terdekat:
+                            ${formatNumber(
+                                Math.round(
+                                    Number(
+                                        report.jarak_fasilitas_meter
+                                    )
+                                )
+                            )} m
+                        </div>
+                    `
+
+                    : '';
+
+
+            const detail =
+                report.detail_url
+
+                    ? `
+                        <a
+                            href="${escapeHtml(
+                                report.detail_url
+                            )}"
+                            class="sp-map-popup-link"
+                        >
+                            Lihat detail laporan →
+                        </a>
+                    `
+
+                    : '';
+
+
+            return `
+                <article
+                    class="sp-map-popup"
+                    aria-label="Informasi laporan ${escapeHtml(
+                        report.judul
+                    )}"
+                >
+
+                    ${photo}
+
+                    <div class="sp-map-popup-title">
+                        ${escapeHtml(
+                            report.judul ||
+                            'Laporan Hambatan'
+                        )}
+                    </div>
+
+                    <div class="sp-map-popup-category">
+                        ${escapeHtml(
+                            report.kategori ||
+                            'Kategori tidak tersedia'
+                        )}
+                    </div>
+
+                    <div class="sp-map-popup-address">
+                        ${escapeHtml(
+                            report.alamat ||
+                            report.wilayah ||
+                            'Alamat tidak tersedia'
+                        )}
+                    </div>
+
+                    <div class="sp-map-popup-meta">
+
+                        <span
+                            class="sp-map-popup-badge"
+                            style="
+                                color:${level.color};
+                                border-color:${level.color}55;
+                                background:${level.color}12;
+                            "
+                        >
+                            ${escapeHtml(
+                                level.label
+                            )}
+                        </span>
+
+                        <span class="sp-map-popup-score">
+                            Skor ${escapeHtml(score)}
+                        </span>
+
+                    </div>
+
+                    <div class="sp-map-popup-detail">
+                        Status:
+                        ${escapeHtml(
+                            report.status_label ||
+                            report.status ||
+                            'Tidak tersedia'
+                        )}
+                    </div>
+
+                    <div class="sp-map-popup-detail">
+                        Pelapor:
+                        ${formatNumber(
+                            report.jumlah_pelapor ||
+                            1
+                        )}
+                        orang
+                    </div>
+
+                    ${distance}
+
+                    ${detail}
+
+                </article>
+            `;
+
+        };
+
+
+    const map =
+        L.map(
+            mapElement,
+            {
+                zoomControl: true,
+                attributionControl: true,
+                scrollWheelZoom: true,
+                keyboard: true
+            }
+        ).setView(
+            DEFAULT_CENTER,
+            DEFAULT_ZOOM
         );
 
-        const priority =
-            getPriorityLevel(score);
 
-
-        const title =
-            escapeHtml(
-                report.judul || 'Laporan'
-            );
-
-
-        const address =
-            escapeHtml(
-                report.alamat
-                ||
-                report.kategori
-                ||
-                'Lokasi tidak tersedia'
-            );
-
-
-        const category =
-            escapeHtml(
-                report.kategori
-                ||
-                'Kategori tidak tersedia'
-            );
-
-
-        const status =
-            escapeHtml(
-                report.status_label
-                ||
-                report.status
-                ||
-                'Status tidak tersedia'
-            );
-
-
-        return `
-            <div class="sp-map-popup">
-
-                <div class="sp-map-popup-title">
-                    ${title}
-                </div>
-
-                <div class="sp-map-popup-address">
-                    ${address}
-                </div>
-
-                <div class="sp-map-popup-meta">
-
-                    <span
-                        class="sp-map-popup-badge"
-                        style="
-                            color:${priority.color};
-                            border-color:${priority.color}33;
-                            background:${priority.color}10;
-                        "
-                    >
-                        ${escapeHtml(priority.label)}
-                    </span>
-
-                    <span class="sp-map-popup-score">
-                        Skor ${escapeHtml(score)}
-                    </span>
-
-                </div>
-
-                <div class="sp-map-popup-detail">
-                    ${category}
-                </div>
-
-                <div class="sp-map-popup-status">
-                    ${status}
-                </div>
-
-            </div>
-        `;
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIALIZE
-    |--------------------------------------------------------------------------
-    */
-
-    const initializeMap = () => {
-
-        const mapElement =
-            document.getElementById(
-                'admin-map'
-            );
-
-
-        if (!mapElement) {
-
-            return;
-
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            maxZoom: 19,
+            attribution:
+                '&copy; OpenStreetMap contributors'
         }
+    ).addTo(map);
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Pastikan Leaflet sudah tersedia
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            typeof window.L === 'undefined'
-        ) {
-
-            console.error(
-                'SmartPath: Leaflet.js belum tersedia.'
-            );
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Jangan initialise dua kali
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            mapElement.dataset.initialized === 'true'
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Baca data peta
-        |--------------------------------------------------------------------------
-        */
-
-        const dataElement =
-            document.getElementById(
-                'smartpath-map-data'
-            );
-
-
-        let reports = [];
-
-
-        if (dataElement) {
-
-            try {
-
-                const parsed =
-                    JSON.parse(
-                        dataElement.textContent || '[]'
-                    );
-
-
-                if (
-                    Array.isArray(parsed)
-                ) {
-
-                    reports = parsed;
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    'SmartPath: data peta tidak dapat dibaca.',
-                    error
-                );
-
-            }
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Create Map
-        |--------------------------------------------------------------------------
-        */
-
-        const map =
-            window.L
-                .map(
-                    mapElement,
-                    {
-                        zoomControl: true,
-
-                        attributionControl: true,
-
-                        scrollWheelZoom: true
-                    }
-                )
-                .setView(
-                    DEFAULT_CENTER,
-                    DEFAULT_ZOOM
-                );
-
-
-        mapElement.dataset.initialized =
-            'true';
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | OpenStreetMap
-        |--------------------------------------------------------------------------
-        */
-
-        window.L
-            .tileLayer(
-                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                {
-                    maxZoom: 19,
-
-                    attribution:
-                        '&copy; OpenStreetMap contributors'
-                }
-            )
+    const markerLayer =
+        L.layerGroup()
             .addTo(map);
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Marker Layer
-        |--------------------------------------------------------------------------
-        */
+    const visibleReports =
+        () => {
 
-        const markerLayer =
-            window.L
-                .layerGroup()
-                .addTo(map);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Marker Renderer
-        |--------------------------------------------------------------------------
-        */
-
-        const renderMarkers = () => {
-
-            markerLayer.clearLayers();
-
-
-            const categoryFilter =
-                document.getElementById(
-                    'map-category-filter'
-                );
-
-
-            const periodFilter =
-                document.getElementById(
-                    'map-period-filter'
-                );
-
-
-            const categoryId =
-                categoryFilter?.value || '';
-
+            const category =
+                document
+                    .getElementById(
+                        'map-category-filter'
+                    )
+                    ?.value || '';
 
             const period =
                 Number(
-                    periodFilter?.value || 7
+                    document
+                        .getElementById(
+                            'map-period-filter'
+                        )
+                        ?.value || 0
                 );
-
 
             const cutoff =
                 period > 0
@@ -411,195 +402,49 @@
                         (
                             period
                             *
-                            24
-                            *
-                            60
-                            *
-                            60
-                            *
-                            1000
+                            86400000
                         )
                     : 0;
 
 
-            reports.forEach(
+            return reports.filter(
                 (report) => {
 
-                    const latitude =
-                        Number(
-                            report.latitude
-                        );
-
-
-                    const longitude =
-                        Number(
-                            report.longitude
-                        );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Validasi koordinat
-                    |--------------------------------------------------------------------------
-                    */
-
                     if (
-                        !Number.isFinite(latitude)
-                        ||
-                        !Number.isFinite(longitude)
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Filter kategori
-                    |--------------------------------------------------------------------------
-                    */
-
-                    if (
-                        categoryId
-                        &&
+                        category &&
                         String(
                             report.kategori_id
-                        )
-                        !==
-                        String(
-                            categoryId
+                        ) !== String(
+                            category
                         )
                     ) {
-
-                        return;
-
+                        return false;
                     }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Filter periode
-                    |--------------------------------------------------------------------------
-                    */
-
                     if (
-                        cutoff
-                        &&
-                        report.created_at
-                        &&
+                        cutoff &&
+                        report.created_at &&
                         Date.parse(
                             report.created_at
                         ) < cutoff
                     ) {
-
-                        return;
-
+                        return false;
                     }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Priority
-                    |--------------------------------------------------------------------------
-                    */
-
-                    const score =
-                        Number(
-                            report.skor_prioritas ?? 0
-                        );
-
-
-                    const priority =
-                        getPriorityLevel(
-                            score
-                        );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Custom Marker
-                    |--------------------------------------------------------------------------
-                    */
-
-                    const markerIcon =
-                        window.L.divIcon({
-
-                            className:
-                                'smartpath-leaflet-marker',
-
-                            html:
-                                `
-                                <span
-                                    class="
-                                        sp-marker
-                                        ${priority.level}
-                                    "
-                                    role="img"
-                                    aria-label="
-                                        Prioritas
-                                        ${escapeHtml(
-                                            priority.label
-                                        )}
-                                    "
-                                ></span>
-                                `,
-
-                            iconSize: [
-                                15,
-                                15
-                            ],
-
-                            iconAnchor: [
-                                7.5,
-                                7.5
-                            ]
-
-                        });
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Create Marker
-                    |--------------------------------------------------------------------------
-                    */
-
-                    const marker =
-                        window.L.marker(
-                            [
-                                latitude,
-                                longitude
-                            ],
-                            {
-                                icon:
-                                    markerIcon
-                            }
-                        );
-
-
-                    marker
-                        .addTo(
-                            markerLayer
-                        );
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Popup
-                    |--------------------------------------------------------------------------
-                    */
-
-                    marker.bindPopup(
-                        createPopup(
-                            report
-                        ),
-                        {
-                            maxWidth: 280,
-
-                            minWidth: 190,
-
-                            closeButton: true
-                        }
+                    return (
+                        Number.isFinite(
+                            Number(
+                                report.latitude
+                            )
+                        )
+                        &&
+                        Number.isFinite(
+                            Number(
+                                report.longitude
+                            )
+                        )
                     );
 
                 }
@@ -608,126 +453,389 @@
         };
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Filters
-        |--------------------------------------------------------------------------
-        */
+    const updateMapCount =
+        (count) => {
 
-        document
-            .getElementById(
-                'map-category-filter'
-            )
-            ?.addEventListener(
-                'change',
-                renderMarkers
-            );
+            const element =
+                document.getElementById(
+                    'admin-map-total'
+                );
 
+            if (element) {
 
-        document
-            .getElementById(
-                'map-period-filter'
-            )
-            ?.addEventListener(
-                'change',
-                renderMarkers
-            );
+                element.textContent =
+                    formatNumber(count);
+
+            }
+
+        };
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Recenter
-        |--------------------------------------------------------------------------
-        */
+    const renderMarkers =
+        (fitToData = false) => {
 
-        document
-            .getElementById(
-                'map-recenter'
-            )
-            ?.addEventListener(
-                'click',
-                () => {
+            markerLayer.clearLayers();
 
-                    map.flyTo(
-                        DEFAULT_CENTER,
-                        DEFAULT_ZOOM,
+            const visible =
+                visibleReports();
+
+
+            visible.forEach(
+                (report) => {
+
+                    const marker =
+                        L.marker(
+                            [
+                                Number(
+                                    report.latitude
+                                ),
+                                Number(
+                                    report.longitude
+                                )
+                            ],
+                            {
+                                icon:
+                                    createMarkerIcon(
+                                        report
+                                    ),
+
+                                title:
+                                    report.judul ||
+                                    'Laporan hambatan',
+
+                                alt:
+                                    `Lokasi hambatan ${
+                                        report.judul ||
+                                        'laporan'
+                                    }`,
+
+                                keyboard:
+                                    true
+                            }
+                        );
+
+
+                    marker.bindPopup(
+                        createPopup(report),
                         {
-                            duration: 0.5
+                            maxWidth: 310,
+                            minWidth: 225,
+                            closeButton: true,
+                            autoPan: true
                         }
+                    );
+
+
+                    markerLayer.addLayer(
+                        marker
                     );
 
                 }
             );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | First Render
-        |--------------------------------------------------------------------------
-        */
-
-        renderMarkers();
+            updateMapCount(
+                visible.length
+            );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Leaflet resize fix
-        |--------------------------------------------------------------------------
-        */
+            if (
+                fitToData &&
+                visible.length
+            ) {
 
-        window.setTimeout(
-            () => {
+                const points =
+                    visible.map(
+                        (report) => [
+                            Number(
+                                report.latitude
+                            ),
+                            Number(
+                                report.longitude
+                            )
+                        ]
+                    );
 
-                map.invalidateSize();
 
-            },
-            150
+                if (
+                    points.length === 1
+                ) {
+
+                    map.setView(
+                        points[0],
+                        16
+                    );
+
+                } else {
+
+                    map.fitBounds(
+                        points,
+                        {
+                            padding: [
+                                25,
+                                25
+                            ],
+                            maxZoom: 15
+                        }
+                    );
+
+                }
+
+            }
+
+        };
+
+
+    const updateKpi =
+        (stats) => {
+
+            const mappings = {
+
+                'admin-kpi-total':
+                    stats.total,
+
+                'admin-kpi-menunggu':
+                    stats.menunggu,
+
+                'admin-kpi-diverifikasi':
+                    stats.diverifikasi,
+
+                'admin-kpi-kritis':
+                    stats.kritis
+
+            };
+
+
+            Object.entries(
+                mappings
+            ).forEach(
+                ([id, value]) => {
+
+                    const element =
+                        document.getElementById(
+                            id
+                        );
+
+                    if (element) {
+
+                        element.textContent =
+                            formatNumber(
+                                value
+                            );
+
+                    }
+
+                }
+            );
+
+        };
+
+
+    const updateMapSummary =
+        (payload) => {
+
+            const total =
+                document.getElementById(
+                    'admin-map-total'
+                );
+
+            const area =
+                document.getElementById(
+                    'admin-map-area'
+                );
+
+
+            if (total) {
+
+                total.textContent =
+                    formatNumber(
+                        payload.total ??
+                        reports.length
+                    );
+
+            }
+
+
+            if (area) {
+
+                area.textContent =
+                    formatNumber(
+                        payload.area_dipantau ??
+                        0
+                    );
+
+            }
+
+        };
+
+
+    const refreshDashboard =
+        async () => {
+
+            const liveUrl =
+                dashboard.dataset.liveUrl;
+
+            if (!liveUrl) {
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        liveUrl,
+                        {
+                            method: 'GET',
+
+                            headers: {
+                                Accept:
+                                    'application/json',
+
+                                'X-Requested-With':
+                                    'XMLHttpRequest'
+                            },
+
+                            credentials:
+                                'same-origin',
+
+                            cache:
+                                'no-store'
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        `HTTP ${
+                            response.status
+                        }`
+                    );
+
+                }
+
+
+                const payload =
+                    await response.json();
+
+
+                if (
+                    payload.statistik
+                ) {
+
+                    updateKpi(
+                        payload.statistik
+                    );
+
+                }
+
+
+                if (
+                    Array.isArray(
+                        payload.peta_laporan
+                    )
+                ) {
+
+                    reports =
+                        payload.peta_laporan;
+
+
+                    updateMapSummary({
+
+                        total:
+                            reports.length,
+
+                        area_dipantau:
+                            payload.area_dipantau
+
+                    });
+
+
+                    renderMarkers(
+                        false
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.warn(
+                    'SmartPath: refresh dashboard gagal.',
+                    error
+                );
+
+            }
+
+        };
+
+
+    document
+        .getElementById(
+            'map-category-filter'
+        )
+        ?.addEventListener(
+            'change',
+            () => renderMarkers(false)
         );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Window resize
-        |--------------------------------------------------------------------------
-        */
+    document
+        .getElementById(
+            'map-period-filter'
+        )
+        ?.addEventListener(
+            'change',
+            () => renderMarkers(false)
+        );
 
-        window.addEventListener(
-            'resize',
+
+    document
+        .getElementById(
+            'map-recenter'
+        )
+        ?.addEventListener(
+            'click',
             () => {
 
-                map.invalidateSize();
+                map.flyTo(
+                    DEFAULT_CENTER,
+                    DEFAULT_ZOOM,
+                    {
+                        duration: 0.5
+                    }
+                );
 
-            },
-            {
-                passive: true
             }
         );
 
-    };
+
+    renderMarkers(true);
+
+
+    window.setTimeout(
+        () => map.invalidateSize(),
+        250
+    );
 
 
     /*
-    |--------------------------------------------------------------------------
-    | DOM READY
-    |--------------------------------------------------------------------------
-    */
+     * Sesuai proposal:
+     * dashboard diperbarui otomatis setiap 60 detik
+     * menggunakan AJAX polling tanpa reload halaman.
+     */
+    window.setInterval(
+        refreshDashboard,
+        60000
+    );
 
-    if (
-        document.readyState === 'loading'
-    ) {
 
-        document.addEventListener(
-            'DOMContentLoaded',
-            initializeMap,
-            {
-                once: true
-            }
-        );
-
-    } else {
-
-        initializeMap();
-
-    }
+    window.addEventListener(
+        'resize',
+        () => map.invalidateSize(),
+        {
+            passive: true
+        }
+    );
 
 })();
