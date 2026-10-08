@@ -10,6 +10,9 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=20261008">
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon.png') }}?v=20261008">
+
     <title>
         @yield('title', 'Dashboard') - Admin SmartPath
     </title>
@@ -36,18 +39,17 @@
     href="{{ asset('css/smartpath-admin-pages.css') }}"
     >
 
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/smartpath-accessibility.css') }}"
+    >
+
 <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 
     
 >
-
-<link
-    rel="stylesheet"
-    href="{{ asset('css/smartpath-accessibility.css') }}"
->
-
 
     {{-- Tailwind CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -132,6 +134,8 @@
     class="h-full bg-slate-50 text-slate-900 antialiased"
 >
 
+    <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
+
     <div class="flex h-full">
 
 
@@ -179,6 +183,7 @@
                 id="main-content"
                 class="flex-1 p-6 lg:p-8 overflow-y-auto"
                 role="main"
+                tabindex="-1"
             >
 
                 {{-- SUCCESS --}}
@@ -261,6 +266,10 @@
     <script
     src="{{ asset('js/smartpath-admin-pages.js') }}"
     defer
+    ></script>
+    <script
+        src="{{ asset('js/smartpath-accessibility.js') }}"
+        defer
     ></script>
 
 </body>

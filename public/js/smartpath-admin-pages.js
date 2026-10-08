@@ -77,6 +77,9 @@ document.addEventListener(
             const setSidebarOpen =
                 (open) => {
 
+                    const isMobile =
+                        window.innerWidth < 1024;
+
                     sidebar.classList.toggle(
                         '-translate-x-full',
                         !open
@@ -96,14 +99,25 @@ document.addEventListener(
                             : 'false'
                     );
 
+                    sidebar.inert = isMobile && !open;
+                    sidebar.setAttribute(
+                        'aria-hidden',
+                        String(isMobile && !open)
+                    );
 
                     document.body.classList.toggle(
                         'overflow-hidden',
-                        open
+                        isMobile && open
                     );
+
+                    if (isMobile && open) {
+                        const firstLink = sidebar.querySelector('a, button');
+                        if (firstLink) firstLink.focus();
+                    }
 
                 };
 
+            setSidebarOpen(false);
 
             menuButton.addEventListener(
                 'click',
@@ -130,9 +144,21 @@ document.addEventListener(
                     setSidebarOpen(
                         false
                     );
+                    menuButton.focus();
 
                 }
             );
+
+            document.addEventListener('keydown', function (event) {
+                const sidebarIsOpen =
+                    !sidebar.classList.contains('-translate-x-full');
+
+                if (event.key === 'Escape' && sidebarIsOpen) {
+                    setSidebarOpen(false);
+                    menuButton.focus();
+                    menuButton.focus();
+                }
+            });
 
 
             sidebar

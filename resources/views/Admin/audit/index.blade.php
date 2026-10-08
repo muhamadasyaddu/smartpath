@@ -221,7 +221,7 @@
 
                             <td class="px-4 py-3">
 
-                                <span class="inline-flex rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[9px] font-semibold text-emerald-700">
+                                <span class="inline-flex rounded-md border px-2 py-1 text-[9px] font-semibold {{ strtolower($audit->aksi) === 'logout' ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700' }}">
                                     {{ ucwords(str_replace('_', ' ', $audit->aksi)) }}
                                 </span>
 

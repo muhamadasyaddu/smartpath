@@ -29,9 +29,20 @@ class ForgotPasswordController extends Controller
             'email.exists' => 'Email ini tidak terdaftar dalam sistem.'
         ]);
 
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        try {
+            $status = Password::sendResetLink(
+                $request->only('email')
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Failed to send password reset email.', [
+                'email' => $email,
+                'exception' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors([
+                'email' => 'Saat ini link reset tidak dapat dikirim. Coba lagi nanti atau hubungi admin.',
+            ]);
+        }
 
         return $status === Password::RESET_LINK_SENT
             ? back()->with('status', 'Link reset kata sandi telah dikirim ke email kamu!')

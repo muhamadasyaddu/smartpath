@@ -1,7 +1,6 @@
 <header
-    class="shrink-0 bg-white px-4 sm:px-5 lg:px-6"
-    role="banner"
->
+    class="shrink-0 bg-emerald-100 px-4 sm:px-5 lg:px-6"
+role="banner">
 
     <div class="flex h-full min-w-0 items-center justify-between gap-4">
 

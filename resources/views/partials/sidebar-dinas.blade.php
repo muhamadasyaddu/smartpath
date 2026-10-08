@@ -19,26 +19,12 @@
     <div class="flex-1 overflow-y-auto">
 
         {{-- LOGO --}}
-        <div
-            class="flex items-center gap-2 px-6 h-16 border-b border-slate-200"
-        >
-            <svg
-                class="w-7 h-7 text-emerald-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+        <div class="dinas-sidebar-brand flex items-center border-b border-slate-200">
+            <img
+                src="{{ asset('logo-smartpath-cropped.png') }}"
+                alt="SmartPath"
+                class="dinas-sidebar-brand__logo"
             >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                />
-            </svg>
-
-            <span class="font-semibold text-emerald-700">
-                SmartPath
-            </span>
         </div>
 
 
@@ -78,15 +64,7 @@
 
 
             {{-- JUDUL LAPORAN --}}
-            <div class="pt-5 pb-2">
-                <span
-                    class="text-xs font-semibold text-slate-400 uppercase tracking-wider"
-                >
-                    Laporan
-                </span>
-            </div>
-
-
+            
             
               {{-- VERIFIKASI LAPORAN --}}
                 <a href="{{ route('admin.verifikasi.index') }}"
@@ -466,6 +444,28 @@
                 'rotate-180',
                 !sedangTerbuka
             );
+
+        }
+    );
+
+    document.addEventListener(
+        'keydown',
+        (event) => {
+
+            if (
+                event.key === 'Escape' &&
+                tombolProfil.getAttribute('aria-expanded') === 'true'
+            ) {
+
+                dropdown.classList.add('hidden');
+                tombolProfil.setAttribute(
+                    'aria-expanded',
+                    'false'
+                );
+                panah.classList.remove('rotate-180');
+                tombolProfil.focus();
+
+            }
 
         }
     );

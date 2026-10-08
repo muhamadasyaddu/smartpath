@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{-- Favicon SmartPath; version query refreshes stale browser-cached icons. --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=20261008">
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon.png') }}?v=20261008">
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'SmartPath - Pemetaan Aksesibilitas Infrastruktur Disabilitas')</title>
 
@@ -65,7 +69,7 @@
 </head>
 <body class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen flex flex-col justify-between transition-colors duration-200">
 
-    
+    <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
 
     <!-- Flash Message Notification -->
     @if(session('success_newsletter'))
@@ -74,25 +78,58 @@
                 <i data-lucide="check-circle" class="w-5 h-5"></i>
                 {{ session('success_newsletter') }}
             </span>
-            <button onclick="document.getElementById('flash-banner').remove()" class="text-white hover:text-slate-200">
+            <button type="button" onclick="document.getElementById('flash-banner').remove()" class="text-white hover:text-slate-200" aria-label="Tutup pemberitahuan">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
     @endif
 
     <!-- Content View -->
-    <main class="flex-grow">
+    <main id="main-content" class="flex-grow" tabindex="-1">
         @yield('content')
     </main>
 
     <!-- Leaflet JS (Dipanggil sebelum script view anak) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ asset('js/smartpath-accessibility.js') }}" defer></script>
 
     <!-- Lucide Icons Initialization -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
+            }
+
+            const accountToggle = document.querySelector('[aria-controls="public-account-menu"]');
+            const accountMenu = document.getElementById('public-account-menu');
+
+            if (accountToggle && accountMenu) {
+                const closeAccountMenu = (returnFocus = false) => {
+                    accountMenu.classList.add('hidden');
+                    accountToggle.setAttribute('aria-expanded', 'false');
+                    if (returnFocus) accountToggle.focus();
+                };
+
+                accountToggle.addEventListener('click', () => {
+                    const isOpen = accountToggle.getAttribute('aria-expanded') === 'true';
+                    accountMenu.classList.toggle('hidden', isOpen);
+                    accountToggle.setAttribute('aria-expanded', String(!isOpen));
+                });
+
+                document.addEventListener('keydown', event => {
+                    if (
+                        event.key === 'Escape'
+                        && accountToggle.getAttribute('aria-expanded') === 'true'
+                    ) {
+                        closeAccountMenu(true);
+                    }
+                });
+
+                document.addEventListener('click', event => {
+                    if (!accountToggle.parentElement.contains(event.target)) {
+                        closeAccountMenu();
+                    }
+                });
             }
         });
     </script>

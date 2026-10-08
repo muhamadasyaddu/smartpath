@@ -390,7 +390,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 var lat = parseFloat(laporan.latitude);
                 var lng = parseFloat(laporan.longitude);
 
-                var marker = L.marker([lat, lng]).addTo(map);
+                var marker = L.marker([lat, lng], {
+                    title: `Lokasi laporan ${laporan.judul || laporan.kode_laporan || 'hambatan'}`,
+                    alt: `Lokasi laporan ${laporan.judul || laporan.kode_laporan || 'hambatan'}`,
+                    keyboard: true
+                }).addTo(map);
+                var markerElement = marker.getElement();
+                if (markerElement) {
+                    markerElement.setAttribute(
+                        'aria-label',
+                        `Laporan ${laporan.judul || laporan.kode_laporan || 'hambatan aksesibilitas'}`
+                    );
+                }
                 
                 var popupHtml = `
                     <div style="font-size:12px; min-width:140px;">

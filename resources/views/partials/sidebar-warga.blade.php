@@ -14,10 +14,11 @@
 >
     <div class="warga-sidebar__brand">
         <a href="{{ route('warga.dashboard') }}" class="warga-sidebar__logo">
-            <span class="warga-sidebar__logo-icon" aria-hidden="true">
-                <i class="fa-solid fa-map-location-dot"></i>
-            </span>
-            <span>Smart<span>Path</span></span>
+            <img
+                src="{{ asset('logo-smartpath-cropped.png') }}"
+                alt="SmartPath"
+                class="warga-sidebar__logo-image"
+            >
         </a>
         <button
             type="button"

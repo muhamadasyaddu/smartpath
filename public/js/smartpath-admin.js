@@ -530,6 +530,18 @@ async function loadHomeReports() {
                         marker
                     );
 
+                    const markerElement = marker.getElement();
+                    if (markerElement) {
+                        const score = Number(report.skor_prioritas);
+                        const priority = Number.isFinite(score)
+                            ? (score >= 70 ? 'tinggi' : score >= 40 ? 'sedang' : 'rendah')
+                            : 'belum dinilai';
+                        markerElement.setAttribute(
+                            'aria-label',
+                            `Laporan ${report.judul || 'hambatan aksesibilitas'}. Prioritas ${priority}.`
+                        );
+                    }
+
                 }
             );
 

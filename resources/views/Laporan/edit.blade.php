@@ -130,7 +130,7 @@
                     <div class="grid grid-cols-3 sm:grid-cols-5 gap-3">
                         @foreach($laporan->fotoLaporan as $foto)
                             <div class="relative group">
-                                <img src="{{ $foto->url }}" alt="Foto {{ $loop->iteration }}" class="w-full h-24 object-cover rounded-lg border border-slate-200">
+                                <img src="{{ $foto->url }}" alt="Foto laporan {{ $laporan->judul }}, gambar {{ $loop->iteration }}" class="w-full h-24 object-cover rounded-lg border border-slate-200">
                                 <label class="absolute top-1 right-1 flex items-center">
                                     <input type="checkbox" name="hapus_foto[]" value="{{ $foto->id }}" class="rounded border-slate-300 text-red-500 focus:ring-red-500 w-3.5 h-3.5" aria-label="Hapus foto {{ $loop->iteration }}">
                                 </label>
@@ -205,14 +205,14 @@ document.addEventListener('DOMContentLoaded', function() {
     fotoInput.addEventListener('change', () => handleFiles(fotoInput.files));
 
     function handleFiles(files) {
-        Array.from(files).forEach(file => {
+        Array.from(files).forEach((file, index) => {
             if (!file.type.startsWith('image/')) return;
             const reader = new FileReader();
             reader.onload = e => {
                 const div = document.createElement('div');
                 div.className = 'relative group';
-                div.innerHTML = `<img src="${e.target.result}" alt="Preview" class="w-full h-24 object-cover rounded-lg border border-slate-200"><button type="button" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100" aria-label="Hapus">&times;</button>`;
-                div.querySelector('button').onclick = () => div.remove();
+                div.innerHTML = `<img src="${e.target.result}" alt="Pratinjau foto laporan baru ${i + 1}" class="w-full h-24 object-cover rounded-lg border border-slate-200"><button type="button" class="absolute -top-1 -right-1 w-5 h-5 bg-red-700 text-white rounded-full text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100" aria-label="Hapus foto baru ${i + 1}">&times;</button>`;
+                div.querySelector('button').addEventListener('click', () => div.remove());
                 preview.appendChild(div);
             };
             reader.readAsDataURL(file);

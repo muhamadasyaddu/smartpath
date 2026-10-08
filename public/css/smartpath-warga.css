@@ -9,6 +9,14 @@
     background: #f8fafc;
 }
 
+.warga-reading-active {
+    outline: 3px solid #047857;
+    outline-offset: 5px;
+    border-radius: 14px;
+    box-shadow: 0 0 0 7px rgba(4, 120, 87, .12);
+    transition: outline-color 180ms ease, box-shadow 180ms ease;
+}
+
 .warga-sidebar {
     position: sticky;
     top: 0;
@@ -44,6 +52,14 @@
 .warga-sidebar__logo > span:last-child > span,
 .warga-mobile-bar__brand > span {
     color: #10b981;
+}
+
+.warga-sidebar__logo-image {
+    display: block;
+    width: 184px;
+    height: 42px;
+    object-fit: contain;
+    object-position: left center;
 }
 
 .warga-sidebar__logo-icon {
@@ -1451,5 +1467,100 @@
     .warga-action:hover,
     .warga-secondary-link:hover {
         transform: none;
+    }
+}
+
+/* Keep the citizen dashboard compact and application-focused. */
+.warga-workspace {
+    background: #f8faf9;
+}
+
+.warga-dashboard {
+    width: min(100% - 48px, 1160px);
+    padding-top: 28px;
+}
+
+.warga-dashboard__header {
+    align-items: center;
+    margin-bottom: 22px;
+    padding: 0 0 20px;
+    border: 0;
+    border-bottom: 1px solid #e2ebe6;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.warga-dashboard__eyebrow::before {
+    display: none;
+}
+
+.warga-dashboard__title {
+    margin-top: 7px;
+    font-size: clamp(27px, 2.6vw, 32px);
+    letter-spacing: -.03em;
+}
+
+.warga-dashboard__intro {
+    margin-top: 8px;
+    font-size: 14px;
+}
+
+.warga-quick-actions {
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.warga-action {
+    min-height: 112px;
+    padding: 17px;
+    border-radius: 14px;
+}
+
+.warga-action__icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+    border-radius: 11px;
+}
+
+.warga-action__body span {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.warga-map-card {
+    border-radius: 16px;
+}
+
+.warga-dashboard__map {
+    height: min(46vh, 400px);
+    min-height: 320px;
+}
+
+.warga-nearby {
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.warga-secondary-link {
+    min-height: 112px;
+    padding: 16px;
+    border-radius: 14px;
+}
+
+@media (max-width: 760px) {
+    .warga-dashboard {
+        width: min(100% - 28px, 680px);
+        padding-top: 20px;
+    }
+
+    .warga-dashboard__header {
+        padding-bottom: 17px;
+    }
+
+    .warga-dashboard__map {
+        height: 44vh;
+        min-height: 300px;
     }
 }

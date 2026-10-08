@@ -191,6 +191,14 @@
     const aturMenu =
         (terbuka) => {
 
+            const tampilanMobile =
+                window.innerWidth < 1024;
+
+            sidebar.classList.toggle(
+                'hidden',
+                !terbuka && tampilanMobile
+            );
+
             sidebar.classList.toggle(
                 '-translate-x-full',
                 !terbuka
@@ -208,12 +216,31 @@
                     : 'false'
             );
 
-            document.body.classList.toggle(
-                'overflow-hidden',
-                terbuka
+            sidebar.inert =
+                tampilanMobile && !terbuka;
+
+            sidebar.setAttribute(
+                'aria-hidden',
+                String(tampilanMobile && !terbuka)
             );
 
+            document.body.classList.toggle(
+                'overflow-hidden',
+                tampilanMobile && terbuka
+            );
+
+            if (tampilanMobile && terbuka) {
+                const tautanPertama =
+                    sidebar.querySelector('a, button');
+
+                if (tautanPertama) {
+                    tautanPertama.focus();
+                }
+            }
+
         };
+
+    aturMenu(false);
 
 
     /*
@@ -241,6 +268,29 @@
         () => {
 
             aturMenu(false);
+            tombolMenu.focus();
+
+        }
+    );
+
+    document.addEventListener(
+        'keydown',
+        (event) => {
+
+            const menuTerbuka =
+                !sidebar.classList.contains(
+                    '-translate-x-full'
+                );
+
+            if (
+                event.key === 'Escape' &&
+                menuTerbuka
+            ) {
+
+                aturMenu(false);
+                tombolMenu.focus();
+
+            }
 
         }
     );

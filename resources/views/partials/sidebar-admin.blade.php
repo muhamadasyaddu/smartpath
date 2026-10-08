@@ -13,37 +13,12 @@
             aria-label="SmartPath Dashboard"
         >
 
-            <span
-                class="sp-brand-mark"
-                aria-hidden="true"
-            >
-                <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                >
-                    <path
-                        stroke-linejoin="round"
-                        d="m4 6 6-3 4 3 6-3v15l-6 3-4-3-6 3V6Z"
-                    />
-
-                    <path
-                        stroke-linecap="round"
-                        d="M10 3v15M14 6v15"
-                    />
-                </svg>
-            </span>
-
             <span class="min-w-0">
-
-                <span class="sp-brand-name block">
-                    SmartPath
-                </span>
-
-                <span class="sp-brand-tagline block">
-                    Aksesibilitas untuk Semua
-                </span>
+                <img
+                    src="{{ asset('logo-smartpath-cropped.png') }}"
+                    alt="SmartPath"
+                    class="sp-brand-image"
+                >
 
             </span>
 
@@ -472,9 +447,7 @@
                 />
             </svg>
 
-            <span>
-                Bantuan
-            </span>
+           
 
         </button>
 

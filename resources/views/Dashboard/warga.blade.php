@@ -37,7 +37,7 @@
             </div>
         @endif
 
-        <header class="warga-dashboard__header mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <header id="warga-intro-section" class="warga-dashboard__header mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="warga-dashboard__eyebrow text-sm font-semibold uppercase tracking-[0.08em] text-emerald-600">
                     Dashboard Warga
@@ -65,7 +65,7 @@
             </button>
         </header>
 
-        <section aria-labelledby="warga-actions-title">
+        <section id="warga-actions-section" aria-labelledby="warga-actions-title">
             <h2 id="warga-actions-title" class="sr-only">
                 Akses cepat Dashboard Warga
             </h2>
@@ -139,6 +139,7 @@
              PETA AKSESIBILITAS
         =========================================================== --}}
         <section
+            id="warga-map-section"
             class="warga-map-card mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
             aria-labelledby="warga-map-title"
         >
@@ -249,6 +250,7 @@
              NEARBY OBSTACLES LIST
         =========================================================== --}}
         <section
+            id="warga-nearby-section"
             class="warga-nearby mt-8"
             aria-labelledby="warga-nearby-title"
         >
@@ -348,6 +350,7 @@
              FITUR TAMBAHAN
         =========================================================== --}}
         <section
+            id="warga-tools-section"
             class="warga-secondary-links mt-8 grid gap-6 md:grid-cols-2"
             aria-labelledby="warga-tools-title"
         >
@@ -415,6 +418,7 @@
 
         {{-- CATATAN ACCESSIBILITY --}}
         <aside
+            id="warga-accessibility-section"
             class="warga-accessibility-note mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4"
             aria-label="Informasi aksesibilitas"
         >

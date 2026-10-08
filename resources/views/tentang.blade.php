@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tentang SmartPath - Teknologi untuk Ruang Publik Inklusif</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=20261008">
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon.png') }}?v=20261008">
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/smartpath-accessibility.css') }}">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Google Font: Plus Jakarta Sans -->
@@ -1119,7 +1122,6 @@
             <div class="row align-items-center min-vh-100 pt-5">
                 <div class="col-lg-6 hero-text" data-aos="fade-up">
                     <div class="section-label mb-3">
-                        <span class="label-line"></span>
                         <span class="label-text">TENTANG SMARTPATH</span>
                     </div>
                     <h1 class="hero-title">
@@ -1136,21 +1138,21 @@
                     <div class="row g-3 mt-4 hero-cards">
                         <div class="col-md-4">
                             <div class="info-card">
-                                <div class="card-icon"><i class="fa-solid fa-users"></i></div>
+                                <div class="card-icon" aria-hidden="true"><i class="fa-solid fa-users"></i></div>
                                 <h6 class="card-title">Partisipatif</h6>
                                 <p class="card-text">Masyarakat ikut menyampaikan kondisi di lapangan.</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="info-card">
-                                <div class="card-icon"><i class="fa-solid fa-map"></i></div>
+                                <div class="card-icon" aria-hidden="true"><i class="fa-solid fa-map"></i></div>
                                 <h6 class="card-title">Berbasis Peta</h6>
                                 <p class="card-text">Laporan divisualisasikan agar mudah dipantau.</p>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="info-card">
-                                <div class="card-icon"><i class="fa-solid fa-database"></i></div>
+                                <div class="card-icon" aria-hidden="true"><i class="fa-solid fa-database"></i></div>
                                 <h6 class="card-title">Berbasis Data</h6>
                                 <p class="card-text">Data terverifikasi membantu menentukan prioritas perbaikan.</p>
                             </div>
@@ -1160,7 +1162,7 @@
 
                 <div class="col-lg-6 hero-image" data-aos="fade-left" data-aos-delay="200">
                     <div class="image-wrapper">
-                        <img src="foto-tunanetra.png" alt="Aksesibilitas ruang publik" class="img-fluid main-image">
+                        <img src="foto-tunanetra.png" alt="Penyandang tunanetra berjalan di ruang publik dengan tongkat bantu" class="img-fluid main-image">
                         <div class="floating-card">
                             <div class="floating-icon"><i class="fa-solid fa-wheelchair"></i></div>
                             <div>
@@ -1199,7 +1201,7 @@
                 </div>
                 <div class="col-lg-6" data-aos="fade-left">
                     <div class="visual-wrapper">
-                        <img src="foto-trotoar.jpeg" alt="Peta digital SmartPath" class="img-fluid rounded-4 shadow-sm">
+                        <img src="foto-trotoar.jpeg" alt="Kondisi trotoar yang perlu ditingkatkan aksesibilitasnya" class="img-fluid rounded-4 shadow-sm">
                     </div>
                 </div>
             </div>
@@ -1441,6 +1443,7 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('js/smartpath-accessibility.js') }}" defer></script>
 
     <!-- ============================================================
          SMARTPATH - ABOUT PAGE SCRIPTS

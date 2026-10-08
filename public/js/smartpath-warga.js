@@ -645,7 +645,13 @@
                         icon:
                             markerIcon(
                                 item.tingkat_prioritas
-                            )
+                            ),
+                        title:
+                            `Laporan ${item.judul || 'aksesibilitas'}`,
+                        alt:
+                            `Lokasi laporan ${item.judul || 'aksesibilitas'}`,
+                        keyboard:
+                            true
                     }
                 )
                 .bindPopup(
@@ -730,7 +736,13 @@
                     [lat, lng],
                     {
                         icon:
-                            facilityIcon()
+                            facilityIcon(),
+                        title:
+                            `Fasilitas publik ${item.nama || ''}`,
+                        alt:
+                            `Fasilitas publik ${item.nama || ''}`,
+                        keyboard:
+                            true
                     }
                 )
                 .bindPopup(
@@ -1121,6 +1133,8 @@
                     position.coords.accuracy || 0
                 );
 
+            const hadPreviousPosition =
+                currentPosition !== null;
 
             const previousAccuracy = currentPosition
             ? Number(currentPosition.accuracy)
@@ -1210,6 +1224,12 @@
                     'Lokasi Anda'
                 );
 
+            const userMarkerElement = userMarker.getElement();
+            if (userMarkerElement) {
+                userMarkerElement.setAttribute('role', 'img');
+                userMarkerElement.setAttribute('aria-label', 'Lokasi Anda saat ini');
+                userMarkerElement.removeAttribute('tabindex');
+            }
 
             if (!hadPreviousPosition) {
 
@@ -1761,6 +1781,32 @@
         }
 
 
+        let speechRunId = 0;
+        let activeReadingTarget = null;
+        let activeSpeechButton = null;
+        let activeSpeechDefaultLabel = '';
+
+        function clearReadingTarget() {
+            if (activeReadingTarget) {
+                activeReadingTarget.classList.remove('warga-reading-active');
+                activeReadingTarget = null;
+            }
+        }
+
+        function resetSpeechButton(button, defaultLabel) {
+            if (!button) return;
+
+            const span = button.querySelector('span');
+            if (span) span.textContent = defaultLabel;
+            button.setAttribute('aria-pressed', 'false');
+            if (button.dataset.speechDefaultAriaLabel) {
+                button.setAttribute(
+                    'aria-label',
+                    button.dataset.speechDefaultAriaLabel
+                );
+            }
+        }
+
         function speak(
             text,
             button,
@@ -1784,150 +1830,100 @@
                 window.speechSynthesis.speaking
             ) {
 
+                speechRunId++;
                 window.speechSynthesis.cancel();
-
-
-                if (button) {
-
-                    const span =
-                        button.querySelector(
-                            'span'
-                        );
-
-
-                    if (span) {
-
-                        span.textContent =
-                            defaultLabel;
-                    }
-
-
-                    button.setAttribute(
-                        'aria-pressed',
-                        'false'
-                    );
-                }
-
-
+                clearReadingTarget();
+                resetSpeechButton(activeSpeechButton, activeSpeechDefaultLabel);
+                activeSpeechButton = null;
+                activeSpeechDefaultLabel = '';
                 return;
             }
 
-
-            const utterance =
-                new SpeechSynthesisUtterance(
-                    text
-                );
-
-
-            utterance.lang =
-                'id-ID';
-
-            utterance.rate =
-                0.9;
-
-            utterance.pitch =
-                1;
-
-            utterance.volume =
-                1;
-
+            const segments = Array.isArray(text)
+                ? text
+                : [{ text, target: null }];
+            const runId = ++speechRunId;
+            let segmentIndex = 0;
+            activeSpeechButton = button;
+            activeSpeechDefaultLabel = defaultLabel;
 
             const voice =
                 chooseIndonesianVoice();
 
-
-            if (voice) {
-
-                utterance.voice =
-                    voice;
-            }
-
-
             if (button) {
-
-                const span =
-                    button.querySelector(
-                        'span'
-                    );
-
-
-                if (span) {
-
-                    span.textContent =
-                        'Berhenti';
-                }
-
-
+                const span = button.querySelector('span');
+                if (span) span.textContent = 'Berhenti';
+                button.setAttribute('aria-pressed', 'true');
+                button.dataset.speechDefaultAriaLabel =
+                    button.getAttribute('aria-label') || defaultLabel;
                 button.setAttribute(
-                    'aria-pressed',
-                    'true'
+                    'aria-label',
+                    `Hentikan bacaan panduan. ${button.dataset.speechDefaultAriaLabel}`
                 );
             }
 
+            window.speechSynthesis.cancel();
 
-            utterance.onend =
-                function () {
+            const speakNextSegment = () => {
+                if (runId !== speechRunId) return;
 
-                    if (button) {
+                const segment = segments[segmentIndex];
+                if (!segment) {
+                    clearReadingTarget();
+                    resetSpeechButton(activeSpeechButton, activeSpeechDefaultLabel);
+                    activeSpeechButton = null;
+                    activeSpeechDefaultLabel = '';
+                    return;
+                }
 
-                        const span =
-                            button.querySelector(
-                                'span'
-                            );
+                const utterance = new SpeechSynthesisUtterance(segment.text);
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                if (voice) utterance.voice = voice;
 
+                utterance.onstart = () => {
+                    if (runId !== speechRunId) return;
 
-                        if (span) {
+                    clearReadingTarget();
+                    activeReadingTarget = segment.target
+                        ? document.getElementById(segment.target)
+                        : null;
 
-                            span.textContent =
-                                defaultLabel;
-                        }
-
-
-                        button.setAttribute(
-                            'aria-pressed',
-                            'false'
-                        );
+                    if (activeReadingTarget) {
+                        activeReadingTarget.classList.add('warga-reading-active');
+                        activeReadingTarget.scrollIntoView({
+                            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                                ? 'auto'
+                                : 'smooth',
+                            block: 'center'
+                        });
                     }
                 };
 
+                utterance.onend = () => {
+                    if (runId !== speechRunId) return;
+                    segmentIndex++;
+                    speakNextSegment();
+                };
 
-            utterance.onerror =
-                function () {
-
-                    if (button) {
-
-                        const span =
-                            button.querySelector(
-                                'span'
-                            );
-
-
-                        if (span) {
-
-                            span.textContent =
-                                defaultLabel;
-                        }
-
-
-                        button.setAttribute(
-                            'aria-pressed',
-                            'false'
-                        );
-                    }
-
-
+                utterance.onerror = event => {
+                    if (runId !== speechRunId || event.error === 'canceled') return;
+                    clearReadingTarget();
+                    resetSpeechButton(activeSpeechButton, activeSpeechDefaultLabel);
+                    activeSpeechButton = null;
+                    activeSpeechDefaultLabel = '';
                     setText(
                         mapStatus,
                         'Fitur Dengar Panduan tidak dapat dijalankan pada browser ini.'
                     );
                 };
 
+                window.speechSynthesis.speak(utterance);
+            };
 
-            window.speechSynthesis.cancel();
-
-            window.speechSynthesis.speak(
-                utterance
-            );
+            speakNextSegment();
         }
 
 
@@ -1949,24 +1945,32 @@
                 '0';
 
 
-            return (
-
-                'Selamat datang di Dashboard Warga SmartPath, ' +
-
-                name +
-
-                '. Di halaman ini Anda dapat membuat laporan hambatan aksesibilitas, melihat ' +
-
-                count +
-
-                ' laporan yang Anda buat, melihat peta aksesibilitas, dan mengetahui hambatan terverifikasi di sekitar lokasi Anda. ' +
-
-                'Fitur Nearby menampilkan hambatan dalam radius 50 meter setelah Anda mengizinkan akses lokasi. ' +
-
-                'Gunakan tombol Navigasi Aktif untuk membuka halaman navigasi. ' +
-
-                'Mode Eksplorasi Pasif digunakan untuk mengetahui hambatan terdekat, sedangkan Navigasi Aktif tersedia pada halaman navigasi.'
-            );
+            return [
+                {
+                    text: `Selamat datang di Dashboard Warga SmartPath, ${name}. Kelola laporan aksesibilitas dan temukan hambatan terverifikasi di sekitar Anda.`,
+                    target: 'warga-intro-section'
+                },
+                {
+                    text: `Pada akses cepat, Anda dapat membuat laporan baru, melihat ${count} laporan yang pernah dikirim, atau membuka peta aksesibilitas.`,
+                    target: 'warga-actions-section'
+                },
+                {
+                    text: 'Bagian Peta Aksesibilitas menampilkan laporan terverifikasi dan fasilitas publik. Gunakan tombol lokasi untuk menemukan hambatan di sekitar Anda.',
+                    target: 'warga-map-section'
+                },
+                {
+                    text: 'Bagian Hambatan Terdekat menampilkan hambatan dalam radius 50 meter setelah Anda mengizinkan akses lokasi. Anda juga dapat mendengarkan daftar hambatan ini.',
+                    target: 'warga-nearby-section'
+                },
+                {
+                    text: 'Di bagian fitur tambahan, buka Nearby untuk eksplorasi pasif atau Navigasi Aktif untuk panduan perjalanan dan peringatan hambatan.',
+                    target: 'warga-tools-section'
+                },
+                {
+                    text: 'Informasi aksesibilitas: data hambatan juga tersedia dalam bentuk teks agar dapat digunakan bersama pembaca layar.',
+                    target: 'warga-accessibility-section'
+                }
+            ];
         }
 
 

@@ -123,7 +123,7 @@
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         @foreach($laporan->fotoLaporan as $foto)
                             <div class="relative group overflow-hidden rounded-lg">
-                                <img src="{{ $foto->url }}" alt="Foto laporan {{ $loop->iteration }}" class="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                                <img src="{{ $foto->url }}" alt="Foto laporan {{ $laporan->judul }}, gambar {{ $loop->iteration }}" class="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                                 @if($foto->adalah_utama)
                                     <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">Utama</span>
                                 @endif

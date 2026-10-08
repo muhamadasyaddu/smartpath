@@ -186,7 +186,7 @@
                             <div class="relative overflow-hidden rounded-lg border border-slate-200">
                                 <img
                                     src="{{ $foto->url }}"
-                                    alt="Foto laporan {{ $loop->iteration }}"
+                                    alt="Foto laporan {{ $laporan->judul }}, gambar {{ $loop->iteration }}"
                                     class="w-full h-40 object-cover"
                                     loading="lazy"
                                 >

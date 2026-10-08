@@ -28,7 +28,7 @@
         border-radius: 8px;
         overflow: hidden;
         box-sizing: border-box;
-        font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+        font-family: 'Inter', system-ui, sans-serif;
     }
 
     .sp-map-shell {
@@ -107,6 +107,13 @@
         font-size: 15px;
         font-weight: 700;
         letter-spacing: -0.3px;
+    }
+
+    .sp-brand-image {
+        width: 150px;
+        height: 34px;
+        object-fit: contain;
+        object-position: left center;
     }
 
     .sp-header-stats {
@@ -456,6 +463,7 @@
         .sp-map-page { margin: 8px; }
         .sp-header { padding: 0 10px; }
         .sp-brand, .sp-header-actions { min-width: 140px; }
+        .sp-brand-image { width: 100px; height: 24px; }
         .sp-header-stats { gap: 10px; }
 
         .sp-map-shell {
@@ -493,6 +501,246 @@
     }
 
     .sp-mobile-only { display: none; }
+
+    .sp-map-page {
+        width: 100%;
+        height: 100vh;
+        min-height: 560px;
+        margin: 0;
+        border-color: #dbe7e4;
+        border-radius: 0;
+        box-shadow: none;
+        font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .sp-map-shell {
+        height: calc(100vh - 60px);
+        min-height: 500px;
+        grid-template-columns: 264px minmax(0, 1fr);
+    }
+
+    .sp-map-sidebar {
+        border-right-color: #e2e8f0;
+        background: #fbfdfc;
+    }
+
+    .sp-filter-section {
+        padding: 14px 16px;
+        border-bottom-color: #e2e8f0;
+    }
+
+    .sp-map-sidebar {
+        height: 100%;
+    }
+
+    .sp-filter-title {
+        color: #1e293b;
+        font-size: 12px;
+        letter-spacing: .035em;
+    }
+
+    .sp-filter-desc {
+        font-size: 11px;
+    }
+
+    .sp-check {
+        min-height: 30px;
+        gap: 9px;
+        border-radius: 7px;
+        color: #334155;
+        font-size: 12px;
+    }
+
+    .sp-check input {
+        width: 15px;
+        height: 15px;
+    }
+
+    .sp-header {
+        height: 60px;
+        padding: 0 20px;
+        border-bottom-color: #e2e8f0;
+    }
+
+    .sp-brand-menu {
+        display: none;
+        width: 36px;
+        height: 36px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #334155;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .sp-brand-menu:focus-visible,
+    .sp-map-stat:focus-visible {
+        outline: 3px solid rgba(16, 185, 129, .35);
+        outline-offset: 2px;
+    }
+
+    .sp-map-stat {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .sp-map-stat:hover,
+    .sp-map-stat[aria-pressed="true"] {
+        border-color: #a7f3d0;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .sp-summary .sp-map-stat {
+        display: grid;
+        width: 100%;
+        grid-template-columns: 1fr auto;
+        text-align: left;
+    }
+
+    .sp-map-data-status {
+        position: absolute;
+        z-index: 1000;
+        top: 16px;
+        left: 16px;
+        max-width: min(360px, calc(100% - 32px));
+        padding: 9px 12px;
+        border: 1px solid #dbe7e4;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, .96);
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.45;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, .08);
+    }
+
+    .sp-map-data-status:empty {
+        display: none;
+    }
+
+    .sp-map-data-status.is-error {
+        border-color: #fecaca;
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+    .sp-header-btn,
+    .sp-location-btn {
+        min-height: 36px;
+        padding: 0 13px;
+        border-color: #cbd5e1;
+        border-radius: 9px;
+        font-size: 12px;
+    }
+
+    .sp-header-btn:hover,
+    .sp-location-btn:hover {
+        border-color: #a7f3d0;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .sp-nearby-navbar,
+    .sp-summary {
+        border-color: #dbe7e4;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, .12);
+    }
+
+    .sp-nearby-navbar {
+        top: 16px;
+        right: 16px;
+        padding: 9px 11px;
+    }
+
+    .sp-nearby-title {
+        font-size: 12px;
+    }
+
+    .sp-summary {
+        right: 16px;
+        bottom: 16px;
+        width: 160px;
+    }
+
+    .sp-summary-item {
+        padding: 8px 11px;
+        font-size: 11px;
+    }
+
+    .sp-summary-label {
+        font-size: 10px;
+    }
+
+    @media (max-width: 1023px) {
+        .sp-map-page {
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .sp-map-shell {
+            height: calc(100vh - 60px);
+            min-height: 500px;
+        }
+
+        .sp-brand-menu {
+            display: inline-flex !important;
+        }
+
+        .sp-map-sidebar {
+            inset: 60px auto 0 0;
+            height: calc(100vh - 60px);
+            max-height: calc(100vh - 60px);
+        }
+    }
+
+    @media (max-width: 640px) {
+        .sp-map-page {
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .sp-header {
+            height: 52px;
+            padding: 0 10px;
+        }
+
+        .sp-map-shell {
+            height: calc(100vh - 52px);
+            min-height: 500px;
+        }
+
+        .sp-brand-menu {
+            width: 32px;
+            height: 32px;
+        }
+
+        .sp-nearby-navbar {
+            top: 8px;
+            right: 8px;
+        }
+
+        .sp-summary {
+            right: 8px;
+            bottom: 8px;
+        }
+
+        .sp-map-data-status {
+            top: 66px;
+            left: 8px;
+        }
+    }
 </style>
 @endpush
 
@@ -503,20 +751,22 @@
     {{-- ============ HEADER ============ --}}
     <header class="sp-header">
         <div class="sp-brand">
-            <span aria-hidden="true" style="font-size:18px;line-height:1;">☰</span>
-            <span class="sp-brand-logo" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <path d="M5 17l4-4 3 3 3-5 4 6"/>
-                    <circle cx="16.5" cy="8" r="1.5"/>
-                </svg>
-            </span>
-            <span class="sp-brand-name">SmartPath</span>
+            <button id="open-sidebar" type="button" class="sp-brand-menu sp-mobile-only"
+                    aria-label="Buka filter peta" aria-controls="map-sidebar" aria-expanded="false">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+            <img src="{{ asset('logo-smartpath-cropped.png') }}" alt="SmartPath" class="sp-brand-image">
         </div>
 
         <div class="sp-header-stats">
-            <span><i class="sp-dot"></i> Prioritas Tinggi: <b id="header-high">0</b></span>
-            <span><i class="sp-square"></i> Total: <b id="header-total">0</b></span>
+            <button type="button" id="filter-high-header" class="sp-map-stat" aria-pressed="false"
+                    aria-label="Tampilkan laporan prioritas tinggi">
+                <i class="sp-dot"></i> Prioritas Tinggi: <b id="header-high">0</b>
+            </button>
+            <button type="button" id="filter-all-header" class="sp-map-stat" aria-pressed="true"
+                    aria-label="Tampilkan semua laporan">
+                <i class="sp-square"></i> Total: <b id="header-total">0</b>
+            </button>
         </div>
 
         <div class="sp-header-actions">
@@ -586,6 +836,7 @@
                     <input type="checkbox" id="toggle-fasilitas">
                     <span class="sp-status-dot" style="background:#0d9488"></span>
                     <span>Tampilkan Fasilitas Publik</span>
+                    <span class="sp-count" id="facility-count">0</span>
                 </label>
             </div>
 
@@ -644,19 +895,25 @@
 
             {{-- SUMMARY --}}
             <section class="sp-summary" aria-label="Ringkasan peta">
-                <div class="sp-summary-item">
+                <button type="button" id="filter-all-summary" class="sp-summary-item sp-map-stat" aria-pressed="true"
+                        aria-label="Tampilkan semua laporan">
                     <span id="summary-total" class="sp-summary-num">0</span>
                     <span class="sp-summary-label">Total</span>
-                </div>
-                <div class="sp-summary-item">
+                </button>
+                <button type="button" id="filter-high-summary" class="sp-summary-item sp-map-stat" aria-pressed="false"
+                        aria-label="Tampilkan laporan prioritas tinggi">
                     <span id="summary-high" class="sp-summary-num">0</span>
                     <span class="sp-summary-label">Tinggi</span>
-                </div>
+                </button>
                 <div class="sp-summary-item">
-                    <span id="summary-area" class="sp-summary-num">Depok</span>
+                    <span class="sp-summary-num">Depok</span>
                     <span class="sp-summary-label">Area</span>
                 </div>
             </section>
+
+            <p id="map-data-status" class="sp-map-data-status" role="status" aria-live="polite">
+                Memuat laporan dan fasilitas publik...
+            </p>
 
             <div id="map-container"></div>
         </section>
@@ -671,8 +928,13 @@ document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
     const mapElement = document.getElementById('map-container');
+    const dataStatus = document.getElementById('map-data-status');
     if (!mapElement || typeof window.L === 'undefined') {
         console.error('SmartPath: Leaflet tidak tersedia.');
+        if (dataStatus) {
+            dataStatus.textContent = 'Peta tidak dapat dimuat. Muat ulang halaman atau periksa koneksi internet.';
+            dataStatus.classList.add('is-error');
+        }
         return;
     }
 
@@ -697,6 +959,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let userMarker = null;
     let userCircle = null;
     let initialFitDone = false;
+    let highPriorityOnly = false;
+    let reportsLoadError = '';
+    let facilitiesLoadError = '';
 
     // ============ HELPERS ============
     function escapeHtml(v) {
@@ -713,6 +978,23 @@ document.addEventListener('DOMContentLoaded', function () {
         if (n >= 70) return { key: 'high',   label: 'Tinggi', color: '#dc2626' };
         if (n >= 40) return { key: 'medium', label: 'Sedang', color: '#d97706' };
         return              { key: 'low',    label: 'Rendah', color: '#16a34a' };
+    }
+
+    function isHighPriority(report) {
+        return Number(report.skor_prioritas) >= 70 ||
+            String(report.tingkat_prioritas || '').toLowerCase() === 'tinggi';
+    }
+
+    function updateDataStatus() {
+        if (!dataStatus) return;
+
+        const errors = [reportsLoadError, facilitiesLoadError].filter(Boolean);
+        dataStatus.textContent = errors.join(' ');
+        dataStatus.classList.toggle('is-error', errors.length > 0);
+
+        if (errors.length === 0) {
+            dataStatus.textContent = '';
+        }
     }
 
     function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -813,9 +1095,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const high  = document.getElementById('header-high');
         if (total) total.textContent = allReports.length;
         if (high) {
-            high.textContent = allReports.filter(r =>
-                r.skor_prioritas !== null && Number(r.skor_prioritas) >= 70
-            ).length;
+            high.textContent = allReports.filter(isHighPriority).length;
         }
 
         // Per-status counters
@@ -834,12 +1114,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const activeStatuses  = Array.from(document.querySelectorAll('.filter-status:checked')).map(c => c.value);
         const activeCategories = Array.from(document.querySelectorAll('.filter-kategori:checked')).map(c => String(c.value));
 
-        const visible = laporanData.filter(r => {
+        const matchingFilters = laporanData.filter(r => {
             const okStatus = activeStatuses.includes(String(r.status));
             const okCat = activeCategories.length === 0 ||
                           activeCategories.includes(String(r.kategori_id));
             return okStatus && okCat;
         });
+        const visible = highPriorityOnly
+            ? matchingFilters.filter(isHighPriority)
+            : matchingFilters;
 
         updateCounters(laporanData);
 
@@ -870,17 +1153,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         marker.openPopup();
+                    } else if (e.key === 'Escape' && marker.isPopupOpen()) {
+                        marker.closePopup();
                     }
                 });
             }
         });
 
-        const highCount = visible.filter(r =>
-            r.skor_prioritas !== null && Number(r.skor_prioritas) >= 70
-        ).length;
+        const highCount = matchingFilters.filter(isHighPriority).length;
 
         document.getElementById('summary-total').textContent = visible.length;
         document.getElementById('summary-high').textContent  = highCount;
+        document.querySelectorAll('#filter-high-header, #filter-high-summary').forEach(button => {
+            button.setAttribute('aria-pressed', String(highPriorityOnly));
+        });
+        document.querySelectorAll('#filter-all-header, #filter-all-summary').forEach(button => {
+            button.setAttribute('aria-pressed', String(!highPriorityOnly));
+        });
 
         if (!initialFitDone && visible.length > 0) {
             const points = visible
@@ -903,10 +1192,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const marker = window.L.marker([lat, lng], {
                 icon: createFacilityIcon(),
-                title: f.nama
+                title: `Fasilitas publik ${f.nama}`,
+                alt: `Fasilitas publik ${f.nama}`,
+                keyboard: true
             });
             marker.bindPopup(createFacilityPopup(f));
             fasilitasLayer.addLayer(marker);
+
+            const element = marker.getElement();
+            if (element) {
+                element.setAttribute('role', 'button');
+                element.setAttribute('tabindex', '0');
+                element.setAttribute('aria-label', `Fasilitas publik ${f.nama}. ${f.jenis_label || ''}`);
+                element.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        marker.openPopup();
+                    } else if (event.key === 'Escape' && marker.isPopupOpen()) {
+                        marker.closePopup();
+                    }
+                });
+            }
         });
     }
 
@@ -917,7 +1223,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: { 'Accept': 'application/json' }
             });
             if (!res.ok) throw new Error('Gagal mengambil laporan.');
-            laporanData = await res.json();
+            const data = await res.json();
+            if (!Array.isArray(data)) throw new Error('Format data laporan tidak sesuai.');
+            laporanData = data;
 
             // Debug: cek status unik di data
             const uniqueStatuses = [...new Set(laporanData.map(r => r.status))];
@@ -925,8 +1233,12 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('[SmartPath] Contoh data:', laporanData[0]);
 
             renderReports();
+            reportsLoadError = '';
         } catch (err) {
             console.error('SmartPath Peta:', err);
+            reportsLoadError = 'Data laporan tidak dapat dimuat. Coba muat ulang halaman.';
+        } finally {
+            updateDataStatus();
         }
     }
 
@@ -936,10 +1248,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: { 'Accept': 'application/json' }
             });
             if (!res.ok) throw new Error('Gagal mengambil fasilitas.');
-            fasilitasData = await res.json();
+            const data = await res.json();
+            if (!Array.isArray(data)) throw new Error('Format data fasilitas tidak sesuai.');
+            fasilitasData = data;
             renderFacilities();
+            const facilityCount = document.getElementById('facility-count');
+            if (facilityCount) facilityCount.textContent = fasilitasData.length;
+            if (document.getElementById('toggle-fasilitas').checked) {
+                fasilitasLayer.addTo(map);
+            }
+            facilitiesLoadError = '';
         } catch (err) {
             console.error('SmartPath Fasilitas:', err);
+            facilitiesLoadError = 'Data fasilitas publik tidak dapat dimuat.';
+        } finally {
+            updateDataStatus();
         }
     }
 
@@ -948,7 +1271,25 @@ document.addEventListener('DOMContentLoaded', function () {
         el.addEventListener('change', renderReports);
     });
 
-    document.getElementById('toggle-fasilitas').addEventListener('change', function () {
+    document.querySelectorAll('#filter-high-header, #filter-high-summary').forEach(button => {
+        button.addEventListener('click', function () {
+            highPriorityOnly = true;
+            renderReports();
+        });
+    });
+
+    document.querySelectorAll('#filter-all-header, #filter-all-summary').forEach(button => {
+        button.addEventListener('click', function () {
+            highPriorityOnly = false;
+            document.querySelectorAll('.filter-status, .filter-kategori').forEach(filter => {
+                filter.checked = true;
+            });
+            renderReports();
+        });
+    });
+
+    const facilitiesToggle = document.getElementById('toggle-fasilitas');
+    facilitiesToggle.addEventListener('change', function () {
         if (this.checked) fasilitasLayer.addTo(map);
         else map.removeLayer(fasilitasLayer);
     });
@@ -977,6 +1318,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     radius: 7, color: '#fff', weight: 3,
                     fillColor: '#2563eb', fillOpacity: 1, zIndexOffset: 1000
                 }).addTo(map).bindPopup('<strong>Lokasi Anda</strong>');
+                const userMarkerElement = userMarker.getElement();
+                if (userMarkerElement) {
+                    userMarkerElement.setAttribute('role', 'img');
+                    userMarkerElement.setAttribute('aria-label', 'Lokasi Anda saat ini');
+                }
 
                 userCircle = window.L.circle([uLat, uLng], {
                     radius: radius, color: '#2563eb', weight: 1,
@@ -1045,20 +1391,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Sidebar toggle (mobile)
     const sidebar = document.getElementById('map-sidebar');
+    const openSidebar = document.getElementById('open-sidebar');
     const closeSidebar = document.getElementById('close-sidebar');
 
-    if (closeSidebar) {
-        closeSidebar.addEventListener('click', () => {
-            sidebar.classList.remove('open');
+    if (openSidebar && sidebar) {
+        openSidebar.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            openSidebar.setAttribute('aria-expanded', 'true');
             setTimeout(() => map.invalidateSize(), 250);
         });
     }
 
-    // Open sidebar via menu icon on mobile
-    document.querySelector('.sp-brand span[aria-hidden="true"]').addEventListener('click', () => {
-        if (window.innerWidth < 1024) {
-            sidebar.classList.toggle('open');
+    if (closeSidebar) {
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            if (openSidebar) openSidebar.setAttribute('aria-expanded', 'false');
             setTimeout(() => map.invalidateSize(), 250);
+        });
+    }
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+            if (openSidebar) {
+                openSidebar.setAttribute('aria-expanded', 'false');
+                openSidebar.focus();
+            }
         }
     });
 

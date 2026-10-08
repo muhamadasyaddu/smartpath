@@ -24,6 +24,9 @@
         content="SmartPath - Platform pemetaan aksesibilitas infrastruktur publik"
     >
 
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=20261008">
+    <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon.png') }}?v=20261008">
+
     <title>@yield('title', 'Masuk') - SmartPath</title>
 
     {{-- Inter --}}
@@ -33,6 +36,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
         rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ asset('css/smartpath-accessibility.css') }}"
     >
 
     {{-- Tailwind CDN
@@ -90,6 +98,7 @@
         id="main-content"
         class="min-h-screen"
         role="main"
+        tabindex="-1"
     >
         @yield('content')
     </main>
@@ -97,6 +106,10 @@
     {{-- Custom JavaScript halaman autentikasi --}}
     <script
         src="{{ asset('js/smartpath-auth.js') }}"
+        defer
+    ></script>
+    <script
+        src="{{ asset('js/smartpath-accessibility.js') }}"
         defer
     ></script>
 

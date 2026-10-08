@@ -4,13 +4,8 @@
             
             {{-- Brand & Menu Kiri --}}
             <div class="flex items-center gap-8">
-                <a href="{{ route('beranda') }}" class="flex items-center gap-2.5 font-bold text-lg text-emerald-700 {{ request()->routeIs('warga.dashboard', 'navigasi.*', 'peta.nearby') ? 'warga-navbar-brand--hidden' : '' }}" aria-label="SmartPath Beranda">
-                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                        </svg>
-                    </div>
-                    <span>SmartPath</span>
+                <a href="{{ route('beranda') }}" class="flex items-center {{ request()->routeIs('warga.dashboard', 'navigasi.*', 'peta.nearby') ? 'warga-navbar-brand--hidden' : '' }}" aria-label="SmartPath Beranda">
+                    <img src="{{ asset('logo-smartpath-cropped.png') }}" alt="SmartPath" class="h-9 w-[155px] object-contain object-left">
                 </a>
 
                 <div class="hidden items-center gap-6 md:flex">
@@ -49,14 +44,14 @@
 
                     {{-- Dropdown Profil --}}
                     <div class="relative group">
-                        <button class="flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-medium text-slate-700 transition-colors hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-medium text-slate-700 transition-colors hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" aria-haspopup="true" aria-expanded="false" aria-controls="public-account-menu" aria-label="Menu akun {{ auth()->user()->nama_lengkap }}">
                             <div class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700">
                                 {{ strtoupper(substr(auth()->user()->nama_lengkap ?? 'U', 0, 2)) }}
                             </div>
                             <span class="hidden sm:inline">{{ auth()->user()->nama_lengkap }}</span>
                         </button>
 
-                        <div class="absolute right-0 mt-2 w-48 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-150 rounded-xl border border-slate-200 bg-white py-1 shadow-lg z-50" role="menu">
+                        <div id="public-account-menu" class="absolute right-0 mt-2 w-48 hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg z-50" role="menu" aria-label="Menu akun">
                             <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50" role="menuitem">Profil</a>
                             <form method="POST" action="{{ route('logout') }}" class="block">
                                 @csrf

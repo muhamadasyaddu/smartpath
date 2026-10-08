@@ -1151,6 +1151,26 @@ document.addEventListener(
                         marker
                     );
 
+                    const markerElement =
+                        marker.getElement();
+
+                    if (markerElement) {
+                        markerElement.setAttribute(
+                            'role',
+                            'button'
+                        );
+
+                        markerElement.setAttribute(
+                            'tabindex',
+                            '0'
+                        );
+
+                        markerElement.setAttribute(
+                            'aria-label',
+                            `Fasilitas publik ${facility.nama}. ${facility.jenis_label || ''}`
+                        );
+                    }
+
                 }
             );
 
@@ -1571,6 +1591,26 @@ document.addEventListener(
                     laporanLayer.addLayer(
                         marker
                     );
+
+                    const markerElement =
+                        marker.getElement();
+
+                    if (markerElement) {
+                        markerElement.setAttribute(
+                            'role',
+                            'button'
+                        );
+
+                        markerElement.setAttribute(
+                            'tabindex',
+                            '0'
+                        );
+
+                        markerElement.setAttribute(
+                            'aria-label',
+                            `Laporan ${report.judul || 'hambatan aksesibilitas'}. Prioritas ${priority.label}.`
+                        );
+                    }
 
                 }
             );
