@@ -30,12 +30,9 @@
         </button>
     </div>
 
-    
-
     <nav class="warga-sidebar__nav" aria-label="Menu utama">
         <p class="warga-sidebar__label">Menu</p>
 
-       
         <a
             href="{{ route('warga.dashboard') }}"
             @if(request()->routeIs('warga.dashboard')) aria-current="page" @endif
@@ -87,12 +84,30 @@
             <i class="fa-solid fa-route" aria-hidden="true"></i>
             <span>Navigasi Aktif</span>
         </a>
+
+        {{-- MODE TUNANETRA --}}
+        <a
+            href="{{ route('peta.nearby') }}"
+            @if(request()->routeIs('peta.nearby')) aria-current="page" @endif
+            class="warga-sidebar__link {{ request()->routeIs('peta.nearby') ? 'is-active' : '' }}"
+            aria-label="Mode Tunanetra - Buka fitur Nearby untuk deteksi hambatan terdekat"
+        >
+            <i class="fa-solid fa-eye-low-vision text-emerald-600" aria-hidden="true"></i>
+            <span class="font-bold text-emerald-700">Mode Tunanetra</span>
+        </a>
     </nav>
 
-    <div class="warga-sidebar__footer">
-       
-       
-           
-       
+    {{-- FOOTER SIDEBAR: TOMBOL DENGAR PANDUAN --}}
+    <div class="warga-sidebar__footer p-4 border-t border-slate-100 mt-auto">
+        <button
+            type="button"
+            id="btn-read-sidebar"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-700 shadow-xs transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            aria-label="Dengar panduan navigasi menu"
+            aria-pressed="false"
+        >
+            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+            <span>Dengar Panduan</span>
+        </button>
     </div>
 </aside>

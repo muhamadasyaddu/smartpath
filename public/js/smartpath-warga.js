@@ -3,6 +3,12 @@
 
     document.addEventListener('DOMContentLoaded', function () {
 
+        /*
+        |--------------------------------------------------------------------------
+        | SIDEBAR MOBIL & ACCESSIBILITY
+        |--------------------------------------------------------------------------
+        */
+
         const sidebar = document.getElementById('warga-sidebar');
         const sidebarOpenButton =
             document.querySelector('[data-warga-sidebar-open]');
@@ -60,6 +66,84 @@
                 sidebar.setAttribute('aria-hidden', String(event.matches));
             });
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PEMBACA SUARA SIDEBAR (GLOBAL VOICE)
+        |--------------------------------------------------------------------------
+        */
+
+        const btnReadSidebar = document.getElementById('btn-read-sidebar');
+
+        function chooseIndonesianVoice() {
+            if (!('speechSynthesis' in window)) {
+                return null;
+            }
+
+            const voices = window.speechSynthesis.getVoices();
+
+            return (
+                voices.find(function (voice) {
+                    return /^id(-|_)?ID$/i.test(voice.lang);
+                }) ||
+                voices.find(function (voice) {
+                    return /^id/i.test(voice.lang);
+                }) ||
+                null
+            );
+        }
+
+        if (btnReadSidebar) {
+            btnReadSidebar.addEventListener('click', function () {
+                if (!('speechSynthesis' in window)) {
+                    alert('Browser Anda tidak mendukung fitur Dengar Panduan.');
+                    return;
+                }
+
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                    btnReadSidebar.setAttribute('aria-pressed', 'false');
+                    const span = btnReadSidebar.querySelector('span');
+                    if (span) span.textContent = 'Dengar Panduan';
+                    return;
+                }
+
+                const teksPanduan = "Ini adalah menu navigasi SmartPath. Tersedia menu Dashboard, Buat Laporan, Laporan Saya, Peta Aksesibilitas, Nearby, Navigasi Aktif, dan Mode Tunanetra.";
+                
+                window.speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(teksPanduan);
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                const voice = chooseIndonesianVoice();
+                if (voice) utterance.voice = voice;
+
+                utterance.onstart = function () {
+                    btnReadSidebar.setAttribute('aria-pressed', 'true');
+                    const span = btnReadSidebar.querySelector('span');
+                    if (span) span.textContent = 'Berhenti';
+                };
+
+                utterance.onend = function () {
+                    btnReadSidebar.setAttribute('aria-pressed', 'false');
+                    const span = btnReadSidebar.querySelector('span');
+                    if (span) span.textContent = 'Dengar Panduan';
+                };
+
+                utterance.onerror = function () {
+                    btnReadSidebar.setAttribute('aria-pressed', 'false');
+                    const span = btnReadSidebar.querySelector('span');
+                    if (span) span.textContent = 'Dengar Panduan';
+                };
+
+                window.speechSynthesis.speak(utterance);
+            });
+        }
+
 
         const root = document.getElementById('warga-dashboard');
 
@@ -1233,8 +1317,6 @@
 
             if (!hadPreviousPosition) {
 
-                
-
                 map.setView(
                     [
                         latitude,
@@ -1732,54 +1814,9 @@
 
         /*
         |--------------------------------------------------------------------------
-        | VOICE
+        | VOICE & SCROLL HIGHLIGHT LOGIC (OPTIMIZED)
         |--------------------------------------------------------------------------
         */
-
-        function chooseIndonesianVoice() {
-
-            if (
-                !('speechSynthesis' in window)
-            ) {
-
-                return null;
-            }
-
-
-            const voices =
-                window
-                    .speechSynthesis
-                    .getVoices();
-
-
-            return (
-
-                voices.find(
-                    function (voice) {
-
-                        return /^id(-|_)?ID$/i.test(
-                            voice.lang
-                        );
-                    }
-                )
-
-                ||
-
-                voices.find(
-                    function (voice) {
-
-                        return /^id/i.test(
-                            voice.lang
-                        );
-                    }
-                )
-
-                ||
-
-                null
-            );
-        }
-
 
         let speechRunId = 0;
         let activeReadingTarget = null;
@@ -1807,29 +1844,48 @@
             }
         }
 
+        /* Fungsi Scroll yang Lebih Paksa & Pasti Bergerak */
+        function scrollToTargetElement(element) {
+            if (!element) return;
+
+            // 1. Tambahkan class highlight
+            element.classList.add('warga-reading-active');
+
+            // 2. Metode Scroll Utama ke Tengah Layar
+            const yOffset = -100; // Jarak aman dari navigasi atas
+            const yPosition = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+            window.scrollTo({
+                top: yPosition,
+                behavior: 'smooth'
+            });
+
+            // 3. Cadangan dengan scrollIntoView
+            try {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
         function speak(
             text,
             button,
             defaultLabel
         ) {
 
-            if (
-                !('speechSynthesis' in window)
-            ) {
-
+            if (!('speechSynthesis' in window)) {
                 setText(
                     mapStatus,
                     'Browser Anda tidak mendukung fitur Dengar Panduan.'
                 );
-
                 return;
             }
 
-
-            if (
-                window.speechSynthesis.speaking
-            ) {
-
+            if (window.speechSynthesis.speaking) {
                 speechRunId++;
                 window.speechSynthesis.cancel();
                 clearReadingTarget();
@@ -1847,8 +1903,7 @@
             activeSpeechButton = button;
             activeSpeechDefaultLabel = defaultLabel;
 
-            const voice =
-                chooseIndonesianVoice();
+            const voice = chooseIndonesianVoice();
 
             if (button) {
                 const span = button.querySelector('span');
@@ -1892,20 +1947,15 @@
                         : null;
 
                     if (activeReadingTarget) {
-                        activeReadingTarget.classList.add('warga-reading-active');
-                        activeReadingTarget.scrollIntoView({
-                            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-                                ? 'auto'
-                                : 'smooth',
-                            block: 'center'
-                        });
+                        scrollToTargetElement(activeReadingTarget);
                     }
                 };
 
                 utterance.onend = () => {
                     if (runId !== speechRunId) return;
                     segmentIndex++;
-                    speakNextSegment();
+                    // Kasih jeda sedikit antar paragraf biar scroll kelihatan transisi mulus
+                    setTimeout(speakNextSegment, 300);
                 };
 
                 utterance.onerror = event => {
@@ -1914,10 +1964,6 @@
                     resetSpeechButton(activeSpeechButton, activeSpeechDefaultLabel);
                     activeSpeechButton = null;
                     activeSpeechDefaultLabel = '';
-                    setText(
-                        mapStatus,
-                        'Fitur Dengar Panduan tidak dapat dijalankan pada browser ini.'
-                    );
                 };
 
                 window.speechSynthesis.speak(utterance);
@@ -1937,13 +1983,11 @@
 
             const name =
                 root.dataset.userName ||
-                'Warga';
-
+                'ratna agustina';
 
             const count =
                 root.dataset.reportCount ||
                 '0';
-
 
             return [
                 {
