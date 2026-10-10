@@ -15,7 +15,7 @@
             <header class="sp-password-reset-page__header">
                 <a href="{{ url('/') }}" class="sp-password-reset-page__brand" aria-label="SmartPath">
                     <span class="sp-password-reset-page__brand-icon" aria-hidden="true">
-                        <i class="fa-solid fa-location-dot"></i>
+                        <img src="{{ asset('favicon.png') }}" alt="" aria-hidden="true" class="sp-password-reset-page__logo">
                     </span>
                     <span>
                         <strong>Smart<span>Path</span></strong>
@@ -67,7 +67,7 @@
                 <section class="sp-password-reset-page__card" aria-labelledby="reset-title">
                     <div class="sp-password-reset-page__card-brand">
                         <span class="sp-password-reset-page__card-icon" aria-hidden="true">
-                            <i class="fa-solid fa-location-dot"></i>
+                            <img src="{{ asset('favicon.png') }}" alt="" aria-hidden="true" class="sp-password-reset-page__logo">
                         </span>
                         <strong>Smart<span>Path</span></strong>
                         <small>Sistem Informasi Penanganan Aksesibilitas</small>

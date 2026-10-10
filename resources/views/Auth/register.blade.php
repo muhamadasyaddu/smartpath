@@ -28,10 +28,12 @@
             <div class="mb-5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_8px_20px_rgba(5,150,105,0.22)]" aria-hidden="true">
-                        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2.5 20 6v5.5c0 5.1-3.4 8.6-8 10-4.6-1.4-8-4.9-8-10V6l8-3.5Z"/>
-                            <path d="m8.2 12 2.3 2.3 5.3-5.3"/>
-                        </svg>
+                       <img
+    src="{{ asset('favicon.png') }}"
+    alt=""
+    aria-hidden="true"
+    class="h-7 w-7 object-contain brightness-0 invert"
+>
                     </div>
                     <div>
                         <span class="text-xl font-extrabold tracking-tight text-slate-900 block">

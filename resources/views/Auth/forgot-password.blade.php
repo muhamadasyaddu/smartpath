@@ -3,7 +3,7 @@
 @section('content')
 
 {{-- ============================================
-     CSS CUSTOM (bisa dipindah ke app.css)
+     CSS CUSTOM 
 ============================================ --}}
 <style>
     :root {
@@ -86,6 +86,13 @@
         color: white;
         font-size: 27px;
         box-shadow: 0 10px 25px rgba(5, 150, 105, .18);
+    }
+    .sp-forgot-page .brand-logo img,
+    .sp-forgot-page .card-logo img {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+        filter: brightness(0) invert(1);
     }
     .sp-forgot-page .brand-name {
         font-size: 30px;
@@ -555,7 +562,7 @@
         <header class="header">
             <a href="{{ url('/') }}" class="brand" aria-label="SmartPath">
                 <div class="brand-logo">
-                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                    <img src="{{ asset('favicon.png') }}" alt="" aria-hidden="true">
                 </div>
                 <div>
                     <div class="brand-name">Smart<span>Path</span></div>
@@ -621,7 +628,7 @@
 
                     {{-- CARD BRAND --}}
                     <div class="card-logo">
-                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                        <img src="{{ asset('favicon.png') }}" alt="" aria-hidden="true">
                     </div>
                     <div class="card-brand">Smart<span>Path</span></div>
                     <div class="card-brand-subtitle">Sistem Informasi Penanganan Aksesibilitas</div>

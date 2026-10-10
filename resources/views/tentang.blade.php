@@ -865,7 +865,7 @@
 
         .footer-copy {
             color: rgba(255, 255, 255, 0.5);
-            font-size: 1rem;
+            font-size: 9px;
         }
 
         .footer-tagline {
@@ -897,7 +897,7 @@
         }
 
         [data-bs-theme="dark"] p {
-            color: #94a3b8;
+            color: #ffffff;
         }
 
         [data-bs-theme="dark"] .section-about-what,
@@ -1084,9 +1084,12 @@
     <nav class="navbar navbar-expand-lg fixed-top" id="mainNavbar" aria-label="Navigasi utama">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('beranda') }}">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-route"></i>
-                </div>
+                <img
+                    src="{{ asset('favicon.png') }}"
+                    alt=""
+                    aria-hidden="true"
+                    style="width: 36px; height: 36px; object-fit: contain;"
+                >
                 <span class="logo-text">SmartPath</span>
             </a>
 
@@ -1385,8 +1388,13 @@
         <div class="container">
             <div class="row g-4 pb-4 border-bottom footer-divider">
                 <div class="col-lg-4 col-md-6">
-                    <a class="footer-brand d-flex align-items-center gap-2 mb-3" href="/">
-                        <div class="logo-icon"><i class="fa-solid fa-route"></i></div>
+                    <a class="footer-brand d-flex align-items-center gap-2 mb-3" href="{{ route('beranda') }}">
+                        <img
+                            src="{{ asset('favicon.png') }}"
+                            alt=""
+                            aria-hidden="true"
+                            style="width: 36px; height: 36px; padding: 6px; object-fit: contain; bg-emerald: rgb(255, 255, 255)  border-radius: 10px;"
+                        >
                         <span class="logo-text">SmartPath</span>
                     </a>
                     <p class="footer-desc">
@@ -1431,7 +1439,7 @@
                 </div>
             </div>
 
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 pt-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 pt-5">
                 <p class="footer-copy mb-0">&copy; 2026 SmartPath. Semua hak dilindungi.</p>
                 <div class="d-flex gap-4">
                     <a href="#" class="footer-tagline">Kebijakan Privasi</a>

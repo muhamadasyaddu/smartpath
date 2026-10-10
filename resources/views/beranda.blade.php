@@ -391,12 +391,15 @@
     <!-- ===== NAVBAR ===== -->
     <header class="sticky top-0 z-50 bg-[#062a25]/95 dark:bg-[#020617]/95 backdrop-blur-md border-b border-white/10 dark:border-slate-800/50">
         <div class="max-w-[1180px] mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="#beranda" class="flex items-center gap-3 text-white" aria-label="SmartPath - Beranda">
-                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center" aria-hidden="true">
-                    <i class="fa-solid fa-route" aria-hidden="true"></i>
-                </div>
-                <span class="text-xl font-extrabold tracking-tight">SmartPath</span>
-            </a>
+         <a href="#beranda" class="flex items-center gap-3 text-white" aria-label="SmartPath - Beranda">
+    <img
+        src="{{ asset('favicon.png') }}"
+        alt=""
+        aria-hidden="true"
+        class="h-9 w-9 object-contain"
+    >
+    <span class="text-xl font-extrabold tracking-tight">SmartPath</span>
+</a>
 
             <!-- Desktop Menu (Semua ke halaman yang sama) -->
             <nav class="hidden lg:flex items-center gap-8 text-base">
@@ -726,10 +729,16 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-8 border-b footer-divider">
                 <!-- Kolom 1: Brand -->
                 <div>
-                    <div class="flex items-center gap-3 text-white mb-4">
-                        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-700 flex items-center justify-center"><i class="fa-solid fa-route"></i></div>
-                        <span class="text-xl font-extrabold">SmartPath</span>
+                    <div class="mb-4 flex items-center gap-3">
+                        <img
+                            src="{{ asset('favicon.png') }}"
+                            alt=""
+                            aria-hidden="true"
+                            class="h-9 w-9 rounded-lg bg-emerald p-1.5 object-contain"
+                        >
+                        <span class="text-xl font-extrabold tracking-tight text-white">SmartPath</span>
                     </div>
+
                     <p class="text-[13px] leading-5 text-slate-300">SmartPath adalah platform partisipatif untuk melaporkan dan memetakan hambatan aksesibilitas di ruang publik.</p>
                     <div class="flex gap-2 mt-4">
                         <a href="#" class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs hover:bg-emerald-600 transition"><i class="fa-brands fa-facebook-f"></i></a>
