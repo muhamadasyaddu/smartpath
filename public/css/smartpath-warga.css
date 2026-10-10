@@ -9,14 +9,21 @@
     background: #f8fafc;
 }
 
+/* ==========================================================
+   EFEK HIGHLIGHT / BORDER HIJAU (DENGAR PANDUAN)
+   ========================================================== */
 .warga-reading-active {
-    outline: 3px solid #047857;
-    outline-offset: 5px;
-    border-radius: 14px;
-    box-shadow: 0 0 0 7px rgba(4, 120, 87, .12);
-    transition: outline-color 180ms ease, box-shadow 180ms ease;
+    outline: 3px solid #059669 !important;
+    outline-offset: 6px;
+    border-radius: 1rem !important;
+    background-color: rgba(16, 185, 129, 0.08) !important;
+    box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.2) !important;
+    transition: all 0.4s ease-in-out !important;
 }
 
+/* ==========================================================
+   SIDEBAR & NAVIGASI
+   ========================================================== */
 .warga-sidebar {
     position: sticky;
     top: 0;
@@ -223,9 +230,13 @@
     display: none;
 }
 
+/* ==========================================================
+   WORKSPACE & DASHBOARD CONTENT
+   ========================================================== */
 .warga-workspace {
     min-width: 0;
     flex: 1;
+    background: #f8faf9;
 }
 
 .warga-workspace > nav[aria-label="Navigasi utama"] {
@@ -237,9 +248,9 @@
 }
 
 .warga-dashboard {
-    width: min(100% - 48px, 1320px);
+    width: min(100% - 48px, 1160px);
     margin: 0 auto;
-    padding: 42px 0 56px;
+    padding: 28px 0 56px;
     color: #0f172a;
 }
 
@@ -259,11 +270,17 @@
 }
 
 .warga-dashboard__header {
+    position: relative;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: space-between;
     gap: 28px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
+    padding: 0 0 20px;
+    border: 0;
+    border-bottom: 1px solid #e2ebe6;
+    border-radius: 0;
+    background: transparent;
 }
 
 .warga-dashboard__eyebrow {
@@ -279,17 +296,17 @@
 .warga-dashboard__title {
     margin: 7px 0 0;
     color: #0f172a;
-    font-size: clamp(28px, 3vw, 36px);
+    font-size: clamp(27px, 2.6vw, 32px);
     line-height: 1.18;
     font-weight: 800;
-    letter-spacing: -.025em;
+    letter-spacing: -.03em;
 }
 
 .warga-dashboard__intro {
-    max-width: 760px;
-    margin: 10px 0 0;
-    color: #475569;
-    font-size: 15px;
+    max-width: 680px;
+    margin: 8px 0 0;
+    color: #52635c;
+    font-size: 14px;
     line-height: 1.75;
 }
 
@@ -301,7 +318,7 @@
     gap: 8px;
     min-height: 44px;
     padding: 10px 14px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid #c3e8d4;
     border-radius: 9px;
     background: #ffffff;
     color: #334155;
@@ -310,6 +327,7 @@
     font-weight: 700;
     text-decoration: none;
     cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15, 66, 48, .06);
     transition:
         border-color .16s ease,
         background-color .16s ease,
@@ -343,25 +361,29 @@
     outline-offset: 2px;
 }
 
+/* ==========================================================
+   AKSES CEPAT (QUICK ACTIONS)
+   ========================================================== */
 .warga-quick-actions {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 }
 
 .warga-action {
     position: relative;
     display: flex;
-    min-height: 126px;
-    align-items: flex-start;
+    min-height: 112px;
+    align-items: center;
     gap: 14px;
-    padding: 19px;
-    border: 1px solid #dbe4e9;
-    border-radius: 12px;
+    padding: 17px;
+    border: 1px solid #e1eae5;
+    border-radius: 14px;
     background: #ffffff;
     color: #0f172a;
     text-decoration: none;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .035);
     transition:
         border-color .16s ease,
         box-shadow .16s ease,
@@ -370,19 +392,21 @@
 
 .warga-action:hover {
     border-color: #86efac;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
-    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(15, 66, 48, .09);
+    transform: translateY(-2px);
 }
 
 .warga-action--primary {
     border-color: #047857;
-    background: #047857;
+    background: linear-gradient(135deg, #047857, #059669);
     color: #ffffff;
+    box-shadow: 0 10px 24px rgba(4, 120, 87, .18);
 }
 
 .warga-action--primary:hover {
     border-color: #065f46;
-    background: #065f46;
+    background: linear-gradient(135deg, #065f46, #047857);
+    box-shadow: 0 14px 28px rgba(4, 120, 87, .22);
 }
 
 .warga-action__icon {
@@ -392,7 +416,7 @@
     flex: 0 0 40px;
     align-items: center;
     justify-content: center;
-    border-radius: 9px;
+    border-radius: 11px;
     background: #ecfdf5;
     color: #047857;
 }
@@ -414,13 +438,14 @@
     font-size: 16px;
     line-height: 1.4;
     font-weight: 750;
+    letter-spacing: -.01em;
 }
 
 .warga-action__body span {
-    margin-top: 5px;
-    color: #64748b;
-    font-size: 13px;
-    line-height: 1.6;
+    margin-top: 7px;
+    color: #64756d;
+    font-size: 12px;
+    line-height: 1.5;
 }
 
 .warga-action--primary .warga-action__body span {
@@ -436,15 +461,18 @@
     color: #d1fae5;
 }
 
+/* ==========================================================
+   PETA INTERAKTIF
+   ========================================================== */
 .warga-map-card {
     position: relative;
     z-index: 0;
     isolation: isolate;
     overflow: hidden;
-    border: 1px solid #dbe4e9;
-    border-radius: 14px;
+    border: 1px solid #dce9e2;
+    border-radius: 16px;
     background: #ffffff;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    box-shadow: 0 12px 30px rgba(15, 66, 48, .07);
 }
 
 .warga-map-card__header {
@@ -452,8 +480,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    padding: 17px 20px;
+    padding: 19px 22px;
     border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(90deg, #ffffff, #f8fcf9);
 }
 
 .warga-section-heading {
@@ -464,12 +493,12 @@
 
 .warga-section-heading__icon {
     display: flex;
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     align-items: center;
     justify-content: center;
-    flex: 0 0 38px;
-    border-radius: 9px;
+    flex: 0 0 42px;
+    border-radius: 12px;
     background: #ecfdf5;
     color: #047857;
 }
@@ -477,9 +506,10 @@
 .warga-section-heading h2 {
     margin: 0;
     color: #0f172a;
-    font-size: 17px;
+    font-size: 18px;
     line-height: 1.4;
     font-weight: 750;
+    letter-spacing: -.015em;
 }
 
 .warga-section-heading p {
@@ -513,9 +543,9 @@
 
 .warga-dashboard__map {
     width: 100%;
-    height: min(52vh, 480px);
-    min-height: 380px;
-    background: #e2e8f0;
+    height: min(46vh, 400px);
+    min-height: 320px;
+    background: #edf4f0;
 }
 
 .warga-map-card .leaflet-container {
@@ -548,6 +578,7 @@
 .warga-map-card__footer {
     padding: 13px 20px 16px;
     border-top: 1px solid #e2e8f0;
+    background: #ffffff;
 }
 
 .warga-map-status {
@@ -664,8 +695,16 @@
     color: #047857;
 }
 
+/* ==========================================================
+   NEARBY SECTION
+   ========================================================== */
 .warga-nearby {
     margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #e1eae5;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .86);
+    box-shadow: 0 6px 20px rgba(15, 66, 48, .04);
 }
 
 .warga-nearby__header {
@@ -673,16 +712,16 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 24px;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
 }
 
 .warga-nearby__header h2 {
     margin: 5px 0 0;
     color: #0f172a;
-    font-size: 22px;
+    font-size: 23px;
     line-height: 1.35;
     font-weight: 800;
-    letter-spacing: -.015em;
+    letter-spacing: -.025em;
 }
 
 .warga-nearby__header p:not(.warga-dashboard__eyebrow) {
@@ -725,8 +764,8 @@
     align-items: flex-start;
     gap: 14px;
     padding: 17px;
-    border: 1px solid #dbe4e9;
-    border-radius: 11px;
+    border: 1px solid #e2ebe6;
+    border-radius: 14px;
     background: #ffffff;
     box-shadow: 0 2px 8px rgba(15, 23, 42, .03);
     transition:
@@ -842,8 +881,8 @@
     gap: 14px;
     padding: 20px;
     border: 1px dashed #cbd5e1;
-    border-radius: 11px;
-    background: #ffffff;
+    border-radius: 14px;
+    background: #fbfdfc;
 }
 
 .warga-nearby-empty__icon.is-warning {
@@ -866,41 +905,50 @@
     line-height: 1.65;
 }
 
+/* ==========================================================
+   SECONDARY LINKS & FOOTER NOTES
+   ========================================================== */
 .warga-secondary-links {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 30px;
+    gap: 16px;
+    margin-top: 22px;
 }
 
 .warga-secondary-link {
     display: flex;
     align-items: center;
     gap: 13px;
-    padding: 15px 16px;
-    border: 1px solid #dbe4e9;
-    border-radius: 11px;
+    min-height: 112px;
+    padding: 16px;
+    border: 1px solid #e1eae5;
+    border-radius: 14px;
     background: #ffffff;
     color: #0f172a;
     text-decoration: none;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .03);
     transition:
         border-color .16s ease,
-        background-color .16s ease;
+        background-color .16s ease,
+        box-shadow .16s ease,
+        transform .16s ease;
 }
 
 .warga-secondary-link:hover {
     border-color: #86efac;
-    background: #fbfffd;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 66, 48, .07);
+    transform: translateY(-1px);
 }
 
 .warga-secondary-link__icon {
     display: flex;
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
     align-items: center;
     justify-content: center;
-    border-radius: 9px;
+    border-radius: 12px;
     background: #ecfdf5;
     color: #047857;
 }
@@ -931,29 +979,6 @@
     line-height: 1.55;
 }
 
-.warga-secondary-link__action {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    margin-top: 3px;
-    color: #047857;
-    font-size: 13px;
-    line-height: 1.55;
-    font-weight: 750;
-}
-
-.warga-secondary-link__arrow {
-    flex: 0 0 auto;
-}
-
-.warga-secondary-link:hover .warga-secondary-link__action {
-    color: #065f46;
-}
-
-.warga-secondary-link > i {
-    color: #64748b;
-}
-
 .warga-accessibility-note {
     display: flex;
     align-items: flex-start;
@@ -961,7 +986,7 @@
     margin-top: 18px;
     padding: 14px 16px;
     border: 1px solid #d1fae5;
-    border-radius: 10px;
+    border-radius: 14px;
     background: #f0fdf4;
     color: #166534;
 }
@@ -989,25 +1014,20 @@
     border: 0;
 }
 
-@media (max-width: 980px) {
-
+/* ==========================================================
+   RESPONSIVE DESIGN (MEDIA QUERIES)
+   ========================================================== */
+@media (min-width: 761px) and (max-width: 980px) {
     .warga-quick-actions {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .warga-action {
-        min-height: auto;
+    .warga-action--primary {
+        grid-column: 1 / -1;
     }
-
-    .warga-dashboard__map {
-        height: 48vh;
-        min-height: 350px;
-    }
-
 }
 
 @media (max-width: 900px) {
-
     .warga-shell {
         display: block;
     }
@@ -1102,24 +1122,43 @@
     .warga-sidebar-open {
         overflow: hidden;
     }
-
 }
 
 @media (max-width: 760px) {
-
     .warga-dashboard {
         width: min(100% - 28px, 680px);
-        padding: 28px 0 40px;
+        padding-top: 20px;
     }
 
-    .warga-dashboard__header,
-    .warga-nearby__header {
+    .warga-dashboard__header {
         align-items: flex-start;
         flex-direction: column;
+        gap: 18px;
+        margin-bottom: 20px;
+        padding-bottom: 17px;
+    }
+
+    .warga-dashboard__title {
+        font-size: clamp(28px, 7vw, 34px);
     }
 
     .warga-dashboard__voice-button {
         width: 100%;
+    }
+
+    .warga-action {
+        min-height: 112px;
+        padding: 18px;
+        border-radius: 15px;
+    }
+
+    .warga-map-card,
+    .warga-nearby {
+        border-radius: 16px;
+    }
+
+    .warga-nearby {
+        padding: 18px;
     }
 
     .warga-map-card__header {
@@ -1141,15 +1180,23 @@
         grid-template-columns: 1fr;
     }
 
+    .warga-secondary-link {
+        min-height: 0;
+        padding: 17px;
+    }
+
     .warga-nearby-item__top {
         flex-direction: column;
         gap: 8px;
     }
 
+    .warga-dashboard__map {
+        height: 44vh;
+        min-height: 300px;
+    }
 }
 
 @media (max-width: 520px) {
-
     .warga-dashboard {
         width: min(100% - 20px, 680px);
     }
@@ -1158,14 +1205,8 @@
         font-size: 28px;
     }
 
-    .warga-dashboard__intro,
-    .warga-nearby__header p:not(.warga-dashboard__eyebrow) {
+    .warga-dashboard__intro {
         font-size: 14px;
-    }
-
-    .warga-dashboard__map {
-        height: 44vh;
-        min-height: 300px;
     }
 
     .warga-map-card__header,
@@ -1198,11 +1239,9 @@
     .warga-nearby__tools .warga-control-button {
         width: 100%;
     }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
-
     .warga-sidebar,
     .warga-action,
     .warga-dashboard__voice-button,
@@ -1211,366 +1250,4 @@
     .warga-nearby-item {
         transition: none;
     }
-
-}
-
-/* Dashboard visual refinement */
-.warga-workspace {
-    background:
-        radial-gradient(ellipse at 92% 0, rgba(209, 250, 229, .42), transparent 34rem),
-        #f7faf9;
-}
-
-.warga-dashboard {
-    padding-top: 34px;
-}
-
-.warga-dashboard__header {
-    position: relative;
-    align-items: center;
-    margin-bottom: 28px;
-    padding: clamp(22px, 3vw, 34px);
-    border: 1px solid #dceee5;
-    border-radius: 22px;
-    background: linear-gradient(115deg, #ffffff 0%, #f1fbf5 100%);
-    box-shadow: 0 12px 32px rgba(15, 66, 48, .055);
-}
-
-.warga-dashboard__eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #047857;
-    letter-spacing: .09em;
-}
-
-.warga-dashboard__eyebrow::before {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 0 4px #d1fae5;
-    content: "";
-}
-
-.warga-dashboard__title {
-    margin-top: 12px;
-    font-size: clamp(30px, 3.4vw, 40px);
-    letter-spacing: -.04em;
-}
-
-.warga-dashboard__intro {
-    max-width: 680px;
-    margin-top: 12px;
-    color: #52635c;
-    font-size: 15px;
-    line-height: 1.75;
-}
-
-.warga-dashboard__voice-button {
-    flex: 0 0 auto;
-    border-color: #c3e8d4;
-    background: #ffffff;
-    box-shadow: 0 4px 12px rgba(15, 66, 48, .06);
-}
-
-.warga-quick-actions {
-    gap: 16px;
-    margin-bottom: 28px;
-}
-
-.warga-action {
-    min-height: 138px;
-    align-items: center;
-    padding: 22px;
-    border-color: #e1eae5;
-    border-radius: 17px;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, .035);
-}
-
-.warga-action:hover {
-    border-color: #86efac;
-    box-shadow: 0 12px 26px rgba(15, 66, 48, .09);
-    transform: translateY(-2px);
-}
-
-.warga-action--primary {
-    border-color: #047857;
-    background: linear-gradient(135deg, #047857, #059669);
-    box-shadow: 0 10px 24px rgba(4, 120, 87, .18);
-}
-
-.warga-action--primary:hover {
-    border-color: #065f46;
-    background: linear-gradient(135deg, #065f46, #047857);
-    box-shadow: 0 14px 28px rgba(4, 120, 87, .22);
-}
-
-.warga-action__icon {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
-    border-radius: 13px;
-}
-
-.warga-action__body h2 {
-    font-size: 16px;
-    letter-spacing: -.01em;
-}
-
-.warga-action__body span {
-    margin-top: 7px;
-    line-height: 1.65;
-}
-
-.warga-action:not(.warga-action--primary) .warga-action__body span {
-    color: #64756d;
-}
-
-.warga-map-card {
-    border-color: #dce9e2;
-    border-radius: 19px;
-    box-shadow: 0 12px 30px rgba(15, 66, 48, .07);
-}
-
-.warga-map-card__header {
-    padding: 19px 22px;
-    background: linear-gradient(90deg, #ffffff, #f8fcf9);
-}
-
-.warga-section-heading__icon {
-    width: 42px;
-    height: 42px;
-    flex-basis: 42px;
-    border-radius: 12px;
-}
-
-.warga-section-heading h2 {
-    font-size: 18px;
-    letter-spacing: -.015em;
-}
-
-.warga-dashboard__map {
-    background: #edf4f0;
-}
-
-.warga-map-card__footer {
-    background: #ffffff;
-}
-
-.warga-nearby {
-    padding: clamp(18px, 2.5vw, 26px);
-    border: 1px solid #e1eae5;
-    border-radius: 19px;
-    background: rgba(255, 255, 255, .86);
-    box-shadow: 0 6px 20px rgba(15, 66, 48, .04);
-}
-
-.warga-nearby__header {
-    margin-bottom: 18px;
-}
-
-.warga-nearby__header h2 {
-    font-size: 23px;
-    letter-spacing: -.025em;
-}
-
-.warga-nearby-item,
-.warga-nearby-empty {
-    border-color: #e2ebe6;
-    border-radius: 14px;
-}
-
-.warga-nearby-empty {
-    background: #fbfdfc;
-}
-
-.warga-secondary-links {
-    gap: 16px;
-    margin-top: 22px;
-}
-
-.warga-secondary-link {
-    min-height: 132px;
-    padding: 20px;
-    border-color: #e1eae5;
-    border-radius: 16px;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, .03);
-}
-
-.warga-secondary-link:hover {
-    border-color: #86efac;
-    background: #ffffff;
-    box-shadow: 0 10px 24px rgba(15, 66, 48, .07);
-    transform: translateY(-1px);
-}
-
-.warga-secondary-link__icon {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
-    border-radius: 12px;
-}
-
-.warga-accessibility-note {
-    border-radius: 14px;
-}
-
-@media (min-width: 761px) and (max-width: 980px) {
-    .warga-quick-actions {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .warga-action--primary {
-        grid-column: 1 / -1;
-    }
-}
-
-@media (max-width: 760px) {
-    .warga-dashboard {
-        padding-top: 22px;
-    }
-
-    .warga-dashboard__header {
-        gap: 18px;
-        margin-bottom: 20px;
-        padding: 22px 19px;
-        border-radius: 18px;
-    }
-
-    .warga-dashboard__title {
-        font-size: clamp(28px, 7vw, 34px);
-    }
-
-    .warga-action {
-        min-height: 112px;
-        padding: 18px;
-        border-radius: 15px;
-    }
-
-    .warga-map-card,
-    .warga-nearby {
-        border-radius: 16px;
-    }
-
-    .warga-nearby {
-        padding: 18px;
-    }
-
-    .warga-secondary-link {
-        min-height: 0;
-        padding: 17px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .warga-action:hover,
-    .warga-secondary-link:hover {
-        transform: none;
-    }
-}
-
-/* Keep the citizen dashboard compact and application-focused. */
-.warga-workspace {
-    background: #f8faf9;
-}
-
-.warga-dashboard {
-    width: min(100% - 48px, 1160px);
-    padding-top: 28px;
-}
-
-.warga-dashboard__header {
-    align-items: center;
-    margin-bottom: 22px;
-    padding: 0 0 20px;
-    border: 0;
-    border-bottom: 1px solid #e2ebe6;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-}
-
-.warga-dashboard__eyebrow::before {
-    display: none;
-}
-
-.warga-dashboard__title {
-    margin-top: 7px;
-    font-size: clamp(27px, 2.6vw, 32px);
-    letter-spacing: -.03em;
-}
-
-.warga-dashboard__intro {
-    margin-top: 8px;
-    font-size: 14px;
-}
-
-.warga-quick-actions {
-    gap: 14px;
-    margin-bottom: 22px;
-}
-
-.warga-action {
-    min-height: 112px;
-    padding: 17px;
-    border-radius: 14px;
-}
-
-.warga-action__icon {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
-    border-radius: 11px;
-}
-
-.warga-action__body span {
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.warga-map-card {
-    border-radius: 16px;
-}
-
-.warga-dashboard__map {
-    height: min(46vh, 400px);
-    min-height: 320px;
-}
-
-.warga-nearby {
-    padding: 20px;
-    border-radius: 16px;
-}
-
-.warga-secondary-link {
-    min-height: 112px;
-    padding: 16px;
-    border-radius: 14px;
-}
-
-@media (max-width: 760px) {
-    .warga-dashboard {
-        width: min(100% - 28px, 680px);
-        padding-top: 20px;
-    }
-
-    .warga-dashboard__header {
-        padding-bottom: 17px;
-    }
-
-    .warga-dashboard__map {
-        height: 44vh;
-        min-height: 300px;
-    }
-
-    /* Styling Efek Highlight / Border Hijau Bergerak & Auto-Focus saat Dengar Panduan aktif */
-.warga-reading-active {
-    outline: 3px solid #059669 !important;
-    outline-offset: 6px;
-    border-radius: 1rem !important;
-    background-color: rgba(16, 185, 129, 0.08) !important;
-    box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.2) !important;
-    transition: all 0.4s ease-in-out !important;
-}
 }
