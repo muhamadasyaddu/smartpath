@@ -54,7 +54,7 @@
                                 Selamat datang kembali,
                             </span>
                             <h1 class="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-                                Halo, {{ $user->nama_lengkap ?? 'Dewi Lestari' }} 👋
+                                Halo, {{ $user->nama_lengkap ?? 'Dewi Lestari' }}
                             </h1>
                             <p class="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
                                 Kelola laporan aksesibilitas, lihat kondisi jalur pedestrian, dan temukan hambatan terverifikasi di sekitar lokasi Anda.

@@ -118,122 +118,213 @@
             </div>
         </div>
 
-        {{-- KOLOM KANAN (1/3 Lebar) - REALISASI ANGGARAN --}}
+        {{-- KOLOM REALISASI ANGGARAN --}}
         <div class="lg:col-span-1">
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col justify-between h-full">
-                <div>
-                    <h2 class="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Realisasi Anggaran
-                    </h2>
-
-                  <div class="space-y-6">
-
-    @if(isset($dataAnggaran) && $dataAnggaran->count() > 0)
-
-        @foreach($dataAnggaran as $item)
-
-            @php
-                $persen = $item->pagu > 0
-                    ? min(
-                        100,
-                        round(
-                            ($item->realisasi / $item->pagu) * 100
-                        )
-                    )
-                    : 0;
-            @endphp
-
-            <div>
-
-                <div class="flex justify-between items-center text-xs mb-1">
-
-                    <span class="font-semibold text-slate-700">
-                        {{ $item->nama_kategori }}
-                    </span>
-
-                    <span class="font-bold text-slate-900">
-                        {{ $persen }}%
-                    </span>
-
-                </div>
-
-
-                <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mb-1">
-
+            <section
+                class="flex h-full flex-col rounded-xl border border-slate-200
+                    bg-white p-5 shadow-sm"
+                aria-labelledby="realisasi-anggaran-title"
+            >
+                {{-- Header --}}
+                <div class="mb-4 flex items-start gap-3">
                     <div
-                        class="bg-emerald-700 h-2 rounded-full transition-all duration-300"
-                        style="width: {{ $persen }}%"
-                    ></div>
+                        class="flex h-10 w-10 shrink-0 items-center justify-center
+                            rounded-lg bg-emerald-50 text-emerald-700"
+                        aria-hidden="true"
+                    >
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.8"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2
+                                3 .895 3 2-1.343 2-3 2m0-8
+                                c1.11 0 2.08.402 2.599 1M12 8V7
+                                m0 1v8m0 0v1m0-1
+                                c-1.11 0-2.08-.402-2.599-1
+                                M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                    </div>
 
+                    <div class="min-w-0 flex-1">
+                        <h2
+                            id="realisasi-anggaran-title"
+                            class="font-semibold text-slate-900"
+                        >
+                            Realisasi Anggaran
+                        </h2>
+
+                        <p class="mt-1 text-xs text-slate-500">
+                            Data historis · Tahun 2024
+                        </p>
+                    </div>
                 </div>
 
-
-                <div class="flex justify-between text-[11px] text-slate-400">
-
-                    <span>
-                        Rp {{ number_format($item->realisasi, 0, ',', '.') }}
+                {{-- Status sumber data --}}
+                <div class="mb-4">
+                    <span
+                        class="inline-flex items-center gap-1.5 rounded-full
+                            border border-amber-200 bg-amber-50 px-2.5 py-1
+                            text-xs font-medium text-amber-800"
+                    >
+                        <span
+                            class="h-1.5 w-1.5 rounded-full bg-amber-500"
+                            aria-hidden="true"
+                        ></span>
+                        Sumber belum diverifikasi
                     </span>
-
-                    <span>
-                        Rp {{ number_format($item->pagu, 0, ',', '.') }}
-                    </span>
-
                 </div>
 
-            </div>
+                {{-- Isi kartu --}}
+                @if(isset($dataAnggaran) && $dataAnggaran->isNotEmpty())
+                    <div class="space-y-5">
+                        @foreach($dataAnggaran as $item)
+                            @php
+                                $pagu = (float) $item->pagu;
+                                $realisasi = (float) $item->realisasi;
 
-        @endforeach
+                                $persen = $pagu > 0
+                                    ? round(($realisasi / $pagu) * 100, 1)
+                                    : null;
+                            @endphp
 
-    @else
+                            <div>
+                                <div class="mb-2 flex items-start justify-between gap-3">
+                                    <span class="text-sm font-medium text-slate-700">
+                                        {{ $item->nama_kategori }}
+                                    </span>
 
-        <div class="text-center py-6">
+                                    @if($persen !== null)
+                                        <span class="shrink-0 text-sm font-semibold text-slate-900">
+                                            {{ number_format($persen, 1, ',', '.') }}%
+                                        </span>
+                                    @else
+                                        <span class="text-xs text-slate-500">
+                                            Pagu belum tersedia
+                                        </span>
+                                    @endif
+                                </div>
 
-            <p class="text-sm font-medium text-slate-500">
-                Belum ada data anggaran
-            </p>
+                                <div
+                                    class="h-2 overflow-hidden rounded-full bg-slate-100"
+                                    role="progressbar"
+                                    aria-label="Persentase realisasi {{ $item->nama_kategori }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="{{ $persen !== null ? max(100, $persen) : 100 }}"
+                                    aria-valuenow="{{ $persen !== null ? $persen : 0 }}"
+                                >
+                                    <div
+                                        class="h-full rounded-full bg-emerald-600 transition-all"
+                                        style="width: {{ $persen !== null ? min(100, max(0, $persen)) : 0 }}%"
+                                    ></div>
+                                </div>
 
-            <p class="text-xs text-slate-400 mt-1">
-                Data akan muncul setelah terdapat rencana perbaikan.
-            </p>
+                                <div class="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-slate-500">
+                                    <span>
+                                        Realisasi:
+                                        Rp{{ number_format($realisasi, 0, ',', '.') }}
+                                    </span>
 
-        </div>
+                                    <span>
+                                        Pagu:
+                                        Rp{{ number_format($pagu, 0, ',', '.') }}
+                                    </span>
+                                </div>
 
-    @endif
+                                @if($persen !== null && $persen > 100)
+                                    <p class="mt-1 text-xs font-medium text-red-700">
+                                        Realisasi melebihi pagu. Periksa dokumen sumber.
+                                    </p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
 
-</div>
+                    <div class="mt-auto pt-5">
+                        <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                            <div class="flex justify-between gap-3 text-sm">
+                                <span class="text-slate-600">Total pagu</span>
+                                <span class="text-right font-semibold text-slate-900">
+                                    Rp{{ number_format($totalAnggaran, 0, ',', '.') }}
+                                </span>
+                            </div>
+
+                            <div class="mt-2 flex justify-between gap-3 text-sm">
+                                <span class="text-slate-600">Total realisasi</span>
+                                <span class="text-right font-semibold text-slate-900">
+                                    Rp{{ number_format($totalRealisasi, 0, ',', '.') }}
+                                </span>
+                            </div>
+
+                            <div class="mt-3 border-t border-slate-200 pt-3">
+                                <div class="flex items-center justify-between gap-3">
+                                    <span class="text-xs text-slate-500">
+                                        Persentase realisasi
+                                    </span>
+
+                                    <span class="text-sm font-semibold text-emerald-800">
+                                        {{ $persentaseRealisasi !== null
+                                            ? number_format($persentaseRealisasi, 1, ',', '.') . '%'
+                                            : '—' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <div class="flex flex-1 flex-col items-center justify-center py-6 text-center">
+                        <div
+                            class="mb-3 flex h-12 w-12 items-center justify-center
+                                rounded-full bg-slate-100 text-slate-500"
+                            aria-hidden="true"
+                        >
+                            <svg
+                                class="h-6 w-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.7"
+                                    d="M8 7h8m-8 4h8m-8 4h5
+                                    M6 3h9l4 4v14H6a2 2 0 01-2-2V5
+                                    a2 2 0 012-2z"
+                                />
+                            </svg>
+                        </div>
+
+                        <h3 class="text-sm font-semibold text-slate-800">
+                            Data anggaran belum tersedia
+                        </h3>
+
+                        <p class="mt-2 max-w-xs text-sm leading-6 text-slate-500">
+                            Ringkasan akan ditampilkan setelah pagu, realisasi,
+                            periode, dan dokumen sumber pemerintah diverifikasi.
+                        </p>
+                    </div>
+                @endif
+
+                {{-- Keterangan sumber --}}
+                <div class="mt-4 border-t border-slate-100 pt-3">
+                    <p class="text-xs leading-5 text-slate-500">
+                        Data historis pemerintah terpisah dari laporan warga
+                        dan skor prioritas yang dihitung oleh SmartPath.
+                    </p>
+
+                    <p class="mt-1 text-xs text-slate-400">
+                        Sumber dokumen: belum tercatat
+                    </p>
                 </div>
-
-                {{-- Total Ringkasan Anggaran --}}
-               <div class="mt-4 pt-3 border-t border-slate-100 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-
-    <div class="flex justify-between font-semibold text-slate-700">
-
-        <span>Total Anggaran:</span>
-
-        <span>
-            Rp {{ number_format($totalAnggaran, 0, ',', '.') }}
-        </span>
-
-    </div>
-
-    <div class="flex justify-between font-bold text-slate-900 mt-0.5">
-
-        <span>Realisasi:</span>
-
-        <span>
-            Rp {{ number_format($totalRealisasi, 0, ',', '.') }}
-            ({{ $persentaseRealisasi }}%)
-        </span>
-
-    </div>
-
-</div>
-            </div>
+            </section>
         </div>
-    </div>
 
     {{-- ==========================================================
     3. PRIORITAS PERBAIKAN & TABEL ANTRIAN LAPORAN TERBARU

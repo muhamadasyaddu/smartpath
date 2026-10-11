@@ -831,97 +831,27 @@ public function indexDinas()
 
     /*
     |--------------------------------------------------------------------------
-    | DATA REALISASI ANGGARAN
+    | DATA REALISASI ANGGARAN PEMERINTAH
     |--------------------------------------------------------------------------
     |
-    | Sumber:
-    | rencana_perbaikan
+    | Jangan mengambil estimasi/realisasi dari rencana_perbaikan untuk
+    | mengklaim realisasi APBD pemerintah.
     |
-    | estimasi_anggaran   = nilai estimasi/pagu prototype
-    | realisasi_anggaran  = nilai realisasi prototype
+    | Data historis anggaran hanya boleh ditampilkan setelah sumber,
+    | periode, dan nilai anggarannya diverifikasi.
     |
-    | Data dikelompokkan berdasarkan kategori hambatan.
+    | Untuk sementara, kirim koleksi kosong ke Blade agar UI menampilkan
+    | status data yang jujur tanpa mengganggu dashboard lainnya.
     |
     */
 
-    $rencanaAnggaran = RencanaPerbaikan::query()
-        ->with([
-            'laporan.kategoriHambatan',
-        ])
-        ->whereHas('laporan', function ($query) {
+    $dataAnggaran = collect();
 
-            $query
-                ->induk()
-                ->aktif();
+    $totalAnggaran = 0;
 
-        })
-        ->get([
-            'id',
-            'laporan_id',
-            'estimasi_anggaran',
-            'realisasi_anggaran',
-        ]);
+    $totalRealisasi = 0;
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | KELOMPOKKAN BERDASARKAN KATEGORI
-    |--------------------------------------------------------------------------
-    */
-
-    $dataAnggaran = $rencanaAnggaran
-        ->groupBy(function ($rencana) {
-
-            return optional(
-                optional($rencana->laporan)
-                    ->kategoriHambatan
-            )->nama ?? 'Kategori Lainnya';
-
-        })
-        ->map(function ($items, $namaKategori) {
-
-            $pagu = (float) $items
-                ->sum('estimasi_anggaran');
-
-            $realisasi = (float) $items
-                ->sum('realisasi_anggaran');
-
-            return (object) [
-
-                'nama_kategori' =>
-                    $namaKategori,
-
-                'pagu' =>
-                    $pagu,
-
-                'realisasi' =>
-                    $realisasi,
-            ];
-
-        })
-        ->values();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | TOTAL ANGGARAN
-    |--------------------------------------------------------------------------
-    */
-
-    $totalAnggaran = (float) $dataAnggaran
-        ->sum('pagu');
-
-
-    $totalRealisasi = (float) $dataAnggaran
-        ->sum('realisasi');
-
-
-    $persentaseRealisasi = $totalAnggaran > 0
-        ? round(
-            ($totalRealisasi / $totalAnggaran) * 100,
-            1
-        )
-        : 0;
+    $persentaseRealisasi = null;
 
 
     /*

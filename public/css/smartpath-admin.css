@@ -322,7 +322,7 @@
     .sp-card__header h2{
     margin:0;
     color:var(--sp-slate-900);
-    font-size:16px;
+    font-size:22px;
     font-weight:700
     }
 
@@ -843,7 +843,7 @@
     gap:7px;
     margin-top:3px;
     color:var(--sp-slate-500);
-    font-size:12px
+    font-size:14px
     }
 
     .sp-priority-side{
@@ -951,7 +951,7 @@
     }
 
     .sp-donut strong{
-    font-size:15px
+    font-size:16px
     }
 
     .sp-donut span{
@@ -986,7 +986,7 @@
 
     .sp-status-row small{
     color:var(--sp-slate-400);
-    font-size:12px;
+    font-size:14px;
     font-weight:400
     }
 
@@ -1132,7 +1132,7 @@
     padding:7px;
     border-bottom:1px solid var(--sp-slate-100);
     color:var(--sp-slate-600);
-    font-size:14px
+    font-size:12px
     }
 
     .sp-table-card tbody tr:hover{
@@ -1193,10 +1193,10 @@
 
     .sp-status{
     display:inline-flex;
-    padding:2px 5px;
+    padding:5px 5px;
     border:1px solid;
     border-radius:4px;
-    font-size:12px;
+    font-size:11px;
     font-weight:600;
     white-space:nowrap
     }
@@ -1427,7 +1427,7 @@
         .sp-priority-item {
             grid-template-columns: 48px minmax(0, 1fr) auto;
             gap: 12px;
-            padding: 12px 14px;
+            padding: 12px 12px;
         }
 
         .sp-priority-thumb {
@@ -1746,105 +1746,106 @@
         }
     }
 
-/* Dashboard refinement: keep the admin workspace readable and consistent. */
-#admin-dashboard,
-#admin-dashboard * {
-    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-}
+    /* Dashboard refinement: keep the admin workspace readable and consistent. */
+    #admin-dashboard,
+    #admin-dashboard * {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    }
 
-.smartpath-dashboard {
-    padding: 22px clamp(16px, 2.2vw, 30px) 30px;
-}
+    .smartpath-dashboard {
+        padding: 22px clamp(16px, 2.2vw, 30px) 30px;
+    }
 
-.smartpath-dashboard__inner {
-    max-width: 1440px;
-}
+    .smartpath-dashboard__inner {
+        max-width: 1440px;
+    }
 
-.sp-card {
-    border-color: #e2e8f0;
-    border-radius: 14px;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, .045);
-}
+    .sp-card {
+        border-color: #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, .045);
+    }
 
-.sp-card__header {
-    min-height: 58px;
-    padding: 12px 16px;
-}
+    .sp-card__header {
+        min-height: 58px;
+        padding: 12px 16px;
+    }
 
-.sp-card__header h2 {
-    font-size: 15px;
-    line-height: 1.4;
-}
+    .sp-card__header h2 {
+        font-size: 15px;
+        line-height: 1.4;
+    }
 
-.sp-card__header p {
-    font-size: 12px;
-    line-height: 1.5;
-}
+    .sp-card__header p {
+        font-size: 12px;
+        line-height: 1.5;
+    }
 
-.sp-kpi-grid,
-.sp-main-grid,
-.sp-analytics-grid,
-.sp-bottom-grid {
-    gap: 14px;
-    margin-bottom: 14px;
-}
+    .sp-kpi-grid,
+    .sp-main-grid,
+    .sp-analytics-grid,
+    .sp-bottom-grid {
+        gap: 14px;
+        margin-bottom: 14px;
+    }
 
-.sp-kpi {
-    min-height: 120px;
-    padding: 16px;
-}
+    .sp-kpi {
+        min-height: 120px;
+        padding: 16px;
+    }
 
-.sp-kpi__head {
-    gap: 9px;
-    font-size: 13px;
-    line-height: 1.4;
-}
+    .sp-kpi__head {
+        gap: 9px;
+        font-size: 13px;
+        line-height: 1.4;
+    }
 
-.sp-kpi__icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-}
+    .sp-kpi__icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+    }
 
-.sp-kpi__number,
-.sp-kpi__value-row strong {
-    margin-top: 9px;
-    font-size: 27px;
-    line-height: 1.1;
-}
+    .sp-kpi__number,
+    .sp-kpi__value-row strong {
+        margin-top: 9px;
+        font-size: 27px;
+        line-height: 1.1;
+    }
 
-.sp-kpi__caption {
-    margin-top: 5px;
-    font-size: 12px;
-    line-height: 1.45;
-}
+    .sp-kpi__caption {
+        margin-top: 5px;
+        font-size: 12px;
+        line-height: 1.45;
+    }
 
-.sp-kpi__foot {
-    margin-top: 10px;
-    font-size: 11px;
-    line-height: 1.4;
-}
+    .sp-kpi__foot {
+        margin-top: 10px;
+        font-size: 11px;
+        line-height: 1.4;
+    }
 
-.sp-map-filters select,
-.sp-map-filters button {
-    height: 34px;
-    border-color: #cbd5e1;
-    border-radius: 8px;
-    font-size: 12px;
-}
+    .sp-map-filters select,
+    .sp-map-filters button {
+        height: 34px;
+        border-color: #cbd5e1;
+        border-radius: 8px;
+        font-size: 12px;
+    }
 
-.sp-map-filters select {
-    min-width: 130px;
-    padding: 0 10px;
-}
+    .sp-map-filters select {
+        min-width: 130px;
+        padding: 0 10px;
+    }
 
-.sp-map-filters button {
-    width: 34px;
-}
+    .sp-map-filters button {
+        width: 34px;
+    }
 
-#admin-map {
-    height: 390px;
-}
+    #admin-map {
+        height: 520px;
+        border-radius: 0 0 12px 12px; /* Opsional: membuat sudut bawah tumpul seragam */
+    }
 
 @media (max-width: 767px) {
     .smartpath-dashboard {
@@ -1876,5 +1877,7 @@
     .sp-map-filters select {
         flex: 1 1 130px;
     }
+
+    
     
 }

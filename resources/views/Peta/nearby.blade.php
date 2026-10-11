@@ -645,12 +645,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
 
                         <p class="obstacle-address" id="obs-addr-${index}">
-                            ${alamat}
+                            ${escapeHtml(alamat)}
                         </p>
 
                         <span class="obstacle-distance" id="obs-dist-${index}">
                             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                            ${escapeHtml(alamat)}
+                            ${escapeHtml(distanceText)}
                         </span>
                     </div>
                 </article>

@@ -9,13 +9,49 @@
     color: #0f172a;
 }
 
-.sp-report-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
+
+/*
+ * SmartPath — Create Laporan
+ * Kartu formulir: Emerald lembut, Slate, dan latar putih.
+ * Perubahan ini hanya memengaruhi pembungkus bagian formulir.
+ */
+
+.laporan-create-page .sp-report-card {
+    background: linear-gradient(
+        135deg,
+        #f0fdf4 0%,
+        #ffffff 100%
+    );
+
+    border: 1px solid #a7f3d0;
     border-radius: 14px;
     padding: 20px;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, .04);
+
+    box-shadow:
+        0 4px 14px rgba(6, 95, 70, 0.045),
+        0 1px 2px rgba(15, 23, 42, 0.025);
+
+    transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease;
 }
+
+.laporan-create-page .sp-report-card:focus-within {
+    border-color: #6ee7b7;
+}
+
+@media (min-width: 640px) {
+    .laporan-create-page .sp-report-card {
+        padding: 24px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .laporan-create-page .sp-report-card {
+        transition: none;
+    }
+}
+
 
 @media (min-width: 640px) {
     .sp-report-card {
