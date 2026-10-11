@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notifikasi;
+use App\Models\Laporan;
+use App\Mail\NotifikasiLaporanMail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 
 class NotifikasiController extends Controller
@@ -173,5 +177,41 @@ class NotifikasiController extends Controller
                     ->user()
                     ->notifikasi_belum_dibaca_count,
         ]);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $laporan = Laporan::findOrFail($id);
+        $laporan->status = $request->status;
+        $laporan->save();
+
+        $userPemilikLaporan = $laporan->user;
+
+        if ($userPemilikLaporan) {
+            $notif = Notifikasi::create([
+                'penerima_id' => $userPemilikLaporan->id,
+                'laporan_id'  => $laporan->id,
+                'judul'       => 'Status Laporan Berubah',
+                'pesan'       => 'Laporan Anda sekarang berstatus: ' . $laporan->status,
+                'tautan'      => route('laporan.show', $laporan->id),
+            ]);
+
+            if ($userPemilikLaporan->email) {
+                try {
+                    Mail::to($userPemilikLaporan->email)->send(
+                        new NotifikasiLaporanMail($notif->pesan, $laporan->judul)
+                    );
+                } catch (\Exception $e) {
+                    Log::error('Gagal mengirim email notifikasi laporan', [
+                        'laporan_id' => $laporan->id,
+                        'user_id' => $userPemilikLaporan->id,
+                        'email' => $userPemilikLaporan->email,
+                        'message' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->back()->with('sukses', 'Status laporan berhasil diperbarui.');
     }
 }

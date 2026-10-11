@@ -16,31 +16,17 @@
         <div class="flex h-16 items-center justify-between gap-4">
 
             {{-- Logo SmartPath --}}
-            <a
-                href="{{ route('beranda') }}"
-                class="flex shrink-0 items-center gap-2.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-                aria-label="SmartPath - Beranda"
-            >
-                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
-                    <svg
-                        class="h-6 w-6"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                    >
-                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
-                        <line x1="8" y1="2" x2="8" y2="18"></line>
-                        <line x1="16" y1="6" x2="16" y2="22"></line>
-                    </svg>
-                </span>
-
-                <span class="text-xl font-extrabold tracking-tight">
-                    <span class="text-emerald-900">Smart</span><span class="text-emerald-500">Path</span>
-                </span>
+           <a
+        href="{{ route('beranda') }}"
+        class="flex shrink-0 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+        aria-label="SmartPath - Beranda"
+    >
+        <img
+            src="{{ asset('logo-smartpath-cropped.png') }}"
+            alt="SmartPath"
+            class="h-10 w-auto object-contain"
+        >
+    </a>
             </a>
 
             {{-- Navigasi desktop --}}
@@ -120,7 +106,7 @@
                     </svg>
                 </span>
 
-                <span>Pengguna</span>
+                <span>{{ auth()->user()->nama_lengkap }}</span>
             </a>
         </div>
 

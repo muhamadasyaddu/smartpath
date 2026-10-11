@@ -28,12 +28,11 @@
             {{-- HEADER & BRAND --}}
             <div class="mb-6 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_8px_20px_rgba(5,150,105,0.22)]">
-                       <img
-    src="{{ asset('favicon.png') }}"
-    alt=""
-    aria-hidden="true"
-    class="h-7 w-7 object-contain brightness-0 invert"
+                    <div class="flex items-center gap-3">
+    <img
+        src="{{ asset('favicon.png') }}"
+        alt="SmartPath Logo"
+        class="h-12 w-12 shrink-0 object-contain"
 >
                     </div>
                     <div>

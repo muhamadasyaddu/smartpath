@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVerifikasiRequest;
+use App\Mail\NotifikasiLaporanMail;
 use App\Models\Audit;
 use App\Models\FasilitasPublik;
 use App\Models\Laporan;
@@ -11,6 +12,8 @@ use App\Models\RiwayatStatusLaporan;
 use App\Models\VerifikasiLaporan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 
 class VerifikasiController extends Controller
@@ -82,7 +85,7 @@ class VerifikasiController extends Controller
         $this->ensurePending($laporan);
 
         try {
-            DB::transaction(function () use ($request, $laporan) {
+            $notifikasi = DB::transaction(function () use ($request, $laporan) {
                 $statusSebelumnya = $laporan->status;
 
                 VerifikasiLaporan::create([
@@ -125,7 +128,7 @@ class VerifikasiController extends Controller
                     'keterangan' => 'Laporan diverifikasi dan disetujui.',
                 ]);
 
-                Notifikasi::create([
+                $notifikasi = Notifikasi::create([
                     'penerima_id' => $laporan->pelapor_id,
                     'laporan_id' => $laporan->id,
                     'jenis' => 'laporan_diverifikasi',
@@ -143,14 +146,9 @@ class VerifikasiController extends Controller
                     ['status' => 'diverifikasi'],
                     "Laporan disetujui: {$laporan->kode_laporan}"
                 );
-            });
 
-            return redirect()
-                ->route('admin.verifikasi.index')
-                ->with(
-                    'sukses',
-                    'Laporan berhasil diverifikasi dan diproses ke tahap prioritas.'
-                );
+                return $notifikasi;
+            });
         } catch (Throwable $e) {
             report($e);
 
@@ -159,6 +157,14 @@ class VerifikasiController extends Controller
                 'Laporan belum dapat diverifikasi. Silakan coba lagi.'
             );
         }
+
+        $emailTerkirim = $this->sendStatusEmail($laporan, $notifikasi);
+
+        return redirect()
+            ->route('admin.verifikasi.index')
+            ->with($emailTerkirim ? 'sukses' : 'galat', $emailTerkirim
+                ? 'Laporan berhasil diverifikasi dan email notifikasi telah dikirim.'
+                : 'Laporan berhasil diverifikasi, tetapi email notifikasi gagal dikirim. Periksa email pelapor dan konfigurasi email.');
     }
 
     /**
@@ -171,7 +177,7 @@ class VerifikasiController extends Controller
         $this->ensurePending($laporan);
 
         try {
-            DB::transaction(function () use ($request, $laporan) {
+            $notifikasi = DB::transaction(function () use ($request, $laporan) {
                 $statusSebelumnya = $laporan->status;
                 $validated = $request->validated();
 
@@ -207,7 +213,7 @@ class VerifikasiController extends Controller
                     'keterangan' => $validated['catatan_admin'],
                 ]);
 
-                Notifikasi::create([
+                $notifikasi = Notifikasi::create([
                     'penerima_id' => $laporan->pelapor_id,
                     'laporan_id' => $laporan->id,
                     'jenis' => 'laporan_ditolak',
@@ -225,11 +231,9 @@ class VerifikasiController extends Controller
                     ['status' => 'ditolak'],
                     "Laporan ditolak: {$laporan->kode_laporan}"
                 );
-            });
 
-            return redirect()
-                ->route('admin.verifikasi.index')
-                ->with('sukses', 'Laporan telah ditolak dan alasannya disimpan.');
+                return $notifikasi;
+            });
         } catch (Throwable $e) {
             report($e);
 
@@ -238,6 +242,14 @@ class VerifikasiController extends Controller
                 'Laporan belum dapat ditolak. Silakan coba lagi.'
             );
         }
+
+        $emailTerkirim = $this->sendStatusEmail($laporan, $notifikasi);
+
+        return redirect()
+            ->route('admin.verifikasi.index')
+            ->with($emailTerkirim ? 'sukses' : 'galat', $emailTerkirim
+                ? 'Laporan telah ditolak, alasannya disimpan, dan email notifikasi telah dikirim.'
+                : 'Laporan berhasil ditolak, tetapi email notifikasi gagal dikirim. Periksa email pelapor dan konfigurasi email.');
     }
 
     /**
@@ -251,7 +263,7 @@ class VerifikasiController extends Controller
         $this->ensurePending($laporan);
 
         try {
-            DB::transaction(function () use ($request, $laporan) {
+            $notifikasi = DB::transaction(function () use ($request, $laporan) {
                 $statusSebelumnya = $laporan->status;
                 $validated = $request->validated();
 
@@ -276,7 +288,7 @@ class VerifikasiController extends Controller
                         ?? 'Laporan dikembalikan untuk diperbaiki.',
                 ]);
 
-                Notifikasi::create([
+                $notifikasi = Notifikasi::create([
                     'penerima_id' => $laporan->pelapor_id,
                     'laporan_id' => $laporan->id,
                     'jenis' => 'laporan_dikembalikan',
@@ -294,11 +306,9 @@ class VerifikasiController extends Controller
                     ['status' => 'menunggu_verifikasi'],
                     "Laporan dikembalikan: {$laporan->kode_laporan}"
                 );
-            });
 
-            return redirect()
-                ->route('admin.verifikasi.index')
-                ->with('sukses', 'Laporan dikembalikan ke antrian verifikasi.');
+                return $notifikasi;
+            });
         } catch (Throwable $e) {
             report($e);
 
@@ -307,6 +317,14 @@ class VerifikasiController extends Controller
                 'Laporan belum dapat dikembalikan. Silakan coba lagi.'
             );
         }
+
+        $emailTerkirim = $this->sendStatusEmail($laporan, $notifikasi);
+
+        return redirect()
+            ->route('admin.verifikasi.index')
+            ->with($emailTerkirim ? 'sukses' : 'galat', $emailTerkirim
+                ? 'Laporan dikembalikan ke antrian verifikasi dan email notifikasi telah dikirim.'
+                : 'Laporan berhasil dikembalikan, tetapi email notifikasi gagal dikirim. Periksa email pelapor dan konfigurasi email.');
     }
 
     /**
@@ -334,7 +352,7 @@ class VerifikasiController extends Controller
             'keterangan' => $request->input('keterangan', 'Perbaikan dimulai.'),
         ]);
 
-        Notifikasi::create([
+        $notifikasi = Notifikasi::create([
             'penerima_id' => $laporan->pelapor_id,
             'laporan_id' => $laporan->id,
             'jenis' => 'laporan_dalam_perbaikan',
@@ -353,7 +371,11 @@ class VerifikasiController extends Controller
             "Laporan dalam perbaikan: {$laporan->kode_laporan}"
         );
 
-        return back()->with('sukses', 'Status laporan diubah menjadi Dalam Perbaikan.');
+        $emailTerkirim = $this->sendStatusEmail($laporan, $notifikasi);
+
+        return back()->with($emailTerkirim ? 'sukses' : 'galat', $emailTerkirim
+            ? 'Status laporan diubah menjadi Dalam Perbaikan dan email notifikasi telah dikirim.'
+            : 'Status laporan berhasil diubah, tetapi email notifikasi gagal dikirim. Periksa email pelapor dan konfigurasi email.');
     }
 
     /**
@@ -381,7 +403,7 @@ class VerifikasiController extends Controller
             'keterangan' => $request->input('keterangan', 'Perbaikan selesai.'),
         ]);
 
-        Notifikasi::create([
+        $notifikasi = Notifikasi::create([
             'penerima_id' => $laporan->pelapor_id,
             'laporan_id' => $laporan->id,
             'jenis' => 'laporan_selesai',
@@ -400,7 +422,42 @@ class VerifikasiController extends Controller
             "Laporan selesai: {$laporan->kode_laporan}"
         );
 
-        return back()->with('sukses', 'Status laporan diubah menjadi Selesai.');
+        $emailTerkirim = $this->sendStatusEmail($laporan, $notifikasi);
+
+        return back()->with($emailTerkirim ? 'sukses' : 'galat', $emailTerkirim
+            ? 'Status laporan diubah menjadi Selesai dan email notifikasi telah dikirim.'
+            : 'Status laporan berhasil diubah, tetapi email notifikasi gagal dikirim. Periksa email pelapor dan konfigurasi email.');
+    }
+
+    protected function sendStatusEmail(Laporan $laporan, Notifikasi $notifikasi): bool
+    {
+        $pelapor = $laporan->pelapor;
+
+        if (! $pelapor || ! $pelapor->email) {
+            Log::warning('Email notifikasi status laporan tidak dikirim karena email pelapor tidak tersedia.', [
+                'laporan_id' => $laporan->id,
+                'pelapor_id' => $laporan->pelapor_id,
+            ]);
+
+            return false;
+        }
+
+        try {
+            Mail::to($pelapor->email)->send(
+                new NotifikasiLaporanMail($notifikasi->pesan, $laporan->judul)
+            );
+        } catch (Throwable $e) {
+            Log::error('Gagal mengirim email notifikasi status laporan.', [
+                'laporan_id' => $laporan->id,
+                'pelapor_id' => $pelapor->id,
+                'status' => $laporan->status,
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

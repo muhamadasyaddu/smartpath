@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=20261008">
-    <link rel="icon" type="image/png" sizes="64x64" href="{{ asset('favicon.png') }}?v=20261008">
+    <link rel="icon" type="image/png" sizes="65x65" href="{{ asset('FAVICONN2.png') }}?v=20261008">
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Tambahkan script di sini -->

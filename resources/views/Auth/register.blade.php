@@ -26,25 +26,23 @@
 
             {{-- BRAND & ACCESSIBILITY CONTROLS --}}
             <div class="mb-5 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-[0_8px_20px_rgba(5,150,105,0.22)]" aria-hidden="true">
-                       <img
-    src="{{ asset('favicon.png') }}"
-    alt=""
-    aria-hidden="true"
-    class="h-7 w-7 object-contain brightness-0 invert"
->
-                    </div>
-                    <div>
-                        <span class="text-xl font-extrabold tracking-tight text-slate-900 block">
-                            Smart<span class="text-emerald-600">Path</span>
-                        </span>
-                        <p class="text-[11px] font-medium text-slate-400">
-                            Platform Pelaporan Aksesibilitas
-                        </p>
-                    </div>
-                </div>
-
+               <div class="mb-5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <img
+            src="{{ asset('favicon.png') }}"
+            alt="SmartPath Logo"
+            class="h-12 w-12 shrink-0 object-contain"
+        >
+        <div>
+            <span class="text-xl font-extrabold tracking-tight text-slate-900 block">
+                Smart<span class="text-emerald-600">Path</span>
+            </span>
+            <p class="text-[11px] font-medium text-slate-400">
+                Platform Pelaporan Aksesibilitas
+            </p>
+        </div>
+    </div>
+</div>
                 {{-- TOMBOL NARRATOR / READ FORM --}}
                 <button
                     type="button"

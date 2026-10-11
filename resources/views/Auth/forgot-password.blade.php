@@ -560,11 +560,11 @@
 
         {{-- HEADER --}}
         <header class="header">
-            <a href="{{ url('/') }}" class="brand" aria-label="SmartPath">
-                <div class="brand-logo">
-                    <img src="{{ asset('favicon.png') }}" alt="" aria-hidden="true">
-                </div>
-                <div>
+           <a href="{{ url('/') }}" class="brand" aria-label="SmartPath">
+    <div class="brand-logo">
+        <img src="{{ asset('favicon.png') }}" alt="SmartPath Logo" class="h-full w-full object-contain">
+    </div>
+    <div>
                     <div class="brand-name">Smart<span>Path</span></div>
                     <div class="brand-subtitle">Sistem Informasi Penanganan Aksesibilitas</div>
                 </div>
