@@ -483,6 +483,7 @@
     .sp-status-dot.progress{background:var(--sp-teal-600)}
     .sp-status-dot.done{background:var(--sp-green-600)}
     .sp-status-dot.rejected{background:var(--sp-red-600)}
+    
 
     .sp-main-grid{
     display:grid;
@@ -1199,6 +1200,7 @@
     font-weight:600;
     white-space:nowrap
     }
+    
 
     .sp-status.pending{
     color:var(--sp-amber-600);
@@ -1874,4 +1876,5 @@
     .sp-map-filters select {
         flex: 1 1 130px;
     }
+    
 }

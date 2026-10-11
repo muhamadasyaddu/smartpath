@@ -770,9 +770,21 @@
         </div>
 
         <div class="sp-header-actions">
-            <a href="{{ route('laporan.create') }}" class="sp-header-btn">＋ Lapor</a>
-            <button type="button" id="btn-export" class="sp-header-btn">⇩ Ekspor</button>
+            <!-- Tombol Lapor -->
+            <a href="{{ route('laporan.create') }}" class="sp-header-btn">
+                <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -0.15em; margin-right: 0.35rem;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>Lapor
+            </a>
+
+            <!-- Tombol Ekspor dengan Ikon Unduh/-->
+            <button type="button" id="btn-export" class="sp-header-btn">
+                <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: -0.15em; margin-right: 0.35rem;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>Ekspor
+            </button>
         </div>
+
     </header>
 
     <div class="sp-map-shell">
@@ -781,7 +793,14 @@
         <aside id="map-sidebar" class="sp-map-sidebar" aria-label="Filter peta">
 
             <div class="sp-filter-section">
-                <div class="sp-filter-title">⌕ Filter Peta</div>
+                <div class="sp-filter-title enterprise-filter-header">
+                    <span class="filter-funnel-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
+                    </span>
+                    <span class="filter-text">Filter Peta</span>
+                </div>
                 <p class="sp-filter-desc">Sesuaikan tampilan data pada peta</p>
                 <button id="close-sidebar" type="button" class="sp-mobile-only"
                         style="width:100%;padding:6px;border:1px solid #111827;border-radius:5px;background:#fff;cursor:pointer;font-size:11px;font-family:inherit;">
@@ -836,7 +855,6 @@
                     <input type="checkbox" id="toggle-fasilitas">
                     <span class="sp-status-dot" style="background:#0d9488"></span>
                     <span>Tampilkan Fasilitas Publik</span>
-                    <span class="sp-count" id="facility-count">0</span>
                 </label>
             </div>
 
@@ -863,7 +881,13 @@
 
             <div class="sp-filter-section">
                 <div class="sp-info-box">
-                    <strong>ⓘ</strong> Klik marker untuk melihat detail laporan.
+                    <div class="inline-flex items-center space-x-2 text-xs text-slate-600 bg-slate-50/80 border border-slate-200/80 px-3 py-1.5 rounded-lg shadow-2xs">
+                        <!-- Ikon Info SVG Profesional (Enterprise Look) -->
+                        <svg class="w-4 h-4 text-emerald-600 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Klik marker untuk melihat detail laporan.</span>
+                    </div>
                 </div>
             </div>
         </aside>

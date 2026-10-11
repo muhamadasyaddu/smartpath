@@ -580,6 +580,319 @@
         }
 
     }
+
+
+    
+    /* =========================================================
+    SMARTPATH NAVIGATION — REFINEMENT
+    Pertahankan struktur dan fungsi JavaScript yang ada.
+    ========================================================= */
+
+    .smartpath-navigation {
+        background: #f8fafc;
+        color: #0f172a;
+    }
+
+    .navigation-header {
+        margin-bottom: 12px;
+    }
+
+    .navigation-eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.045em;
+        text-transform: uppercase;
+    }
+
+    .navigation-title {
+        font-size: clamp(24px, 2.4vw, 32px);
+        font-weight: 750;
+        letter-spacing: -0.035em;
+        line-height: 1.2;
+    }
+
+    .navigation-description {
+        max-width: 700px;
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .navigation-map-card {
+        grid-template-columns: minmax(340px, 360px) minmax(0, 1fr);
+        grid-template-rows: clamp(540px, 76vh, 760px);
+        border: 1px solid #dbe4e9;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgb(15 23 42 / 5%);
+    }
+
+    .navigation-overlay {
+        background: #fff;
+        border-right: 1px solid #e2e8f0;
+    }
+
+    .navigation-overlay__header {
+        padding: 20px 20px 16px;
+        border-bottom-color: #e2e8f0;
+    }
+
+    .navigation-overlay__icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .navigation-overlay h2 {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+    }
+
+    .navigation-overlay__subheading {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .navigation-overlay__body {
+        padding: 20px;
+    }
+
+    .navigation-label {
+        margin-bottom: 8px;
+        font-size: 14px;
+        font-weight: 650;
+    }
+
+    .navigation-input {
+        min-height: 48px;
+        border-radius: 8px;
+        border-color: #cbd5e1;
+        font-size: 15px;
+    }
+
+    .navigation-input:focus-visible,
+    .navigation-primary:focus-visible,
+    .navigation-secondary:focus-visible,
+    .navigation-overlay button:focus-visible {
+        outline: 3px solid rgb(13 148 136 / 35%);
+        outline-offset: 2px;
+    }
+
+    .navigation-primary,
+    .navigation-secondary {
+        min-height: 46px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 650;
+    }
+
+    .navigation-primary {
+        background: #047857;
+        border-color: #047857;
+    }
+
+    .navigation-primary:hover {
+        background: #065f46;
+        border-color: #065f46;
+    }
+
+    .navigation-secondary {
+        padding-inline: 14px;
+    }
+
+    .navigation-status,
+    .navigation-result,
+    .navigation-active {
+        margin-top: 16px;
+    }
+
+    .navigation-result .card,
+    .navigation-active .card {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .navigation-result .card-body,
+    .navigation-active .card-body {
+        padding: 16px 0;
+    }
+
+    .navigation-result .card h2,
+    .navigation-active .card h2 {
+        font-size: 17px;
+        line-height: 1.4;
+    }
+
+    .navigation-result .card p,
+    .navigation-active .card p {
+        font-size: 14px;
+        line-height: 1.65;
+    }
+
+    .navigation-result .btn,
+    .navigation-active .btn {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 8px;
+        font-size: 15px;
+    }
+
+    .navigation-map-topbar {
+        top: 14px;
+        left: auto;
+        right: 14px;
+        gap: 8px;
+    }
+
+    .navigation-map-title,
+    .navigation-gps-status {
+        border-radius: 8px;
+        box-shadow: 0 1px 4px rgb(15 23 42 / 8%);
+        backdrop-filter: none;
+    }
+
+    .navigation-map .leaflet-container {
+        font-family: Inter, Arial, sans-serif;
+    }
+
+    .navigation-map .leaflet-control-zoom a {
+        color: #0f172a;
+    }
+
+    .navigation-map-card.is-navigation-active .navigation-overlay__body {
+        padding: 16px 20px;
+    }
+
+    @media (max-width: 900px) {
+        .navigation-shell {
+            padding: 16px 12px 28px;
+        }
+
+        .navigation-map-card {
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: minmax(340px, 52vh) auto;
+            overflow: visible;
+        }
+
+        .navigation-map {
+            grid-column: 1;
+            grid-row: 1;
+            min-height: 340px;
+        }
+
+        .navigation-overlay {
+            grid-column: 1;
+            grid-row: 2;
+            max-height: none;
+            overflow: visible;
+            border-right: 0;
+            border-top: 1px solid #e2e8f0;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .navigation-map-topbar {
+            top: 10px;
+            right: 10px;
+            left: auto;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .navigation-title {
+            font-size: 25px;
+        }
+
+        .navigation-description {
+            font-size: 14px;
+        }
+
+        .navigation-overlay__body {
+            padding: 16px;
+        }
+
+        .navigation-actions {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .navigation-secondary {
+            width: 100%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .smartpath-navigation *,
+        .smartpath-navigation *::before,
+        .smartpath-navigation *::after {
+            scroll-behavior: auto !important;
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    
+        /* ==========================================================
+        SMARTPATH — SISTEM IKON NAVIGASI
+        Konsisten, ringkas, dan ramah aksesibilitas.
+        ========================================================== */
+
+        .smartpath-navigation .nav-icon {
+            display: inline-block;
+            flex: 0 0 auto;
+            width: 1.15em;
+            text-align: center;
+            line-height: 1;
+            vertical-align: -0.08em;
+        }
+
+        .smartpath-navigation .nav-icon--primary {
+            color: #047857;
+        }
+
+        .smartpath-navigation .nav-icon--muted {
+            color: #64748b;
+        }
+
+        .smartpath-navigation .nav-icon--warning {
+            color: #b45309;
+        }
+
+        .smartpath-navigation .nav-icon--danger {
+            color: #b91c1c;
+        }
+
+        .smartpath-navigation .navigation-primary .nav-icon {
+            color: inherit;
+        }
+
+        .smartpath-navigation .navigation-secondary .nav-icon {
+            color: #475569;
+        }
+
+        .smartpath-navigation .btn-danger .nav-icon {
+            color: inherit;
+        }
+
+        .smartpath-navigation button:focus-visible {
+            outline: 3px solid #059669;
+            outline-offset: 3px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .smartpath-navigation *,
+            .smartpath-navigation *::before,
+            .smartpath-navigation *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+
+
+
 </style>
 
 
@@ -768,37 +1081,35 @@
                     </p>
 
 
-                    <div class="navigation-actions">
+                    
+                <div class="navigation-actions">
 
-                        <button
-                            type="button"
-                            id="btn-mulai-navigasi"
-                            class="navigation-primary"
-                        >
-                            <i
-                                class="fa-solid fa-location-arrow"
-                                aria-hidden="true"
-                            ></i>
+                    <button
+                        type="button"
+                        id="btn-mulai-navigasi"
+                        class="navigation-primary"
+                    >
+                        <i class="fa-solid fa-route" aria-hidden="true"></i>
+                        <span>Cari Rute</span>
+                    </button>
 
-                            Cari Rute
-                        </button>
+                    
+                    <button
+                        type="button"
+                        id="btn-map-center"
+                        class="navigation-secondary"
+                        title="Tampilkan posisi saya pada peta"
+                        aria-label="Tampilkan posisi saya pada peta"
+                    >
+                        <i
+                            class="fa-solid fa-location-crosshairs"
+                            aria-hidden="true"
+                        ></i>
+                        <span>Lokasi saya</span>
+                    </button>
 
+                </div>
 
-                        <button
-                            type="button"
-                            id="btn-map-center"
-                            class="navigation-secondary"
-                            title="Kembali ke posisi awal peta"
-                        >
-                            <i
-                                class="fa-solid fa-crosshairs"
-                                aria-hidden="true"
-                            ></i>
-
-                            Posisi
-                        </button>
-
-                    </div>
 
 
                     <div
@@ -926,20 +1237,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
                 const accuracy = position.coords.accuracy;
-
-                posisiSekarang = { latitude, longitude, accuracy };
-                perbaruiMarkerPengguna(latitude, longitude, accuracy);
-
-                if (markerPengguna) {
-                    markerPengguna.openPopup();
-                }
+                
+                const akurasiTeks = Number.isFinite(accuracy)
+                    ? accuracy <= 50
+                        ? 'Lokasi cukup akurat'
+                        : accuracy <= 200
+                            ? 'Akurasi lokasi terbatas'
+                            : 'Lokasi belum cukup akurat'
+                    : 'Akurasi lokasi belum tersedia';
 
                 statusNavigasi.innerHTML = `
-                    <div class="alert alert-success">
-                        Posisi kamu ditampilkan di peta.
-                        Akurasi GPS sekitar ±${Math.round(accuracy)} meter.
+                    <div class="alert ${
+                        accuracy <= 50
+                            ? 'alert-success'
+                            : 'alert-warning'
+                    }" role="status">
+                        <strong>${akurasiTeks}</strong>
+                        <p class="mt-1">
+                            ${
+                                accuracy > 200
+                                    ? 'Coba pindah ke area yang lebih terbuka dan perbarui lokasi.'
+                                    : 'Posisi perangkat ditampilkan pada peta.'
+                            }
+                        </p>
                     </div>
                 `;
+
                 btnMapCenter.disabled = false;
             },
             function (error) {
@@ -1014,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Loading state
         btnNavigasi.disabled = true;
-        btnNavigasi.innerHTML = '📍 Mendeteksi lokasi...';
+        btnNavigasi.innerHTML = '<i class="fa-solid fa-location-dot" aria-hidden="true"></i> Mendeteksi lokasi...';
         statusNavigasi.innerHTML = `
             <div class="alert alert-info">
                 Sedang mendeteksi lokasi kamu...
@@ -1036,7 +1359,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 statusNavigasi.innerHTML = `
                     <div class="alert alert-info">
-                        📍 Lokasi kamu berhasil dideteksi.<br>
+                        
                         Sedang mencari koordinat tujuan...
                     </div>
                 `;
@@ -1076,7 +1399,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         statusNavigasi.innerHTML = `
                             <div class="alert alert-info">
-                                <strong>📍 Pilih tujuan</strong><br>
+                                <h2 class="h5 mb-3">
+                                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                    Pilih Tujuan
+                                </h2>
                                 Ditemukan ${data.hasil.length} pilihan di sekitar lokasi kamu. Silakan pilih salah satu tujuan.
                             </div>
                         `;
@@ -1109,7 +1435,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .finally(() => {
                     btnNavigasi.disabled = false;
-                    btnNavigasi.innerHTML = '📍 Cari Rute';
+                    btnNavigasi.innerHTML = '<i class="fa-solid fa-route" aria-hidden="true"></i> Cari Rute';
                 });
             },
             function (error) {
@@ -1133,7 +1459,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="alert alert-danger">${escapeHtml(pesan)}</div>
                 `;
                 btnNavigasi.disabled = false;
-                btnNavigasi.innerHTML = '📍 Cari Rute';
+                btnNavigasi.innerHTML = '<i class="fa-solid fa-route" aria-hidden="true"></i> Cari Rute';
             },
             {
                 enableHighAccuracy: true,
@@ -1150,7 +1476,10 @@ document.addEventListener('DOMContentLoaded', function () {
         kontrolNavigasi.innerHTML = `
             <div class="card shadow-sm border-0 mt-4">
                 <div class="card-body p-4">
-                    <h2 class="h5 mb-3">📍 Pilih Tujuan</h2>
+                    <strong>
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                        Pilih tujuan
+                    </strong>
                     <p class="text-muted">Pilih salah satu tujuan yang berada di sekitar lokasi kamu.</p>
                     <div id="daftar-pilihan-tujuan"></div>
                 </div>
@@ -1167,7 +1496,10 @@ document.addEventListener('DOMContentLoaded', function () {
             tombol.className = 'btn btn-outline-primary w-100 text-start mb-3 p-3';
             tombol.innerHTML = `
                 <strong>${escapeHtml(item.tujuan)}</strong><br>
-                <small class="text-muted">📍 ${escapeHtml(jarak)}</small>
+                <small class="text-muted">
+                    <i class="fa-solid fa-route" aria-hidden="true"></i>
+                    ${escapeHtml(jarak)}
+                </small>
             `;
 
             tombol.addEventListener('click', function () {
@@ -1181,7 +1513,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 statusNavigasi.innerHTML = `
                     <div class="alert alert-info">
-                        📍 Tujuan dipilih.<br>
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Tujuan dipilih.<br>
                         <strong>${escapeHtml(item.tujuan)}</strong><br>
                         Sedang mencari rute perjalanan...
                     </div>
@@ -1274,7 +1606,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         statusNavigasi.innerHTML = `
             <div class="alert alert-success">
-                <strong>🛣️ Rute berhasil ditemukan.</strong>
+                <strong>
+                    <i class="fa-solid fa-route" aria-hidden="true"></i>
+                    Rute berhasil ditemukan.
+                </strong>
                 <div class="mt-2">
                     <div><strong>Tujuan:</strong> ${escapeHtml(dataTujuan())}</div>
                     <div><strong>Jarak:</strong> ${jarakKm} km</div>
@@ -1293,27 +1628,107 @@ document.addEventListener('DOMContentLoaded', function () {
     // ==========================================================
     // KONTROL MULAI NAVIGASI
     // ==========================================================
+    
     function tampilkanTombolMulai(jarakKm, durasiMenit) {
+        const tujuan = dataTujuan();
+
+        const jarak = Number(jarakKm);
+        const durasi = Number(durasiMenit);
+
+        const jarakTeks = Number.isFinite(jarak)
+            ? `${jarak.toLocaleString('id-ID', {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 2
+            })} km`
+            : 'Belum tersedia';
+
+        let durasiTeks = 'Belum tersedia';
+
+        if (Number.isFinite(durasi) && durasi >= 0) {
+            const jam = Math.floor(durasi / 60);
+            const menit = durasi % 60;
+
+            if (jam > 0 && menit > 0) {
+                durasiTeks = `${jam} jam ${menit} menit`;
+            } else if (jam > 0) {
+                durasiTeks = `${jam} jam`;
+            } else {
+                durasiTeks = `${menit} menit`;
+            }
+        }
+
         kontrolNavigasi.innerHTML = `
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <h2 class="h5 mb-3">🧭 Rute Siap Digunakan</h2>
-                    <p class="text-muted">
-                        Rute menuju tujuan sudah ditemukan. Tekan tombol berikut untuk mulai memantau posisi kamu selama perjalanan.
-                    </p>
-                    <div class="mb-3">
-                        <div><strong>Jarak:</strong> ${jarakKm} km</div>
-                        <div><strong>Perkiraan waktu:</strong> ${durasiMenit} menit</div>
+            <section class="route-summary" aria-labelledby="route-summary-title">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="text-sm font-medium text-slate-500">
+                            Tujuan perjalanan
+                        </p>
+                        <h2
+                            id="route-summary-title"
+                            class="mt-1 break-words text-lg font-bold text-slate-900"
+                        >
+                            ${escapeHtml(tujuan || 'Tujuan terpilih')}
+                        </h2>
                     </div>
-                    <button type="button" id="btn-mulai-perjalanan" class="btn btn-success btn-mulai-perjalanan">
-                        ▶ Mulai Perjalanan
-                    </button>
+
+                    <span
+                        class="shrink-0 rounded-full bg-emerald-50
+                            px-3 py-1 text-xs font-semibold text-emerald-800"
+                    >
+                        Rute tersedia
+                    </span>
                 </div>
-            </div>
+
+                <div class="my-4 grid grid-cols-2 gap-4 border-y
+                            border-slate-200 py-4">
+                    <div>
+                        <p class="text-sm text-slate-500">Jarak</p>
+                        <p class="mt-1 text-xl font-bold text-slate-900">
+                            ${jarakTeks}
+                        </p>
+                    </div>
+
+                    <div>
+                        <p class="text-sm text-slate-500">
+                            Perkiraan waktu
+                        </p>
+                        <p class="mt-1 text-xl font-bold text-slate-900">
+                            ${durasiTeks}
+                        </p>
+                    </div>
+                </div>
+
+                <p class="mb-4 text-sm leading-6 text-slate-600">
+                    Perkiraan berdasarkan rute yang ditemukan.
+                    Kondisi jalur dan hambatan di lapangan dapat berubah.
+                </p>
+
+                
+                <button
+                    type="button"
+                    id="btn-mulai-perjalanan"
+                    class="btn btn-success btn-mulai-perjalanan"
+                >
+                    <i class="fa-solid fa-route" aria-hidden="true"></i>
+                    Mulai navigasi
+                </button>
+
+            </section>
         `;
 
-        document.getElementById('btn-mulai-perjalanan').addEventListener('click', mulaiNavigasiAktif);
+        const tombolMulai = document.getElementById(
+            'btn-mulai-perjalanan'
+        );
+
+        if (tombolMulai) {
+            tombolMulai.addEventListener(
+                'click',
+                mulaiNavigasiAktif
+            );
+        }
     }
+
 
     function mulaiNavigasiAktif() {
         if (!tujuanNavigasi) {
@@ -1343,19 +1758,30 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         kontrolNavigasi.innerHTML = `
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <h2 class="h5 mb-3">🧭 Navigasi Sedang Berjalan</h2>
-                    <div class="alert alert-info">
-                        <strong>Tujuan:</strong> ${escapeHtml(tujuanNavigasi.nama)}
-                    </div>
-                    <div id="info-posisi">📍 Menunggu pembaruan posisi GPS...</div>
-                    <div class="mt-3">
-                        <button type="button" id="btn-hentikan-navigasi" class="btn btn-danger btn-hentikan-navigasi">
-                            ⏹ Hentikan Navigasi
-                        </button>
-                    </div>
-                </div>
+            <h2 class="h5 mb-3">
+                <i class="fa-solid fa-compass" aria-hidden="true"></i>
+                Navigasi Sedang Berjalan
+            </h2>
+
+            <div class="alert alert-info">
+                <strong>Tujuan:</strong>
+                ${escapeHtml(tujuanNavigasi.nama)}
+            </div>
+
+            <div id="info-posisi">
+                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                Menunggu pembaruan posisi GPS...
+            </div>
+
+            <div class="mt-3">
+                <button
+                    type="button"
+                    id="btn-hentikan-navigasi"
+                    class="btn btn-danger btn-hentikan-navigasi"
+                >
+                    <i class="fa-solid fa-stop" aria-hidden="true"></i>
+                    Hentikan Navigasi
+                </button>
             </div>
         `;
 
@@ -1489,12 +1915,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         infoPosisi.innerHTML = `
             <div class="info-perjalanan">
-                <h3>📍 Posisi Saat Ini</h3>
+                <h3>
+                    <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
+                    Posisi Saat Ini
+                </h3>
                 <p><strong>Latitude:</strong> ${posisiSekarang.latitude}</p>
                 <p><strong>Longitude:</strong> ${posisiSekarang.longitude}</p>
                 <p><strong>Akurasi GPS:</strong> ±${Math.round(posisiSekarang.accuracy)} meter</p>
                 <p><strong>Jarak ke tujuan:</strong> ${jarakText}</p>
-                <p class="status-gps">🔄 Posisi GPS sedang diperbarui.</p>
+                <p class="status-gps">
+                    <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                    Posisi GPS sedang diperbarui.
+                </p>
             </div>
         `;
     }
@@ -1573,7 +2005,10 @@ document.addEventListener('DOMContentLoaded', function () {
     function tampilkanPeringatanAktif(pesan) {
         statusPerjalanan.innerHTML = `
             <div class="alert alert-warning" role="alert" aria-live="assertive">
-                <strong>⚠️ Peringatan Hambatan</strong>
+                <strong>
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    Peringatan Hambatan
+                </strong>
                 <div class="mt-2">${escapeHtml(pesan)}</div>
             </div>
         `;
@@ -1595,7 +2030,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let html = `
             <div class="hambatan-ditemukan" role="alert" aria-live="assertive">
-                <h3>⚠️ Hambatan ditemukan: ${hambatan.length}</h3>
+                <h3>
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    Hambatan ditemukan: ${hambatan.length}
+                </h3>
         `;
 
         hambatan.forEach(function (item, index) {
@@ -1809,9 +2247,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hentikanPemantauanGPS();
 
         statusPerjalanan.innerHTML = `
-            <div class="alert alert-secondary" role="status" aria-live="polite">
-                ⏹ Navigasi dihentikan.
-            </div>
+           <i class="fa-solid fa-stop" aria-hidden="true"></i> Navigasi dihentikan.
         `;
 
         bacakanTeks('Navigasi dihentikan.');

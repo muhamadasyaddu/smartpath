@@ -8,51 +8,176 @@
 
 @section('content')
 
-{{-- Header / Navbar Berwarna (Struktur Persis Gambar Ke-2) --}}
-<header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            
+
+<header class="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-sm">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        {{-- Baris utama: logo, navigasi desktop, dan profil --}}
+        <div class="flex h-16 items-center justify-between gap-4">
+
             {{-- Logo SmartPath --}}
-            <a href="/" class="flex items-center gap-2.5 text-decoration-none">
-                <div class="w-10 h-10 rounded-xl bg-[#059669] flex items-center justify-center shadow-sm">
-                    <svg class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a
+                href="{{ route('beranda') }}"
+                class="flex shrink-0 items-center gap-2.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                aria-label="SmartPath - Beranda"
+            >
+                <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
+                    <svg
+                        class="h-6 w-6"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
                         <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
                         <line x1="8" y1="2" x2="8" y2="18"></line>
                         <line x1="16" y1="6" x2="16" y2="22"></line>
-                        <path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" fill="currentColor"></path>
                     </svg>
-                </div>
-                <span class="font-extrabold text-xl tracking-tight leading-none">
-                    <span class="text-[#064e3b]">Smart</span><span class="text-[#10b981]">Path</span>
+                </span>
+
+                <span class="text-xl font-extrabold tracking-tight">
+                    <span class="text-emerald-900">Smart</span><span class="text-emerald-500">Path</span>
                 </span>
             </a>
 
-            {{-- Navigation Menu (Beranda, Peta, Laporan, Tentang) --}}
-            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-700">
-                <a href="#" class="hover:text-emerald-600 transition-colors">Beranda</a>
-                <a href="#" class="hover:text-emerald-600 transition-colors">Peta</a>
-                <a href="{{ route('laporan.index') }}" class="text-emerald-600 font-semibold border-b-2 border-emerald-600 pb-1">Laporan</a>
-                <a href="#" class="hover:text-emerald-600 transition-colors">Tentang</a>
+            {{-- Navigasi desktop --}}
+            <nav
+                class="hidden items-center gap-6 md:flex lg:gap-8"
+                aria-label="Navigasi utama"
+            >
+                <a
+                    href="{{ route('beranda') }}"
+                    @class([
+                        'rounded-sm py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
+                        'text-emerald-700 font-semibold' => request()->routeIs('beranda'),
+                        'text-slate-600 hover:text-emerald-700' => !request()->routeIs('beranda'),
+                    ])
+                    @if(request()->routeIs('beranda')) aria-current="page" @endif
+                >
+                    Beranda
+                </a>
+
+                <a
+                    href="{{ route('peta.index') }}"
+                    @class([
+                        'rounded-sm py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
+                        'text-emerald-700 font-semibold' => request()->routeIs('peta.index', 'peta.data', 'peta.fasilitas'),
+                        'text-slate-600 hover:text-emerald-700' => !request()->routeIs('peta.index', 'peta.data', 'peta.fasilitas'),
+                    ])
+                    @if(request()->routeIs('peta.index', 'peta.data', 'peta.fasilitas')) aria-current="page" @endif
+                >
+                    Peta
+                </a>
+
+                <a
+                    href="{{ route('laporan.index') }}"
+                    @class([
+                        'rounded-sm py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
+                        'text-emerald-700 font-semibold' => request()->routeIs('laporan.*'),
+                        'text-slate-600 hover:text-emerald-700' => !request()->routeIs('laporan.*'),
+                    ])
+                    @if(request()->routeIs('laporan.*')) aria-current="page" @endif
+                >
+                    Laporan
+                </a>
+
+                <a
+                    href="{{ route('tentang') }}"
+                    @class([
+                        'rounded-sm py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
+                        'text-emerald-700 font-semibold' => request()->routeIs('tentang'),
+                        'text-slate-600 hover:text-emerald-700' => !request()->routeIs('tentang'),
+                    ])
+                    @if(request()->routeIs('tentang')) aria-current="page" @endif
+                >
+                    Tentang
+                </a>
             </nav>
 
-            {{-- Profile User --}}
-            <div class="flex items-center gap-2 border border-slate-200 bg-slate-50 rounded-full px-3 py-1.5 text-sm text-slate-700 cursor-pointer hover:bg-slate-100 transition">
-                <div class="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            {{-- Profil pengguna: tautan aktif, bukan elemen dekoratif --}}
+            <a
+                href="{{ route('profile.edit') }}"
+                class="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                aria-label="Buka profil pengguna"
+                @if(request()->routeIs('profile.edit')) aria-current="page" @endif
+            >
+                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-800">
+                    <svg
+                        class="h-4 w-4"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
-                </div>
-                <span class="font-medium text-slate-800">Pengguna</span>
-                <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 9l6 6 6-6"></path>
-                </svg>
-            </div>
+                </span>
 
+                <span>Pengguna</span>
+            </a>
         </div>
+
+        {{-- Navigasi seluler: tetap tersedia di layar kecil --}}
+        <nav
+            class="flex items-center justify-between gap-2 overflow-x-auto border-t border-slate-100 py-2 md:hidden"
+            aria-label="Navigasi seluler"
+        >
+            <a
+                href="{{ route('beranda') }}"
+                @class([
+                    'whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
+                    'bg-emerald-50 text-emerald-800' => request()->routeIs('beranda'),
+                    'text-slate-600 hover:bg-slate-50' => !request()->routeIs('beranda'),
+                ])
+            >
+                Beranda
+            </a>
+
+            <a
+                href="{{ route('peta.index') }}"
+                @class([
+                    'whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
+                    'bg-emerald-50 text-emerald-800' => request()->routeIs('peta.index', 'peta.data', 'peta.fasilitas'),
+                    'text-slate-600 hover:bg-slate-50' => !request()->routeIs('peta.index', 'peta.data', 'peta.fasilitas'),
+                ])
+            >
+                Peta
+            </a>
+
+            <a
+                href="{{ route('laporan.index') }}"
+                @class([
+                    'whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
+                    'bg-emerald-50 text-emerald-800' => request()->routeIs('laporan.*'),
+                    'text-slate-600 hover:bg-slate-50' => !request()->routeIs('laporan.*'),
+                ])
+                @if(request()->routeIs('laporan.*')) aria-current="page" @endif
+            >
+                Laporan
+            </a>
+
+            <a
+                href="{{ route('tentang') }}"
+                @class([
+                    'whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
+                    'bg-emerald-50 text-emerald-800' => request()->routeIs('tentang'),
+                    'text-slate-600 hover:bg-slate-50' => !request()->routeIs('tentang'),
+                ])
+            >
+                Tentang
+            </a>
+        </nav>
+
     </div>
 </header>
+
 
 <div class="laporan-create-page max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
@@ -374,7 +499,7 @@
                             type="text"
                             id="latitude"
                             name="latitude"
-                            value="{{ old('latitude', '-6.2000') }}"
+                            value="{{ old('latitude') }}"
                             class="sp-input sp-coordinate w-full bg-slate-50 rounded-xl border-slate-300"
                             placeholder="-6.2000"
                             inputmode="decimal"
@@ -414,7 +539,7 @@
                             type="text"
                             id="longitude"
                             name="longitude"
-                            value="{{ old('longitude', '106.8167') }}"
+                            value="{{ old('longitude') }}"
                             class="sp-input sp-coordinate w-full bg-slate-50 rounded-xl border-slate-300"
                             placeholder="106.8167"
                             inputmode="decimal"
