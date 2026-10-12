@@ -10,7 +10,7 @@
     1. KARTU STATISTIK PENANGANAN
     ========================================================== --}}
     <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
         role="region"
         aria-label="Statistik Penanganan PUPR"
     >
@@ -90,10 +90,10 @@
     {{-- ==========================================================
     2. PETA SEBARAN LOKASI & WIDGET REALISASI ANGGARAN
     ========================================================== --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
         
         {{-- PETA INTERAKTIF (Kiri -  Lebar) --}}
-        <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm lg:col-span-2 flex flex-col justify-between">
+        <div class="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-2">
             <div>
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="font-semibold text-slate-900 flex items-center gap-2">
@@ -119,7 +119,7 @@
         </div>
 
         {{-- KOLOM REALISASI ANGGARAN --}}
-        <div class="lg:col-span-1">
+        <div class="xl:col-span-1">
             <section
                 class="flex h-full flex-col rounded-xl border border-slate-200
                     bg-white p-5 shadow-sm"
@@ -325,124 +325,92 @@
                 </div>
             </section>
         </div>
+    </div>
 
     {{-- ==========================================================
     3. PRIORITAS PERBAIKAN & TABEL ANTRIAN LAPORAN TERBARU
     ========================================================== --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
         
         {{-- WIDGET: PRIORITAS PERBAIKAN --}}
-<div class="lg:col-span-1 bg-white rounded-xl border border-slate-200 p-4 shadow-sm h-fit self-start">            <div>
-                <h2 class="font-semibold text-slate-900 mb-3 flex items-center gap-2 text-sm">
+        <section class="h-fit self-start rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-1" aria-labelledby="prioritas-perbaikan-title">
+            <h2 id="prioritas-perbaikan-title" class="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
                     <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
                     </svg>
-                    Prioritas Perbaikan
-                </h2>
+                    Sebaran Prioritas
+            </h2>
 
-                <div class="space-y-2">
-                    {{-- 1. Kritis --}}
-                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-red-50 border border-red-100">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-bold text-red-700 w-7 text-center">{{ $prioritas['kritis'] ?? 18 }}</span>
-                            <div>
-                                <p class="text-xs font-bold text-red-900">Kritis</p>
-                                <p class="text-[11px] text-red-600">Penanganan segera</p>
-                            </div>
-                        </div>
+            <div class="space-y-3">
+                @foreach ([
+                    ['label' => 'Tinggi', 'key' => 'tinggi', 'classes' => 'border-red-100 bg-red-50 text-red-700'],
+                    ['label' => 'Sedang', 'key' => 'sedang', 'classes' => 'border-amber-100 bg-amber-50 text-amber-700'],
+                    ['label' => 'Rendah', 'key' => 'rendah', 'classes' => 'border-blue-100 bg-blue-50 text-blue-700'],
+                    ['label' => 'Belum dinilai', 'key' => 'belum_dinilai', 'classes' => 'border-slate-200 bg-slate-50 text-slate-700'],
+                ] as $item)
+                    <div class="flex items-center justify-between gap-3 rounded-lg border p-3 {{ $item['classes'] }}">
+                        <span class="text-sm font-medium">{{ $item['label'] }}</span>
+                        <span class="text-lg font-bold tabular-nums">{{ $prioritas[$item['key']] }}</span>
                     </div>
-
-                    {{-- 2. Tinggi --}}
-                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-amber-50 border border-amber-100">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-bold text-amber-700 w-7 text-center">{{ $prioritas['tinggi'] ?? 42 }}</span>
-                            <div>
-                                <p class="text-xs font-bold text-amber-900">Tinggi</p>
-                                <p class="text-[11px] text-amber-600">Antrian perbaikan</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 3. Menengah --}}
-                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 border border-blue-100">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-bold text-blue-700 w-7 text-center">{{ $prioritas['menengah'] ?? 95 }}</span>
-                            <div>
-                                <p class="text-xs font-bold text-blue-900">Menengah</p>
-                                <p class="text-[11px] text-blue-600">Dijadwalkan</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 4. Rendah --}}
-                    <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg font-bold text-slate-700 w-7 text-center">{{ $prioritas['rendah'] ?? 93 }}</span>
-                            <div>
-                                <p class="text-xs font-bold text-slate-900">Rendah</p>
-                                <p class="text-[11px] text-slate-500">Monitoring</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
-        </div>
+        </section>
 
         {{-- TABEL: DAFTAR LAPORAN MASUK --}}
-        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-            <div class="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
-                <h2 class="font-semibold text-slate-900 text-sm flex items-center gap-2">
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm xl:col-span-2">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4">
+                <h2 class="flex items-center gap-2 text-sm font-semibold text-slate-900">
                     <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <rect x="3" y="3" width="18" height="18" rx="3" stroke-width="2"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h10M7 16h6"/>
                     </svg>
                     Laporan Terbaru Masuk
                 </h2>
-                <a href="{{ route('admin.verifikasi.index') }}" class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors">Lihat Semua Antrian →</a>
+                <a href="{{ route('admin.verifikasi.index') }}" class="shrink-0 text-xs font-semibold text-emerald-700 transition-colors hover:text-emerald-800">Lihat Semua Antrian →</a>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left text-slate-600">
-                    <thead class="border-b border-slate-100 bg-slate-50 text-slate-400 uppercase tracking-wider text-[11px]">
+                <table class="w-full min-w-[760px] text-left text-xs text-slate-600">
+                    <thead class="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wider text-slate-400">
                         <tr>
-                            <th class="px-5 py-2.5 font-semibold">Kode</th>
-                            <th class="px-5 py-2.5 font-semibold">Judul Laporan</th>
-                            <th class="px-5 py-2.5 font-semibold">Kategori Hambatan</th>
-                            <th class="px-5 py-2.5 font-semibold">Status</th>
-                            <th class="px-5 py-2.5 font-semibold text-center">Skor Prioritas</th>
-                            <th class="px-5 py-2.5 font-semibold text-right">Tanggal Masuk</th>
+                            <th class="px-5 py-3 font-semibold">Kode</th>
+                            <th class="px-5 py-3 font-semibold">Judul Laporan</th>
+                            <th class="px-5 py-3 font-semibold">Kategori Hambatan</th>
+                            <th class="px-5 py-3 font-semibold">Status</th>
+                            <th class="px-5 py-3 text-center font-semibold">Skor Prioritas</th>
+                            <th class="px-5 py-3 text-right font-semibold">Tanggal Masuk</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($laporanTerbaru ?? [] as $item)
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-5 py-2.5 font-mono font-bold text-slate-700">{{ $item->kode_laporan }}</td>
-                                <td class="px-5 py-2.5 font-semibold text-slate-800">
+                            <tr class="transition-colors hover:bg-slate-50">
+                                <td class="whitespace-nowrap px-5 py-3 font-mono font-bold text-slate-700">{{ $item->kode_laporan }}</td>
+                                <td class="max-w-xs px-5 py-3 font-semibold text-slate-800">
                                     <a href="{{ route('admin.verifikasi.show', $item) }}" class="hover:text-emerald-700">
                                         {{ Str::limit($item->judul, 35) }}
                                     </a>
                                 </td>
-                                <td class="px-5 py-2.5">
-                                    <span class="inline-flex items-center gap-1.5">
-                                        <span class="w-2 h-2 rounded-full" style="background-color: {{ $item->kategoriHambatan->warna_penanda ?? '#64748b' }}"></span>
+                                <td class="px-5 py-3">
+                                    <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                                        <span class="h-2 w-2 rounded-full" style="background-color: {{ $item->kategoriHambatan->warna_penanda ?? '#64748b' }}"></span>
                                         {{ $item->kategoriHambatan->nama ?? 'Umum' }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-2.5">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold {{ $item->warna }}">
+                                <td class="whitespace-nowrap px-5 py-3">
+                                    <span class="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold {{ $item->warna }}">
                                         {{ $item->status_label }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-2.5 text-center font-bold text-red-600">
+                                <td class="whitespace-nowrap px-5 py-3 text-center font-bold text-red-600">
                                     {{ number_format($item->skor_prioritas ?? 0, 1) }}
                                 </td>
-                                <td class="px-5 py-2.5 text-right text-slate-400">
+                                <td class="whitespace-nowrap px-5 py-3 text-right text-slate-400">
                                     {{ $item->created_at?->format('d M Y H:i') ?? '-' }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-6 text-center text-slate-400">Belum ada data laporan masuk.</td>
+                                <td colspan="6" class="px-5 py-8 text-center text-slate-400">Belum ada data laporan masuk.</td>
                             </tr>
                         @endforelse
                     </tbody>

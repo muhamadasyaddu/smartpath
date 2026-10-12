@@ -768,6 +768,31 @@ public function indexDinas()
                 ->count(),
     ];
 
+    $prioritas = [
+        'tinggi' =>
+            (clone $laporanDasar)
+                ->whereNotNull('skor_prioritas')
+                ->where('skor_prioritas', '>=', 70)
+                ->count(),
+
+        'sedang' =>
+            (clone $laporanDasar)
+                ->where('skor_prioritas', '>=', 40)
+                ->where('skor_prioritas', '<', 70)
+                ->count(),
+
+        'rendah' =>
+            (clone $laporanDasar)
+                ->whereNotNull('skor_prioritas')
+                ->where('skor_prioritas', '<', 40)
+                ->count(),
+
+        'belum_dinilai' =>
+            (clone $laporanDasar)
+                ->whereNull('skor_prioritas')
+                ->count(),
+    ];
+
 
     /*
     |--------------------------------------------------------------------------
@@ -864,6 +889,7 @@ public function indexDinas()
         'Dashboard.dinas',
         compact(
             'statistik',
+            'prioritas',
             'laporanPrioritasTinggi',
             'laporanTerbaru',
             'petaLaporan',
