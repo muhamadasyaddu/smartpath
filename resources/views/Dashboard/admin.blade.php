@@ -148,11 +148,14 @@
     $change = $persentasePerubahan;
 @endphp
 
+
 <div
     id="admin-dashboard"
     data-live-url="{{ route('admin.dashboard.live') }}"
+    data-dashboard-url="{{ route('admin.dashboard') }}"
     class="smartpath-dashboard"
 >
+
     <div class="smartpath-dashboard__inner">
 
         {{-- =====================================================

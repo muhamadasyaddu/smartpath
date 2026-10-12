@@ -18,6 +18,12 @@ return Application::configure(
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
+
+        $middleware->appendToGroup(
+            'web',
+            \App\Http\Middleware\PreventBackHistory::class
+        );
+
         $middleware->alias([
 
             'admin' =>

@@ -31,43 +31,35 @@
 
     const DEFAULT_ZOOM = 12;
 
+    
+    // Data laporan awal dikirim oleh Laravel melalui elemen JSON
+    // di Dashboard.admin.blade.php.
     let reports = [];
 
-async function loadHomeReports() {
-
-    try {
-
-        const response =
-            await fetch(
-                '{{ route("peta.data") }}',
-                {
-                    headers: {
-                        'Accept':
-                            'application/json'
-                    }
-                }
+    if (dataElement) {
+        try {
+            const initialReports = JSON.parse(
+                dataElement.textContent || '[]'
             );
 
-        if (!response.ok) {
-            throw new Error(
-                'Gagal mengambil data laporan.'
+            reports = Array.isArray(initialReports)
+                ? initialReports
+                : [];
+
+        } catch (error) {
+            console.error(
+                'SmartPath: data awal peta tidak valid.',
+                error
             );
+
+            reports = [];
         }
-
-        reports =
-            await response.json();
-
-        renderHomeMarkers();
-
-    } catch (error) {
-
+    } else {
         console.error(
-            'SmartPath Home Map:',
-            error
+            'SmartPath: elemen #smartpath-map-data tidak ditemukan.'
         );
-
     }
-}
+
 
 
     const escapeHtml = (value) => {
@@ -681,105 +673,141 @@ async function loadHomeReports() {
         };
 
 
-    const refreshDashboard =
-        async () => {
+    
+    let dashboardRefreshInProgress = false;
 
-            const liveUrl =
-                dashboard.dataset.liveUrl;
+    const refreshDashboard = async () => {
+        if (dashboardRefreshInProgress) {
+            return;
+        }
 
-            if (!liveUrl) {
-                return;
-            }
+        const liveUrl = dashboard.dataset.liveUrl;
+        const dashboardUrl = dashboard.dataset.dashboardUrl;
 
+        if (!liveUrl || !dashboardUrl) {
+            console.error(
+                'SmartPath: URL polling dashboard belum tersedia.'
+            );
+            return;
+        }
 
-            try {
+        dashboardRefreshInProgress = true;
 
-                const response =
-                    await fetch(
-                        liveUrl,
-                        {
-                            method: 'GET',
+        try {
+            /*
+             * Ambil data JSON terbaru untuk peta.
+             */
+            const liveResponse = await fetch(liveUrl, {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                cache: 'no-store'
+            });
 
-                            headers: {
-                                Accept:
-                                    'application/json',
-
-                                'X-Requested-With':
-                                    'XMLHttpRequest'
-                            },
-
-                            credentials:
-                                'same-origin',
-
-                            cache:
-                                'no-store'
-                        }
-                    );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        `HTTP ${
-                            response.status
-                        }`
-                    );
-
-                }
-
-
-                const payload =
-                    await response.json();
-
-
-                if (
-                    payload.statistik
-                ) {
-
-                    updateKpi(
-                        payload.statistik
-                    );
-
-                }
-
-
-                if (
-                    Array.isArray(
-                        payload.peta_laporan
-                    )
-                ) {
-
-                    reports =
-                        payload.peta_laporan;
-
-
-                    updateMapSummary({
-
-                        total:
-                            reports.length,
-
-                        area_dipantau:
-                            payload.area_dipantau
-
-                    });
-
-
-                    renderMarkers(
-                        false
-                    );
-
-                }
-
-            } catch (error) {
-
-                console.warn(
-                    'SmartPath: refresh dashboard gagal.',
-                    error
+            if (!liveResponse.ok) {
+                throw new Error(
+                    `Endpoint live gagal: HTTP ${liveResponse.status}`
                 );
-
             }
 
-        };
+            const payload = await liveResponse.json();
+
+            /*
+             * Ambil HTML dashboard terbaru dari route yang sama
+             * dengan halaman dashboard saat ini.
+             */
+            const pageUrl = new URL(
+                dashboardUrl,
+                window.location.origin
+            );
+
+            pageUrl.search = window.location.search;
+
+            const pageResponse = await fetch(pageUrl.toString(), {
+                method: 'GET',
+                headers: {
+                    Accept: 'text/html',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                cache: 'no-store'
+            });
+
+            if (!pageResponse.ok) {
+                throw new Error(
+                    `Pembaruan HTML gagal: HTTP ${pageResponse.status}`
+                );
+            }
+
+            const html = await pageResponse.text();
+
+            /*
+             * Jangan mengganti tampilan jika server ternyata
+             * mengembalikan halaman login atau halaman yang salah.
+             */
+            const parsedDocument = new DOMParser().parseFromString(
+                html,
+                'text/html'
+            );
+
+            const freshDashboard = parsedDocument.getElementById(
+                'admin-dashboard'
+            );
+
+            if (!freshDashboard) {
+                throw new Error(
+                    'Elemen dashboard tidak ditemukan pada respons terbaru.'
+                );
+            }
+
+            /*
+             * Ganti hanya komponen yang memang perlu diperbarui.
+             * Peta dan elemen di luar tiga bagian ini tidak disentuh.
+             */
+            const selectors = [
+                '.sp-kpi-grid',
+                '#analytics',
+                '.sp-bottom-grid'
+            ];
+
+            for (const selector of selectors) {
+                const currentElement = dashboard.querySelector(selector);
+                const freshElement = freshDashboard.querySelector(selector);
+
+                if (currentElement && freshElement) {
+                    currentElement.replaceWith(
+                        freshElement.cloneNode(true)
+                    );
+                }
+            }
+
+            /*
+             * Perbarui data peta menggunakan JSON terbaru.
+             */
+            if (Array.isArray(payload.peta_laporan)) {
+                reports = payload.peta_laporan;
+
+                updateMapSummary({
+                    total: reports.length,
+                    area_dipantau: payload.area_dipantau
+                });
+
+                renderMarkers(false);
+            }
+
+        } catch (error) {
+            console.warn(
+                'SmartPath: pembaruan dashboard gagal.',
+                error
+            );
+        } finally {
+            dashboardRefreshInProgress = false;
+        }
+    };
+
 
 
     document
@@ -831,15 +859,19 @@ async function loadHomeReports() {
     );
 
 
+
+    
     /*
-     * Sesuai proposal:
-     * dashboard diperbarui otomatis setiap 60 detik
-     * menggunakan AJAX polling tanpa reload halaman.
+     * Perbarui sekali saat halaman selesai diinisialisasi,
+     * lalu lanjutkan polling setiap 60 detik.
      */
+    refreshDashboard();
+
     window.setInterval(
         refreshDashboard,
         60000
     );
+
 
 
     window.addEventListener(
@@ -849,5 +881,12 @@ async function loadHomeReports() {
             passive: true
         }
     );
+
+    // Panggil perintah ini setelah peta berhasil di-inisialisasi
+    setTimeout(function() {
+        map.invalidateSize();
+    }, 200);
+
+    
 
 })();
