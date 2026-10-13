@@ -485,32 +485,26 @@
 
 
                         <button
-                            id="map-recenter"
-                            type="button"
-                            aria-label="Pusatkan peta ke Kota Depok"
-                            title="Pusatkan peta"
-                        >
-
-                            <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <circle
-                                    cx="12"
-                                    cy="12"
-                                    r="3"
-                                />
-
-                                <path
-                                    stroke-linecap="round"
-                                    d="M12 2v3M12 19v3M2 12h3M19 12h3"
-                                />
-                            </svg>
-
-                        </button>
+    id="map-recenter"
+    type="button"
+    aria-label="Corong Filter Peta"
+    title="Corong Filter Peta"
+    class="inline-flex items-center justify-center p-2 text-slate-600 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 hover:text-emerald-600 hover:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all duration-150"
+>
+    <!-- Ikon Corong Filter Peta-->
+    <svg
+        class="w-5 h-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+    >
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    </svg>
+</button>
 
                     </div>
 

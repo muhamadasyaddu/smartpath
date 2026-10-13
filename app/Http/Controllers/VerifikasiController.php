@@ -55,6 +55,7 @@ class VerifikasiController extends Controller
         return view('verifikasi.index', compact('laporan'));
     }
 
+    
     /**
      * Detail laporan untuk admin.
      */
@@ -67,13 +68,185 @@ class VerifikasiController extends Controller
             'fotoLaporan',
             'laporanInduk',
             'laporanAnak.pelapor',
+            'laporanAnak.kategoriHambatan',
+            'laporanAnak.fotoLaporan',
             'verifikasi.admin',
             'riwayatStatus.diubahOleh',
             'fasilitasTerdekat',
         ]);
 
-        return view('verifikasi.show', compact('laporan'));
+        $pengaturan = \App\Models\PengaturanPrioritas::getActive();
+
+        $radiusDeduplikasiMeter = (int) (
+            $pengaturan?->radius_deduplikasi_m
+            ?? \App\Models\KonfigurasiSistem::getValue(
+                'radius_deduplikasi_meter',
+                50
+            )
+        );
+
+        $jarakKeIndukMeter = null;
+
+        if ($laporan->laporanInduk) {
+            $jarakKeIndukMeter = $this->hitungJarakMeter(
+                (float) $laporan->latitude,
+                (float) $laporan->longitude,
+                (float) $laporan->laporanInduk->latitude,
+                (float) $laporan->laporanInduk->longitude
+            );
+        }
+
+        foreach ($laporan->laporanAnak as $anak) {
+            $anak->setAttribute(
+                'jarak_dari_induk_meter',
+                round(
+                    $this->hitungJarakMeter(
+                        (float) $laporan->latitude,
+                        (float) $laporan->longitude,
+                        (float) $anak->latitude,
+                        (float) $anak->longitude
+                    ),
+                    2
+                )
+            );
+        }
+
+        return view(
+            'verifikasi.show',
+            compact(
+                'laporan',
+                'radiusDeduplikasiMeter',
+                'jarakKeIndukMeter'
+            )
+        );
     }
+
+    /**
+     * Menghitung jarak geografis dua koordinat GPS
+     * menggunakan rumus Haversine.
+     */
+    protected function hitungJarakMeter(
+        float $lat1,
+        float $lng1,
+        float $lat2,
+        float $lng2
+    ): float {
+        $radiusBumi = 6371000;
+
+        $lat1 = deg2rad($lat1);
+        $lat2 = deg2rad($lat2);
+        $deltaLat = $lat2 - $lat1;
+        $deltaLng = deg2rad($lng2 - $lng1);
+
+        $a = sin($deltaLat / 2) ** 2
+            + cos($lat1)
+            * cos($lat2)
+            * sin($deltaLng / 2) ** 2;
+
+        $a = min(1, max(0, $a));
+
+        return $radiusBumi * 2 * atan2(
+            sqrt($a),
+            sqrt(1 - $a)
+        );
+    }
+
+
+
+    
+    /**
+     * Memisahin kandidat duplikasi yang setelah diperiksa admin
+     * ternyata merupakan objek hambatan yang berbeda.
+     *
+     * Hanya laporan yang masih menunggu verifikasi yang dapat dipisahkan.
+     * Setelah terpisah, laporan tetap menunggu keputusan persetujuan admin.
+     */
+    public function jadikanMandiri(Laporan $laporan)
+    {
+        if ($laporan->status !== 'menunggu_verifikasi') {
+            return back()->with(
+                'galat',
+                'Hanya laporan yang menunggu verifikasi yang dapat dipisahkan.'
+            );
+        }
+
+        if (!$laporan->laporan_induk_id) {
+            return back()->with(
+                'info',
+                'Laporan ini sudah merupakan laporan mandiri.'
+            );
+        }
+
+        try {
+            DB::transaction(function () use ($laporan) {
+                // Kunci data laporan untuk mengurangi risiko perubahan bersamaan.
+                $laporanTerkunci = Laporan::query()
+                    ->whereKey($laporan->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if (
+                    $laporanTerkunci->status !== 'menunggu_verifikasi'
+                    || !$laporanTerkunci->laporan_induk_id
+                ) {
+                    throw new \RuntimeException(
+                        'Status laporan berubah. Muat ulang halaman dan periksa kembali.'
+                    );
+                }
+
+                $parent = Laporan::query()
+                    ->whereKey($laporanTerkunci->laporan_induk_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                // Lepaskan relasi child-parent, tanpa menghapus laporan/fotonya.
+                $laporanTerkunci->update([
+                    'laporan_induk_id' => null,
+                    'jumlah_pelapor' => 1,
+                ]);
+
+                // Perbarui jumlah pelapor unik pada laporan induk sebelumnya.
+                if ($parent) {
+                    $this->syncParentReporterCount($parent);
+
+                    if ($this->isScoreableStatus($parent->status)) {
+                        $this->calculateAndSavePriority($parent);
+                    }
+                }
+
+                // Catat tindakan admin untuk audit.
+                Audit::log(
+                    auth()->id(),
+                    'laporan_dipisahkan_dari_induk',
+                    'laporan',
+                    $laporanTerkunci->id,
+                    [
+                        'laporan_induk_id' => $parent?->id,
+                    ],
+                    [
+                        'laporan_induk_id' => null,
+                    ],
+                    'Laporan dipisahkan dari kandidat induk karena dinilai sebagai objek berbeda.'
+                );
+            });
+
+            return redirect()
+                ->route('admin.verifikasi.show', $laporan)
+                ->with(
+                    'sukses',
+                    'Laporan berhasil dipisahkan. Periksa kembali bukti dan setujui laporan jika valid.'
+                );
+        } catch (\Throwable $e) {
+            report($e);
+
+            return back()->with(
+                'galat',
+                'Laporan belum berhasil dipisahkan. Muat ulang halaman dan coba kembali.'
+            );
+        }
+    }
+
+
 
     /**
      * Terima laporan pending.

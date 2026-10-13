@@ -23,28 +23,36 @@ use Throwable;
 
 class LaporanController extends Controller
 {
-    /**
-     * Riwayat laporan.
-     *
-     * Warga hanya boleh melihat laporan miliknya sendiri.
-     * Admin tetap dapat melihat seluruh laporan melalui route ini
-     * jika diperlukan untuk kompatibilitas dengan sistem lama.
-     */
+   
     public function index(Request $request)
     {
-        $query = Laporan::induk()
-            ->with(['kategoriHambatan', 'pelapor', 'wilayah', 'fotoLaporan']);
+        // Admin melihat seluruh laporan, termasuk laporan kandidat duplikasi.
+        // Warga hanya melihat laporan yang dibuat oleh akunnya sendiri.
+        $query = Laporan::query()
+            ->with([
+                'kategoriHambatan',
+                'pelapor',
+                'wilayah',
+                'fotoLaporan',
+                'laporanInduk',
+            ]);
 
         if (!auth()->user()->isAdmin()) {
             $query->where('pelapor_id', auth()->id());
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->string('status')->toString());
+            $query->where(
+                'status',
+                $request->string('status')->toString()
+            );
         }
 
         if ($request->filled('kategori')) {
-            $query->where('kategori_hambatan_id', $request->integer('kategori'));
+            $query->where(
+                'kategori_hambatan_id',
+                $request->integer('kategori')
+            );
         }
 
         $laporan = $query
@@ -52,7 +60,8 @@ class LaporanController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        $countQuery = Laporan::induk();
+        // Hitungan status menggunakan cakupan data yang sama dengan daftar.
+        $countQuery = Laporan::query();
 
         if (!auth()->user()->isAdmin()) {
             $countQuery->where('pelapor_id', auth()->id());
@@ -60,15 +69,24 @@ class LaporanController extends Controller
 
         $statusCounts = [
             'semua' => (clone $countQuery)->count(),
-            'menunggu_verifikasi' => (clone $countQuery)->where('status', 'menunggu_verifikasi')->count(),
-            'diverifikasi' => (clone $countQuery)->where('status', 'diverifikasi')->count(),
-            'dalam_perbaikan' => (clone $countQuery)->where('status', 'dalam_perbaikan')->count(),
-            'selesai' => (clone $countQuery)->where('status', 'selesai')->count(),
-            'ditolak' => (clone $countQuery)->where('status', 'ditolak')->count(),
+            'menunggu_verifikasi' => (clone $countQuery)
+                ->where('status', 'menunggu_verifikasi')->count(),
+            'diverifikasi' => (clone $countQuery)
+                ->where('status', 'diverifikasi')->count(),
+            'dalam_perbaikan' => (clone $countQuery)
+                ->where('status', 'dalam_perbaikan')->count(),
+            'selesai' => (clone $countQuery)
+                ->where('status', 'selesai')->count(),
+            'ditolak' => (clone $countQuery)
+                ->where('status', 'ditolak')->count(),
         ];
 
-        return view('Laporan.index', compact('laporan', 'statusCounts'));
+        return view(
+            'Laporan.index',
+            compact('laporan', 'statusCounts')
+        );
     }
+
 
     /**
      * Form laporan baru.

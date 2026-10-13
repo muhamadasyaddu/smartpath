@@ -236,6 +236,13 @@ Route::middleware(['auth', 'admin'])
             [VerifikasiController::class, 'reject']
         )->name('verifikasi.reject');
 
+        
+        Route::post(
+            '/verifikasi/{laporan}/jadikan-mandiri',
+            [VerifikasiController::class, 'jadikanMandiri']
+        )->name('verifikasi.jadikan-mandiri');
+
+
         // Fitur verifikasi lama tetap dipertahankan.
         Route::post(
             '/verifikasi/{laporan}/kembalikan',
