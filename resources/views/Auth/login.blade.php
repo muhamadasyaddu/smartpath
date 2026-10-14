@@ -186,13 +186,20 @@
                             {{-- Toggle Password Button --}}
                             <button
                                 type="button"
-                                id="toggle-password"
-                                class="flex h-10 w-10 items-center justify-center text-slate-400 transition hover:text-emerald-600 focus:outline-none"
+                                tabindex="0"
+                                class="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                data-password-toggle="kata_sandi"
                                 aria-label="Tampilkan kata sandi"
+                                aria-pressed="false"
                             >
-                                <svg id="password-eye" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
+                                <svg class="h-5 w-5 eye-open" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/>
                                     <circle cx="12" cy="12" r="2.5"/>
+                                </svg>
+                                <svg class="h-5 w-5 eye-closed hidden" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m3 3 18 18"/>
+                                    <path d="M10.6 6.2A10.8 10.8 0 0 1 12 6c6 0 9.5 6 9.5 6a16 16 0 0 1-3.2 3.9"/>
+                                    <path d="M6.3 6.4C3.9 8.2 2.5 12 2.5 12s3.5 6 9.5 6c1.3 0 2.5-.3 3.6-.8"/>
                                 </svg>
                             </button>
                         </div>
@@ -288,33 +295,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     
-    // 1. TOGGLE PASSWORD
-    const toggleButton = document.getElementById('toggle-password');
-    const passwordInput = document.getElementById('kata_sandi');
-    const eyeIcon = document.getElementById('password-eye');
-
-    if (toggleButton && passwordInput && eyeIcon) {
-        toggleButton.addEventListener('click', function () {
-            const isPassword = passwordInput.type === 'password';
-            passwordInput.type = isPassword ? 'text' : 'password';
-
-            if (isPassword) {
-                eyeIcon.innerHTML = `
-                    <path d="M3 3l18 18"/>
-                    <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
-                    <path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c6.5 0 10 8 10 8a17.8 17.8 0 0 1-3.1 4.3"/>
-                    <path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.5 8 10 8c1.4 0 2.7-.3 3.9-.9"/>
-                `;
-            } else {
-                eyeIcon.innerHTML = `
-                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/>
-                    <circle cx="12" cy="12" r="2.5"/>
-                `;
-            }
-        });
-    }
-
-    // 2. VOICE TO TEXT (SPEECH RECOGNITION)
+    // 1. VOICE TO TEXT (SPEECH RECOGNITION)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognition) {
@@ -402,6 +383,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
+</script>
+
+<script>
+(() => {
+    document.querySelectorAll('[data-password-toggle]').forEach(button => {
+        button.addEventListener('click', function() {
+            const inputId = this.getAttribute('data-password-toggle');
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const showPassword = input.type === 'password';
+            input.type = showPassword ? 'text' : 'password';
+            this.setAttribute('aria-pressed', String(showPassword));
+            this.setAttribute(
+                'aria-label',
+                showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'
+            );
+            this.querySelector('.eye-open').classList.toggle('hidden', showPassword);
+            this.querySelector('.eye-closed').classList.toggle('hidden', !showPassword);
+        });
+    });
+})();
 </script>
 
 @endsection
