@@ -259,6 +259,15 @@
         }
     );
 
+    window.addEventListener(
+        'resize',
+        () => {
+            aturMenu(
+                window.innerWidth >= 1024
+            );
+        }
+    );
+
 
     /*
      * Klik overlay untuk menutup menu.

@@ -4,9 +4,17 @@
 
 @if(auth()->check() && auth()->user()->isDinas())
 
+<button
+    type="button"
+    id="dinas-sidebar-overlay"
+    class="hidden fixed inset-0 z-40 bg-slate-900/40 lg:hidden"
+    aria-label="Tutup menu navigasi"
+    tabindex="-1"
+></button>
+
 <aside
     id="dinas-sidebar"
-    class="hidden lg:flex lg:w-64 lg:flex-col bg-white border-r border-slate-200 min-h-screen justify-between"
+    class="hidden fixed inset-y-0 left-0 z-50 h-screen w-64 flex-col justify-between border-r border-slate-200 bg-white transition-transform duration-200 lg:static lg:z-auto lg:flex lg:h-auto lg:min-h-screen lg:w-64 lg:translate-x-0"
     role="complementary"
     aria-label="Menu dinas"
 >
