@@ -11,6 +11,7 @@
     id="main-content"
     class="max-w-4xl mx-auto px-4 py-10 sm:px-6 lg:px-8"
 >
+    {{-- JUDUL --}}
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-slate-900">
             Profil Saya
@@ -21,6 +22,7 @@
         </p>
     </div>
 
+    {{-- PESAN BERHASIL --}}
     @if(session('sukses'))
         <div
             class="mb-6 rounded-xl border border-emerald-200
@@ -31,6 +33,7 @@
         </div>
     @endif
 
+    {{-- PESAN VALIDASI --}}
     @if($errors->any())
         <div
             class="mb-6 rounded-xl border border-red-200
@@ -45,6 +48,7 @@
         </div>
     @endif
 
+    {{-- FORM PROFIL --}}
     <form
         action="{{ route('profile.update') }}"
         method="POST"
@@ -61,16 +65,16 @@
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
                 @if($user->foto_profil)
                     <img
-                        src="{{ asset('storage/'.$user->foto_profil) }}"
+                        src="{{ asset('storage/' . $user->foto_profil) }}"
                         alt="Foto profil {{ $user->nama_lengkap }}"
                         class="h-24 w-24 rounded-full border
                                border-slate-200 object-cover"
                     >
                 @else
                     <div
-                        class="flex h-24 w-24 items-center justify-center
-                               rounded-full bg-emerald-100 text-3xl
-                               font-bold text-emerald-800"
+                        class="flex h-24 w-24 shrink-0 items-center
+                               justify-center rounded-full bg-emerald-100
+                               text-3xl font-bold text-emerald-800"
                         aria-label="Inisial pengguna"
                     >
                         {{ strtoupper(substr($user->nama_lengkap, 0, 1)) }}
@@ -99,7 +103,7 @@
                 </div>
             </div>
 
-            {{-- NAMA --}}
+            {{-- NAMA LENGKAP --}}
             <div>
                 <label
                     for="nama_lengkap"
@@ -176,7 +180,7 @@
                 >
             </div>
 
-            {{-- ROLE --}}
+            {{-- ROLE AKUN --}}
             <div>
                 <label
                     for="peran"
@@ -219,23 +223,31 @@
                            focus:outline-none focus:ring-2
                            focus:ring-emerald-700/20"
                 >
-                    <option value="">Belum memilih wilayah</option>
+                    <option value="">
+                        Belum memilih wilayah
+                    </option>
 
                     @foreach(($wilayah ?? collect()) as $item)
                         <option
                             value="{{ $item->id }}"
                             @selected(
-                                (string) old('wilayah_id', $user->wilayah_id)
-                                === (string) $item->id
+                                (string) old(
+                                    'wilayah_id',
+                                    $user->wilayah_id
+                                ) === (string) $item->id
                             )
                         >
-                            {{ $item->nama_wilayah }}
+                            {{ $item->nama_lengkap }}
                         </option>
                     @endforeach
                 </select>
+
+                <p class="mt-1 text-xs text-slate-500">
+                    Pilih wilayah tempat Anda berada.
+                </p>
             </div>
 
-            {{-- DISABILITAS --}}
+            {{-- INFORMASI DISABILITAS --}}
             <div class="rounded-xl border border-slate-200 p-4">
                 <h2 class="font-semibold text-slate-800">
                     Informasi Disabilitas
@@ -246,6 +258,7 @@
                     pengalaman aksesibilitas Anda.
                 </p>
 
+                {{-- Nilai 0 dikirim jika checkbox tidak dicentang --}}
                 <input
                     type="hidden"
                     name="adalah_disabilitas"
@@ -301,7 +314,7 @@
                 </div>
             </div>
 
-            {{-- TOMBOL --}}
+            {{-- TOMBOL SIMPAN --}}
             <div class="flex justify-end border-t border-slate-100 pt-5">
                 <button
                     type="submit"

@@ -26,8 +26,9 @@ class ProfileController extends Controller
             $q->orderByDesc('created_at')->limit(5),
     ]);
 
-    $wilayah = Wilayah::orderBy('nama_wilayah')->get();
-
+$wilayah = Wilayah::aktif()
+    ->orderBy('nama')
+    ->get();
     return view('profile.edit', compact('user', 'wilayah'));
 }
     
