@@ -4,6 +4,81 @@
 @section('page_title', 'Dashboard Administrator')
 
 @section('content')
+
+    
+<style>
+/* Card putih peta admin */
+
+.sp-map-card {
+    align-self: start;
+    height: fit-content;
+    min-height: 0;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    box-sizing: border-box;
+}
+
+.sp-map-wrap {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 380px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+#admin-map {
+    width: 100%;
+    height: 100%;
+}
+/* Animasi grafik laporan per kategori */
+.sp-category-bar {
+    animation: barMasuk 1.2s ease-out;
+}
+
+@keyframes barMasuk {
+    from {
+        width: 0;
+    }
+}
+
+/* Animasi grafik tren laporan */
+.sp-trend-chart polyline {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: garisBerjalan 2s ease forwards;
+}
+
+@keyframes garisBerjalan {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+/* Animasi Distribusi Status */
+.sp-status-chart,
+.sp-status-chart svg,
+.sp-status-chart circle,
+.sp-status-chart path {
+    animation: statusMuncul 1.5s ease-out;
+    transform-origin: center;
+}
+
+@keyframes statusMuncul {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+</style>
+
 @php
     $statusTotal = max(1, array_sum($statusChart ?? []));
 

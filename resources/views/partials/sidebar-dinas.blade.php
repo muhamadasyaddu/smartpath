@@ -142,40 +142,49 @@
             </a>
 
 
-            {{-- RENCANA PERBAIKAN --}}
-            <a
-                href="{{ route('dinas.rencana-perbaikan.index') }}"
-                class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-            >
-                <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"
-                    />
+        
+{{-- RENCANA PERBAIKAN --}}
+<a
+    href="{{ route('dinas.rencana-perbaikan.index') }}"
+    class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors
+        {{ request()->routeIs('dinas.rencana-perbaikan.*')
+            ? 'bg-emerald-50 text-emerald-700'
+            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        }}"
+>
+    <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+    >
+        <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"
+        />
+        <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4l2.5-2.5 3 3L7 7 4 4zm4 4l8.5 8.5M16.5 16.5l3 3-1.5 1.5-3-3"
+        />
+    </svg>
 
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M4 4l2.5-2.5 3 3L7 7 4 4zm4 4l8.5 8.5M16.5 16.5l3 3-1.5 1.5-3-3"
-                    />
-                </svg>
+    Rencana Perbaikan
+</a>
 
-                Rencana Perbaikan
-            </a>
-            {{-- KINERJA & ANGGARAN --}}
+          
+{{-- KINERJA & ANGGARAN --}}
 <a
     href="{{ route('dinas.kinerja-anggaran.index') }}"
-    class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+    class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-colors
+        {{ request()->routeIs('dinas.kinerja-anggaran.*')
+            ? 'bg-emerald-50 text-emerald-700'
+            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+        }}"
 >
-    {{-- ICON KINERJA & ANGGARAN --}}
     <svg
         class="w-5 h-5"
         fill="none"
@@ -183,61 +192,28 @@
         viewBox="0 0 24 24"
         aria-hidden="true"
     >
-        {{-- Sumbu grafik --}}
         <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="1.8"
             d="M4 19V5"
         />
-
         <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="1.8"
             d="M4 19h16"
         />
-
-        {{-- Grafik naik --}}
         <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="1.8"
             d="M7 15l3-4 3 2 5-6"
         />
-
-        {{-- Titik grafik --}}
-        <circle
-            cx="7"
-            cy="15"
-            r="1"
-            fill="currentColor"
-            stroke="none"
-        />
-
-        <circle
-            cx="10"
-            cy="11"
-            r="1"
-            fill="currentColor"
-            stroke="none"
-        />
-
-        <circle
-            cx="13"
-            cy="13"
-            r="1"
-            fill="currentColor"
-            stroke="none"
-        />
-
-        <circle
-            cx="18"
-            cy="7"
-            r="1"
-            fill="currentColor"
-            stroke="none"
-        />
+        <circle cx="7" cy="15" r="1" fill="currentColor" stroke="none"/>
+        <circle cx="10" cy="11" r="1" fill="currentColor" stroke="none"/>
+        <circle cx="13" cy="13" r="1" fill="currentColor" stroke="none"/>
+        <circle cx="18" cy="7" r="1" fill="currentColor" stroke="none"/>
     </svg>
 
     Kinerja & Anggaran
