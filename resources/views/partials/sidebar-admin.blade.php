@@ -87,14 +87,15 @@
 
         {{-- LAPORAN --}}
 
+        
         <a
-            href="{{ route('laporan.index') }}"
-            class="sp-nav {{ request()->routeIs('laporan.*') ? 'sp-nav-active' : '' }}"
+            href="{{ route('admin.laporan.index') }}"
+            class="sp-nav {{ request()->routeIs('admin.laporan.*') ? 'sp-nav-active' : '' }}"
         >
-
             <svg
                 viewBox="0 0 24 24"
                 fill="none"
+                stroke="currentColor"
                 stroke-width="1.7"
                 aria-hidden="true"
             >
@@ -102,18 +103,15 @@
                     stroke-linejoin="round"
                     d="M6 3h9l3 3v15H6z"
                 />
-
                 <path
                     stroke-linecap="round"
                     d="M9 11h6M9 15h6M9 7h3"
                 />
             </svg>
 
-            <span>
-                Laporan
-            </span>
-
+            <span>Laporan</span>
         </a>
+
 
 
         @admin

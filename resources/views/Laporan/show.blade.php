@@ -142,7 +142,9 @@
                 <div id="detail-map" class="w-full h-64 rounded-xl mb-3" role="application" aria-label="Peta lokasi laporan"></div>
                 <p class="text-sm text-slate-600 flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-                    {{ $laporan->alamat_lengkap }}
+                    
+                    {{ $laporan->alamat_lengkap ?: ($laporan->wilayah?->nama ?? 'Alamat belum tersedia') }}
+
                 </p>
                 <p class="text-xs text-slate-400 font-mono mt-1">{{ $laporan->latitude }}, {{ $laporan->longitude }}</p>
             </div>

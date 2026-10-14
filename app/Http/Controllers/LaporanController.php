@@ -26,6 +26,11 @@ class LaporanController extends Controller
    
     public function index(Request $request)
     {
+
+        // Halaman administrasi menggunakan tampilan khusus.
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin.laporan.index');
+        }
         // Admin melihat seluruh laporan, termasuk laporan kandidat duplikasi.
         // Warga hanya melihat laporan yang dibuat oleh akunnya sendiri.
         $query = Laporan::query()
@@ -86,6 +91,254 @@ class LaporanController extends Controller
             compact('laporan', 'statusCounts')
         );
     }
+
+    
+/**
+ * Daftar laporan khusus administrator.
+ *
+ * Menampilkan laporan, alamat, status, dan jarak dari
+ * laporan pembanding terdekat dengan kategori yang sama.
+ *
+ * Tidak mengubah keputusan verifikasi secara otomatis.
+ */
+public function adminIndex(Request $request)
+{
+    abort_unless(
+        auth()->user() && auth()->user()->isAdmin(),
+        403
+    );
+
+    $statusOptions = [
+        'menunggu_verifikasi',
+        'diverifikasi',
+        'ditolak',
+        'dalam_perbaikan',
+        'selesai',
+        'diarsipkan',
+    ];
+
+    $query = Laporan::query()->with([
+        'kategoriHambatan',
+        'pelapor',
+        'wilayah',
+        'fotoLaporan',
+        'laporanInduk',
+    ]);
+
+    // Filter status hanya menerima status yang dikenal.
+    if (
+        $request->filled('status')
+        && in_array(
+            $request->query('status'),
+            $statusOptions,
+            true
+        )
+    ) {
+        $query->where(
+            'status',
+            $request->query('status')
+        );
+    }
+
+    // Pencarian kode, judul, alamat, dan deskripsi.
+    if ($request->filled('q')) {
+        $keyword = trim(
+            (string) $request->query('q')
+        );
+
+        $query->where(function ($subQuery) use ($keyword) {
+            $subQuery
+                ->where('kode_laporan', 'like', "%{$keyword}%")
+                ->orWhere('judul', 'like', "%{$keyword}%")
+                ->orWhere('alamat_lengkap', 'like', "%{$keyword}%")
+                ->orWhere('deskripsi', 'like', "%{$keyword}%");
+        });
+    }
+
+    // Filter kategori harus berupa ID numerik.
+    if (
+        $request->filled('kategori')
+        && ctype_digit((string) $request->query('kategori'))
+    ) {
+        $query->where(
+            'kategori_hambatan_id',
+            (int) $request->query('kategori')
+        );
+    }
+
+    $laporan = $query
+        ->orderByDesc('created_at')
+        ->paginate(15)
+        ->withQueryString();
+
+    // Radius diambil dari konfigurasi aktif yang digunakan
+    // oleh mekanisme deduplikasi proyek.
+    $pengaturan = \App\Models\PengaturanPrioritas::getActive();
+
+    $radiusMeter = (int) (
+        $pengaturan?->radius_deduplikasi_m
+        ?? KonfigurasiSistem::getValue(
+            'radius_deduplikasi_meter',
+            50
+        )
+    );
+
+    $kategoriHambatan = KategoriHambatan::aktif()
+        ->urutTampil()
+        ->get();
+
+    /*
+     * Ambil laporan induk yang masih aktif secara operasional
+     * untuk kategori yang terdapat pada halaman ini.
+     *
+     * Anak laporan tidak dijadikan titik induk pembanding
+     * agar satu kelompok laporan tidak dihitung berulang.
+     */
+    $kategoriIds = $laporan->getCollection()
+        ->pluck('kategori_hambatan_id')
+        ->filter()
+        ->unique()
+        ->values();
+
+    $laporanPembanding = Laporan::query()
+        ->whereNull('laporan_induk_id')
+        ->whereIn(
+            'status',
+            [
+                'menunggu_verifikasi',
+                'diverifikasi',
+                'dalam_perbaikan',
+            ]
+        )
+        ->whereIn('kategori_hambatan_id', $kategoriIds)
+        ->get([
+            'id',
+            'kode_laporan',
+            'judul',
+            'kategori_hambatan_id',
+            'latitude',
+            'longitude',
+            'alamat_lengkap',
+            'status',
+        ]);
+
+    /*
+     * Cari laporan pembanding terdekat menggunakan Haversine.
+     * Perhitungan dilakukan pada data halaman yang sedang
+     * ditampilkan, bukan pada seluruh data setiap kali render.
+     */
+    foreach ($laporan as $item) {
+        $terdekat = null;
+        $jarakTerdekat = INF;
+
+        foreach ($laporanPembanding as $kandidat) {
+            // Jangan membandingkan laporan dengan dirinya sendiri.
+            if ((int) $kandidat->id === (int) $item->id) {
+                continue;
+            }
+
+            $jarak = $this->calculateHaversineDistance(
+                (float) $item->latitude,
+                (float) $item->longitude,
+                (float) $kandidat->latitude,
+                (float) $kandidat->longitude
+            );
+
+            if ($jarak < $jarakTerdekat) {
+                $jarakTerdekat = $jarak;
+                $terdekat = $kandidat;
+            }
+        }
+
+        $item->setRelation(
+            'laporanPembandingTerdekat',
+            $terdekat
+        );
+
+        $item->setAttribute(
+            'jarak_pembanding_meter',
+            $terdekat
+                ? round($jarakTerdekat, 2)
+                : null
+        );
+
+        $item->setAttribute(
+            'dalam_radius_50m',
+            $terdekat !== null
+                && $jarakTerdekat <= $radiusMeter
+        );
+    }
+
+    // Statistik keseluruhan, tidak terpengaruh filter halaman.
+    $countQuery = Laporan::query();
+
+    $statusCounts = [
+        'semua' => (clone $countQuery)->count(),
+
+        'menunggu_verifikasi' => (clone $countQuery)
+            ->where('status', 'menunggu_verifikasi')
+            ->count(),
+
+        'diverifikasi' => (clone $countQuery)
+            ->where('status', 'diverifikasi')
+            ->count(),
+
+        'dalam_perbaikan' => (clone $countQuery)
+            ->where('status', 'dalam_perbaikan')
+            ->count(),
+
+        'selesai' => (clone $countQuery)
+            ->where('status', 'selesai')
+            ->count(),
+
+        'ditolak' => (clone $countQuery)
+            ->where('status', 'ditolak')
+            ->count(),
+    ];
+
+    // Data peta hanya memuat informasi yang diperlukan.
+    $mapReports = $laporan->getCollection()
+        ->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'kode' => $item->kode_laporan,
+                'judul' => $item->judul,
+
+                'latitude' => (float) $item->latitude,
+                'longitude' => (float) $item->longitude,
+
+                'alamat' => $item->alamat_lengkap
+                    ?: ($item->wilayah?->nama ?? 'Alamat belum tersedia'),
+
+                'status' => $item->status_label,
+
+                'skor' => $item->skor_prioritas !== null
+                    ? (float) $item->skor_prioritas
+                    : null,
+
+                'prioritas' => $item->tingkat_prioritas,
+
+                'jarak' => $item->jarak_pembanding_meter,
+
+                'dalam_radius' => $item->dalam_radius_50m,
+
+                'kode_pembanding' =>
+                    $item->laporanPembandingTerdekat?->kode_laporan,
+            ];
+        })
+        ->values();
+
+    return view(
+        'Admin.laporan.index',
+        compact(
+            'laporan',
+            'kategoriHambatan',
+            'radiusMeter',
+            'statusCounts',
+            'mapReports'
+        )
+    );
+}
 
 
     /**

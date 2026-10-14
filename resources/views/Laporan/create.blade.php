@@ -564,9 +564,18 @@
                         value="{{ old('alamat_lengkap') }}"
                         maxlength="255"
                         class="sp-input w-full bg-white rounded-xl border-slate-300 focus:border-emerald-500 focus:ring-emerald-500 @error('alamat_lengkap') border-red-400 @enderror"
-                        placeholder="Jl. Merdeka Raya No. 24, Jakarta"
+                        placeholder="Nama jalan, nomor bangunan, kelurahan, kecamatan, Kota Depok"
                         autocomplete="street-address"
                     >
+
+                    
+                    <p class="mt-2 text-xs leading-5 text-slate-500">
+                        Alamat diisi otomatis berdasarkan titik GPS melalui OpenStreetMap.
+                        Pastikan nama jalan dan nomor bangunan sesuai kondisi lapangan.
+                        Jika nama jalan tidak ditemukan, lengkapi secara manual.
+                    </p>
+
+
 
                     @error('alamat_lengkap')
                         <p
