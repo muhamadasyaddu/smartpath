@@ -185,6 +185,14 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
 
 
+        
+        Route::get(
+            '/laporan',
+            [LaporanController::class, 'adminIndex']
+        )->name('laporan.index');
+
+
+
         Route::get(
         '/bantuan',
             [BantuanController::class, 'index']
