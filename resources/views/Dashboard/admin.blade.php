@@ -75,6 +75,54 @@
         opacity: 1;
         transform: scale(1);
     }
+    
+/* Perkecil card Laporan Terbaru */
+.sp-bottom-grid > .sp-table-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Supaya tabel tidak memaksa card melebar */
+.sp-table-card .sp-table-scroll {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+/* Atur ukuran kolom tabel */
+.sp-table-card table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Cegah teks panjang memperlebar tabel */
+.sp-table-card th,
+.sp-table-card td {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.sp-bottom-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.sp-bottom-grid > .sp-table-card,
+.sp-bottom-grid > .sp-activity-card {
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .sp-bottom-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 }
 
 </style>
@@ -886,9 +934,10 @@
                         Distribusi Status
                     </h2>
 
-                    <span>
-                        Semua
-                    </span>
+                      <a href="{{ route('admin.verifikasi.index') }}"
+       class="text-sm font-semibold text-emerald-700 hover:text-emerald-900 hover:underline">
+        Semua
+    </a>
 
                 </div>
 
