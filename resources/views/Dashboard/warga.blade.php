@@ -4,6 +4,14 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/smartpath-warga.css') }}">
+    <style>
+        /* Gaya untuk membuat tombol Screen Reader bisa dipindah-pindahkan (Draggable) */
+        #homeScreenReaderButtonContainer {
+            touch-action: none;
+            user-select: none;
+            cursor: move;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -36,7 +44,6 @@
 
                 {{-- HERO BANNER UTAMA SMARTPATH --}}
                 <header id="warga-intro-section" class="warga-hero-banner relative mb-8 min-h-[150px] overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100/70 shadow-sm transition-all duration-300">
-                    {{-- Ilustrasi berada DI DALAM card hero, di sisi kanan. File: public/smartpath-banner.png --}}
                     <img
                         src="{{ asset('smartpath-banner.png') }}"
                         alt=""
@@ -45,7 +52,6 @@
                         loading="eager"
                     >
 
-                    {{-- Lapisan lembut agar tulisan tetap mudah dibaca --}}
                     <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-emerald-50 via-emerald-50/80 to-transparent" aria-hidden="true"></div>
 
                     <div class="relative z-10 flex min-h-[150px] flex-col justify-center gap-5 p-6 sm:w-[67%] sm:p-8 lg:w-[65%]">
@@ -60,19 +66,6 @@
                                 Kelola laporan aksesibilitas, lihat kondisi jalur pedestrian, dan temukan hambatan terverifikasi di sekitar lokasi Anda.
                             </p>
                         </div>
-                    </div>
-
-                    <div class="absolute right-4 top-4 z-20 sm:right-5 sm:top-5">
-                        <button
-                            type="button"
-                            id="btn-read-page"
-                            class="warga-dashboard__voice-button inline-flex items-center gap-2.5 rounded-2xl bg-emerald-800 px-4 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 sm:px-5"
-                            aria-label="Dengar panduan Dashboard Warga"
-                            aria-pressed="false"
-                        >
-                            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
-                            <span>Dengar Panduan</span>
-                        </button>
                     </div>
                 </header>
 
@@ -208,13 +201,10 @@
                     aria-label="Informasi aksesibilitas"
                 >
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-start">
-
-                        {{-- ICON --}}
                         <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
                             <i class="fa-solid fa-universal-access text-2xl" aria-hidden="true"></i>
                         </div>
 
-                        {{-- INFORMATION --}}
                         <div class="min-w-0 flex-1">
                             <h2 class="text-base font-bold text-slate-900">
                                 Informasi Aksesibilitas
@@ -230,15 +220,145 @@
                                 <span>Ramah Aksesibilitas</span>
                             </div>
                         </div>
-
                     </div>
                 </aside>
 
             </main>
         </div>
     </div>
+
+    {{-- ===== TOMBOL SCREEN READER MELAYANG ===== --}}
+    <div id="homeScreenReaderButtonContainer" class="fixed bottom-5 right-5 z-[9998] cursor-grab active:cursor-grabbing flex flex-wrap justify-end gap-2" aria-label="Fitur aksesibilitas suara">
+        <button id="homeScreenReaderButton" type="button"
+            class="inline-flex items-center gap-2 rounded-full border border-emerald-700 bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-800 focus-visible:outline-white"
+            aria-label="Mulai pembaca layar untuk konten halaman" aria-pressed="false">
+            <i class="fa-solid fa-blind text-lg shrink-0" aria-hidden="true"></i>
+            <span id="homeScreenReaderLabel">Screen Reader</span>
+        </button>
+        <p id="homeSpeechStatus" class="sr-only" role="status" aria-live="polite"></p>
+    </div>
 @endsection
 
 @push('scripts')
     <script src="{{ asset('js/smartpath-warga.js') }}" defer></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('homeScreenReaderButtonContainer');
+            let isDragging = false;
+            let startX = 0, startY = 0, initialX = 0, initialY = 0;
+            let hasMoved = false;
+
+            if (container) {
+                container.addEventListener('mousedown', dragStart);
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', dragEnd);
+                container.addEventListener('touchstart', dragStart, { passive: true });
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('touchend', dragEnd);
+            }
+
+            function dragStart(e) {
+                isDragging = true;
+                hasMoved = false;
+                const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                startX = clientX;
+                startY = clientY;
+                const rect = container.getBoundingClientRect();
+                initialX = rect.left;
+                initialY = rect.top;
+                container.style.bottom = 'auto';
+                container.style.right = 'auto';
+                container.style.left = `${initialX}px`;
+                container.style.top = `${initialY}px`;
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+                if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                    hasMoved = true;
+                    if (e.type === 'touchmove') e.preventDefault();
+                }
+                container.style.left = `${initialX + dx}px`;
+                container.style.top = `${initialY + dy}px`;
+            }
+
+            function dragEnd() {
+                isDragging = false;
+            }
+
+            const readerButton = document.getElementById('homeScreenReaderButton');
+            const readerLabel = document.getElementById('homeScreenReaderLabel');
+            const speechStatus = document.getElementById('homeSpeechStatus');
+            
+            if (readerButton && 'speechSynthesis' in window) {
+                let readingPage = false;
+
+                function speakText(text, onEnd) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'id-ID';
+                    utterance.rate = 1;
+                    utterance.pitch = 1;
+                    utterance.onend = () => { if (onEnd) onEnd(); };
+                    utterance.onerror = () => {
+                        if (speechStatus) speechStatus.textContent = 'Suara tidak dapat diputar.';
+                        readingPage = false;
+                        readerButton.setAttribute('aria-pressed', 'false');
+                        readerLabel.textContent = 'Screen Reader';
+                    };
+                    window.speechSynthesis.speak(utterance);
+                }
+
+                readerButton.addEventListener('click', (e) => {
+                    if (hasMoved) return;
+
+                    if (window.speechSynthesis.speaking || readingPage) {
+                        window.speechSynthesis.cancel();
+                        readingPage = false;
+                        readerButton.setAttribute('aria-pressed', 'false');
+                        readerLabel.textContent = 'Screen Reader';
+                        if (speechStatus) speechStatus.textContent = 'Pembacaan dihentikan.';
+                        return;
+                    }
+
+                    const btnRect = readerButton.getBoundingClientRect();
+                    const sidebar = document.getElementById('warga-sidebar');
+                    
+                    let targetContent = '';
+                    let statusMessage = '';
+
+                    // Jika tombol digeser ke area sidebar (sisi kiri layar)
+                    if (sidebar && btnRect.left < sidebar.getBoundingClientRect().right) {
+                        targetContent = sidebar.innerText.replace(/\s+/g, ' ').trim();
+                        statusMessage = 'Menu sidebar sedang dibacakan.';
+                    } else {
+                        // Jika di area dashboard utama
+                        const main = document.getElementById('warga-dashboard') || document.querySelector('.warga-workspace') || document.body;
+                        targetContent = main ? main.innerText.replace(/\s+/g, ' ').trim() : '';
+                        statusMessage = 'Konten dashboard sedang dibacakan.';
+                    }
+
+                    if (!targetContent) return;
+
+                    readingPage = true;
+                    readerButton.setAttribute('aria-pressed', 'true');
+                    readerLabel.textContent = 'Hentikan Bacaan';
+                    if (speechStatus) speechStatus.textContent = statusMessage;
+                    
+                    speakText(targetContent, () => {
+                        readingPage = false;
+                        readerButton.setAttribute('aria-pressed', 'false');
+                        readerLabel.textContent = 'Screen Reader';
+                        if (speechStatus) speechStatus.textContent = 'Pembacaan selesai.';
+                    });
+                });
+            }
+        });
+    </script>
 @endpush
