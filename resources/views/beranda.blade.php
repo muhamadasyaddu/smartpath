@@ -446,18 +446,24 @@
         aria-expanded="false"
         aria-controls="homeAccountMenu"
     >
-        @if(auth()->user()->foto_profil)
-            <img
-                src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url(auth()->user()->foto_profil) }}"
-                alt=""
-                class="h-8 w-8 rounded-full border border-white/20 object-cover"
-                loading="lazy"
-            >
-        @else
-            <span class="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-emerald-100 text-sm font-bold text-emerald-800">
-                {{ mb_strtoupper(mb_substr(auth()->user()->nama_lengkap ?? 'U', 0, 1)) }}
-            </span>
-        @endif
+        
+            @if (
+                auth()->user()->foto_profil &&
+                \Illuminate\Support\Facades\Storage::disk('public')->exists(auth()->user()->foto_profil)
+            )
+                <img
+                    src="{{ asset('storage/' . ltrim(auth()->user()->foto_profil, '/')) }}"
+                    alt="Foto profil"
+                    class="h-8 w-8 rounded-full border border-white/20 object-cover"
+                    loading="lazy"
+                    onerror="this.style.display='none';"
+                >
+            @else
+                <span class="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-emerald-100 text-sm font-bold text-emerald-800">
+                    {{ mb_strtoupper(mb_substr(auth()->user()->nama_lengkap ?? 'U', 0, 1)) }}
+                </span>
+            @endif
+
 
      
 

@@ -2,61 +2,110 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Audit;
 use App\Http\Requests\UpdateProfileRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\Models\Audit;
 use App\Models\Wilayah;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class ProfileController extends Controller
 {
     /**
-     * Tampilkan halaman profil pengguna.
+     * Tampilkan profil pengguna yang sedang login.
      */
     public function edit()
     {
-     
-    $user = auth()->user();
+        $user = auth()->user();
 
-    $user->load([
-        'wilayah',
-        'laporanDibuat' => fn ($q) =>
-            $q->orderByDesc('created_at')->limit(5),
-    ]);
+        $user->load([
+            'wilayah',
+            'laporanDibuat' => fn ($query) =>
+                $query->orderByDesc('created_at')->limit(5),
+        ]);
 
-$wilayah = Wilayah::aktif()
-    ->orderBy('nama')
-    ->get();
-    return view('profile.edit', compact('user', 'wilayah'));
-}
-    
+        $wilayah = Wilayah::aktif()
+            ->orderBy('nama')
+            ->get();
+
+        return view('profile.edit', compact('user', 'wilayah'));
+    }
 
     /**
-     * Update profil pengguna.
+     * Simpan perubahan profil.
      */
     public function update(UpdateProfileRequest $request)
     {
-        $user = auth()->user();
+        $user = $request->user();
         $validated = $request->validated();
 
+        $fotoLama = $user->foto_profil;
+        $fotoBaru = null;
+
+        /*
+         * Simpan foto baru dengan nama yang dibuat oleh Laravel.
+         * Jangan mempercayai nama file dari perangkat pengguna.
+         */
         if ($request->hasFile('foto_profil')) {
-            if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
-                Storage::disk('public')->delete($user->foto_profil);
+            $fotoBaru = $request->file('foto_profil')
+                ->store('profil', 'public');
+
+            if (!$fotoBaru) {
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'foto_profil' => 'Foto gagal disimpan. Silakan coba lagi.',
+                    ]);
             }
 
-            $file = $request->file('foto_profil');
-            $namaFile = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $pathFile = $file->storeAs('profil', $namaFile, 'public');
-            $validated['foto_profil'] = $pathFile;
+            $validated['foto_profil'] = $fotoBaru;
         }
 
-        $dataLama = ['nama_lengkap' => $user->nama_lengkap, 'email' => $user->email];
-        $user->update($validated);
+        $dataLama = [
+            'nama_lengkap' => $user->nama_lengkap,
+            'email' => $user->email,
+        ];
 
-        Audit::log(auth()->id(), 'ubah_profil', 'users', $user->id, $dataLama, ['nama_lengkap' => $user->nama_lengkap, 'email' => $user->email], 'Profil diperbarui');
+        try {
+            $user->update($validated);
+        } catch (Throwable $exception) {
+            /*
+             * Jika pembaruan database gagal, hapus file baru yang
+             * telanjur tersimpan agar tidak menjadi file yatim.
+             */
+            if ($fotoBaru) {
+                Storage::disk('public')->delete($fotoBaru);
+            }
 
-        return back()->with('sukses', 'Profil berhasil diperbarui.');
+            throw $exception;
+        }
+
+        /*
+         * Hapus foto lama hanya setelah foto baru berhasil disimpan
+         * dan perubahan pengguna sudah dilakukan.
+         */
+        if (
+            $fotoBaru &&
+            $fotoLama &&
+            $fotoLama !== $fotoBaru
+        ) {
+            Storage::disk('public')->delete($fotoLama);
+        }
+
+        Audit::log(
+            $user->id,
+            'ubah_profil',
+            'users',
+            $user->id,
+            $dataLama,
+            [
+                'nama_lengkap' => $user->nama_lengkap,
+                'email' => $user->email,
+            ],
+            'Profil diperbarui'
+        );
+
+        return redirect()
+            ->route('profile.edit')
+            ->with('sukses', 'Profil berhasil diperbarui.');
     }
 }
