@@ -229,27 +229,146 @@
                 </div>
             </section>
 
-            {{-- Indikasi duplikasi --}}
-            @if($laporan->laporanInduk)
-                <section class="bg-amber-50 rounded-xl border border-amber-200 p-6">
-                    <h3 class="font-semibold text-amber-800 mb-2">
-                        Laporan Terhubung
-                    </h3>
+            
+        {{-- Informasi hubungan induk dan jarak aktual --}}
+        @if($laporan->laporanInduk)
+            <section
+                class="bg-amber-50 rounded-xl border border-amber-200 p-6"
+                aria-labelledby="deduplikasi-heading"
+            >
+                <h3
+                    id="deduplikasi-heading"
+                    class="font-semibold text-amber-900 mb-3"
+                >
+                    Kandidat Deduplikasi
+                </h3>
 
-                    <p class="text-sm text-amber-700 mb-2">
-                        Sistem mendeteksi laporan ini berada pada kategori yang sama
-                        dan radius deduplikasi 50 meter dari laporan induk.
-                    </p>
+                <p class="text-sm text-amber-900 mb-3">
+                    Laporan ini terhubung dengan laporan induk.
+                    Periksa bukti foto dan lokasi sebelum menentukan
+                    apakah kedua laporan menggambarkan objek yang sama.
+                </p>
 
-                    <a
-                        href="{{ route('admin.verifikasi.show', $laporan->laporanInduk) }}"
-                        class="inline-flex items-center gap-1 text-sm font-medium text-amber-800 hover:text-amber-900"
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                    <div class="bg-white rounded-lg border border-amber-200 p-3">
+                        <dt class="text-slate-600">
+                            Jarak aktual dari laporan induk
+                        </dt>
+                        <dd class="font-semibold text-slate-900 mt-1">
+                            {{ number_format($jarakKeIndukMeter, 2, ',', '.') }}
+                            meter
+                        </dd>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-amber-200 p-3">
+                        <dt class="text-slate-600">
+                            Radius deduplikasi aktif
+                        </dt>
+                        <dd class="font-semibold text-slate-900 mt-1">
+                            {{ $radiusDeduplikasiMeter }} meter
+                        </dd>
+                    </div>
+                </dl>
+
+                <p class="text-xs text-amber-900 mt-3">
+                    Jarak dihitung dari koordinat kedua laporan
+                    menggunakan rumus Haversine. Hasil ini merupakan
+                    jarak geografis, bukan jarak berjalan kaki.
+                </p>
+
+                <a
+                    href="{{ route('admin.verifikasi.show', $laporan->laporanInduk) }}"
+                    class="inline-flex items-center gap-1 mt-4 text-sm font-semibold
+                        text-amber-900 underline underline-offset-2"
+                >
+                    Buka laporan induk:
+                    {{ $laporan->laporanInduk->kode_laporan }}
+                </a>
+            </section>
+        @endif
+
+        {{-- Daftar laporan anak --}}
+        @if($laporan->laporanAnak->isNotEmpty())
+            <section
+                class="bg-white rounded-xl border border-slate-200 p-6"
+                aria-labelledby="laporan-anak-heading"
+            >
+                <h3
+                    id="laporan-anak-heading"
+                    class="font-semibold text-slate-900 mb-3"
+                >
+                    Laporan Terhubung ke Titik Ini
+                </h3>
+
+                <p class="text-sm text-slate-600 mb-4">
+                    Periksa setiap laporan pendukung. Laporan yang
+                    berada dekat belum tentu menunjukkan objek yang sama.
+                </p>
+
+                <div class="space-y-3">
+                    @foreach($laporan->laporanAnak as $anak)
+                        <article class="rounded-lg border border-slate-200 p-3">
+                            <div class="flex flex-wrap justify-between gap-2">
+                                <a
+                                    href="{{ route('admin.verifikasi.show', $anak) }}"
+                                    class="font-semibold text-emerald-800 underline"
+                                >
+                                    {{ $anak->kode_laporan }}
+                                </a>
+
+                                <span class="text-sm text-slate-600">
+                                    {{ number_format(
+                                        $anak->jarak_dari_induk_meter,
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) }} meter
+                                </span>
+                            </div>
+
+                            <p class="text-sm text-slate-800 mt-2">
+                                {{ $anak->judul }}
+                            </p>
+
+                            <p class="text-xs text-slate-500 mt-1">
+                                Pelapor:
+                                {{ $anak->pelapor->nama_lengkap ?? 'Tidak tersedia' }}
+                            </p>
+                        </article>
+                    @endforeach
+                </div>
+
+                
+                @if($laporan->status === 'menunggu_verifikasi')
+                    <form
+                        method="POST"
+                        action="{{ route('admin.verifikasi.jadikan-mandiri', $laporan) }}"
+                        class="mt-4"
+                        onsubmit="return confirm('Pisahkan laporan ini dari laporan induk? Laporan akan tetap tersimpan dan harus diverifikasi secara terpisah.');"
                     >
-                        {{ $laporan->laporanInduk->kode_laporan }}
-                        — {{ $laporan->laporanInduk->judul }}
-                    </a>
-                </section>
-            @endif
+                        @csrf
+
+                        <button
+                            type="submit"
+                            class="inline-flex w-full sm:w-auto items-center justify-center
+                                rounded-lg border border-teal-700 bg-white px-4 py-2.5
+                                text-sm font-semibold text-teal-800
+                                hover:bg-teal-50 focus:outline-none
+                                focus:ring-2 focus:ring-teal-600 focus:ring-offset-2"
+                        >
+                            Pisahkan objek berbeda
+                        </button>
+
+                        <p class="mt-2 text-xs text-slate-600">
+                            Gunakan hanya setelah membandingkan foto, deskripsi, dan lokasi.
+                            Laporan akan kembali diperlakukan sebagai laporan mandiri.
+                        </p>
+                    </form>
+                @endif
+
+            </section>
+        @endif
+
 
             {{-- Riwayat verifikasi --}}
             @if($laporan->verifikasi->count())

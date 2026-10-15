@@ -115,6 +115,7 @@
                 <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500"></span> Prioritas Tinggi</span>
                 <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Prioritas Sedang</span>
                 <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-blue-500"></span> Prioritas Rendah</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> Selesai</span>
             </div>
         </div>
 
@@ -448,11 +449,33 @@ document.addEventListener('DOMContentLoaded', function() {
             if (laporan.latitude && laporan.longitude) {
                 var lat = parseFloat(laporan.latitude);
                 var lng = parseFloat(laporan.longitude);
+                var markerColor = '#64748b';
 
-                var marker = L.marker([lat, lng], {
+                if (
+                    laporan.skor_prioritas !== null &&
+                    laporan.skor_prioritas !== undefined &&
+                    laporan.skor_prioritas !== ''
+                ) {
+                    var score = Number(laporan.skor_prioritas);
+
+                    if (Number.isFinite(score)) {
+                        markerColor = score >= 70
+                            ? '#dc2626'
+                            : score >= 40
+                                ? '#d97706'
+                                : '#3b82f6';
+                    }
+                }
+
+                var marker = L.circleMarker([lat, lng], {
                     title: `Lokasi laporan ${laporan.judul || laporan.kode_laporan || 'hambatan'}`,
                     alt: `Lokasi laporan ${laporan.judul || laporan.kode_laporan || 'hambatan'}`,
-                    keyboard: true
+                    keyboard: true,
+                    radius: 9,
+                    color: '#ffffff',
+                    weight: 2,
+                    fillColor: markerColor,
+                    fillOpacity: 1
                 }).addTo(map);
                 var markerElement = marker.getElement();
                 if (markerElement) {

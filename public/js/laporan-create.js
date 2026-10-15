@@ -545,6 +545,121 @@ document.addEventListener('DOMContentLoaded', function () {
                             addressWasAutoFilled =
                                 true;
                         }
+                        /*
+                        * Susun alamat dengan mengutamakan nama jalan.
+                        * Jangan mengarang nama jalan jika data OpenStreetMap
+                        * tidak menyediakan komponen jalan untuk koordinat ini.
+                        */
+                        const addressParts = data.address || {};
+
+                        const road =
+                            addressParts.road ||
+                            addressParts.pedestrian ||
+                            addressParts.footway ||
+                            addressParts.cycleway ||
+                            addressParts.path ||
+                            addressParts.residential ||
+                            addressParts.service ||
+                            addressParts.street ||
+                            addressParts.highway ||
+                            null;
+
+                        const houseNumber = addressParts.house_number
+                            ? 'No. ' + addressParts.house_number
+                            : null;
+
+                        const administrativeAreas = [
+                            addressParts.neighbourhood,
+                            addressParts.suburb,
+                            addressParts.quarter,
+                            addressParts.city_district,
+                            addressParts.city ||
+                                addressParts.town ||
+                                addressParts.village ||
+                                addressParts.county,
+                            addressParts.state,
+                            addressParts.postcode
+                        ].filter(Boolean);
+
+                        // Hilangkan komponen alamat yang berulang.
+                        const uniqueAreas = administrativeAreas.filter(
+                            (part, index, all) =>
+                                all.findIndex(
+                                    item =>
+                                        item.trim().toLowerCase() ===
+                                        part.trim().toLowerCase()
+                                ) === index
+                        );
+
+                        const structuredAddress = [
+                            road,
+                            houseNumber,
+                            ...uniqueAreas
+                        ].filter(Boolean).join(', ');
+
+                        // Jika data jalan tersedia, gunakan alamat terstruktur.
+                        // Jika tidak, gunakan display_name sebagai petunjuk awal.
+                        const resolvedAddress =
+                            structuredAddress || data.display_name || '';
+
+
+
+                        
+                    
+                        const currentAddress = addressInput.value.trim();
+
+                        const localityParts = [
+                            addressParts.neighbourhood,
+                            addressParts.suburb,
+                            addressParts.quarter,
+                            addressParts.city_district,
+                            addressParts.city,
+                            addressParts.town,
+                            addressParts.village,
+                            addressParts.county
+                        ].filter(Boolean);
+
+                        const currentLooksLikeLocalityOnly =
+                            currentAddress !== '' &&
+                            localityParts.some(function (part) {
+                                return currentAddress.toLocaleLowerCase('id-ID') ===
+                                    part.trim().toLocaleLowerCase('id-ID');
+                            });
+
+
+
+                        
+
+
+                        /*
+                        * Jangan menimpa alamat yang sudah diedit pengguna.
+                        * Pengisian otomatis hanya boleh memperbarui alamat
+                        * yang kosong atau sebelumnya diisi oleh geocoder.
+                        */
+                       
+                        if (
+                            resolvedAddress &&
+                            (
+                                !currentAddress ||
+                                addressWasAutoFilled ||
+                                (road && currentLooksLikeLocalityOnly)
+                            )
+                        ) {
+                            addressInput.value = resolvedAddress;
+                            addressWasAutoFilled = true;
+
+                            if (locationStatus) {
+                                if (road) {
+                                    locationStatus.textContent =
+                                        'Alamat jalan ditemukan. Periksa nama jalan dan nomor bangunan.';
+                                } else {
+                                    locationStatus.textContent =
+                                        'Nama jalan belum ditemukan. Periksa dan lengkapi alamat secara manual.';
+                                }
+                            }
+                        }
+
+
 
                     } catch (error) {
 

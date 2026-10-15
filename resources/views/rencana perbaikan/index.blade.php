@@ -3,6 +3,68 @@
 @section('title', 'Rencana Perbaikan')
 
 @section('content')
+<style>
+    ```css
+/* Animasi kartu statistik Rencana Perbaikan */
+@keyframes rencanaMuncul {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes hijauBergerak {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Kartu statistik muncul satu per satu */
+[aria-label="Ringkasan rencana perbaikan"] > div {
+    animation: rencanaMuncul 0.7s ease-out both;
+}
+
+[aria-label="Ringkasan rencana perbaikan"] > div:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+[aria-label="Ringkasan rencana perbaikan"] > div:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+[aria-label="Ringkasan rencana perbaikan"] > div:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+[aria-label="Ringkasan rencana perbaikan"] > div:nth-child(5) {
+    animation-delay: 0.4s;
+}
+
+/* Ikon hijau bergerak perlahan */
+[aria-label="Ringkasan rencana perbaikan"] > div:nth-child(5) span {
+    animation: hijauBergerak 2s ease-in-out infinite;
+}
+
+/* Batang anggaran bergerak saat tampil */
+.overflow-hidden > span.bg-emerald-600 {
+    animation: rencanaMuncul 1s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [aria-label="Ringkasan rencana perbaikan"] > div,
+    [aria-label="Ringkasan rencana perbaikan"] > div span,
+    .overflow-hidden > span.bg-emerald-600 {
+        animation: none !important;
+    }
+}
+</style>
 
 @php
 

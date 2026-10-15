@@ -185,6 +185,14 @@ Route::middleware(['auth', 'admin'])
     ->group(function () {
 
 
+        
+        Route::get(
+            '/laporan',
+            [LaporanController::class, 'adminIndex']
+        )->name('laporan.index');
+
+
+
         Route::get(
         '/bantuan',
             [BantuanController::class, 'index']
@@ -235,6 +243,13 @@ Route::middleware(['auth', 'admin'])
             '/verifikasi/{laporan}/tolak',
             [VerifikasiController::class, 'reject']
         )->name('verifikasi.reject');
+
+        
+        Route::post(
+            '/verifikasi/{laporan}/jadikan-mandiri',
+            [VerifikasiController::class, 'jadikanMandiri']
+        )->name('verifikasi.jadikan-mandiri');
+
 
         // Fitur verifikasi lama tetap dipertahankan.
         Route::post(

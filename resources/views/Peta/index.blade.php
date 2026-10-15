@@ -156,13 +156,15 @@
         gap: 8px;
     }
 
-    .sp-header-btn {
-        height: 30px;
-        padding: 0 11px;
-        border: 1px solid var(--sp-border);
-        border-radius: 6px;
-        background: #fff;
-        color: var(--sp-text);
+   
+.sp-header-btn {
+    height: 30px;
+    padding: 0 11px;
+    border: 1px solid #059669;
+    border-radius: 6px;
+    background: #059669;
+    color: #ffffff;
+
         font-size: 11px;
         font-family: inherit;
         font-weight: 600;
@@ -311,12 +313,12 @@
         white-space: nowrap;
     }
 
-    .sp-location-btn {
-        border: 1px solid var(--sp-border);
-        border-radius: 5px;
-        padding: 5px 10px;
-        background: #fff;
-        color: var(--sp-text);
+   .sp-location-btn {
+    border: 1px solid #059669;
+    border-radius: 5px;
+    padding: 5px 10px;
+    background: #059669;
+    color: #ffffff;
         font-size: 10px;
         font-weight: 700;
         font-family: inherit;
@@ -513,11 +515,12 @@
         font-family: 'Inter', system-ui, sans-serif;
     }
 
-    .sp-map-shell {
-        height: calc(100vh - 60px);
-        min-height: 500px;
-        grid-template-columns: 264px minmax(0, 1fr);
-    }
+    
+.sp-map-shell {
+    height: calc(100vh - 60px);
+    min-height: 500px;
+    grid-template-columns: 240px minmax(0, 1fr);
+}
 
     .sp-map-sidebar {
         border-right-color: #e2e8f0;
@@ -689,9 +692,25 @@
             border-radius: 0;
         }
 
+        .sp-header {
+            gap: 8px;
+            padding-right: 12px;
+            padding-left: 12px;
+        }
+
+        .sp-brand,
+        .sp-header-actions {
+            min-width: 0;
+        }
+
+        .sp-header-stats {
+            display: none;
+        }
+
         .sp-map-shell {
             height: calc(100vh - 60px);
             min-height: 500px;
+            grid-template-columns: minmax(0, 1fr);
         }
 
         .sp-brand-menu {
@@ -700,6 +719,8 @@
 
         .sp-map-sidebar {
             inset: 60px auto 0 0;
+            z-index: 1100;
+            width: min(280px, calc(100vw - 48px));
             height: calc(100vh - 60px);
             max-height: calc(100vh - 60px);
         }
@@ -740,6 +761,59 @@
             top: 66px;
             left: 8px;
         }
+        
+/* Perbaikan sidebar peta saat zoom 200% */
+@media (max-width: 1100px) {
+    .sp-map-shell {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .sp-map-sidebar {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .sp-map-content,
+    .sp-map-container {
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* Rapikan jarak header dan area peta */
+@media (max-width: 1100px) {
+    .sp-map-shell {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        gap: 10px !important;
+    }
+
+    .sp-map-sidebar {
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+    width: min(280px, 85vw);
+    height: auto;
+    max-height: none;
+    box-sizing: border-box;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    box-shadow: 8px 0 24px rgba(15, 23, 42, .10);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+    .sp-map-content {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+}
+
     }
 </style>
 @endpush

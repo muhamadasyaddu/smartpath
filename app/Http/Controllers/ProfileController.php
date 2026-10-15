@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\Wilayah;
 
 class ProfileController extends Controller
 {
@@ -16,11 +17,21 @@ class ProfileController extends Controller
      */
     public function edit()
     {
-        $user = auth()->user();
-        $user->load(['wilayah', 'laporanDibuat' => fn($q) => $q->orderByDesc('created_at')->limit(5)]);
+     
+    $user = auth()->user();
 
-        return view('profile.edit', compact('user'));
-    }
+    $user->load([
+        'wilayah',
+        'laporanDibuat' => fn ($q) =>
+            $q->orderByDesc('created_at')->limit(5),
+    ]);
+
+$wilayah = Wilayah::aktif()
+    ->orderBy('nama')
+    ->get();
+    return view('profile.edit', compact('user', 'wilayah'));
+}
+    
 
     /**
      * Update profil pengguna.

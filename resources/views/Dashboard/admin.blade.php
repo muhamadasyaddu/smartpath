@@ -4,6 +4,129 @@
 @section('page_title', 'Dashboard Administrator')
 
 @section('content')
+
+    
+<style>
+/* Card putih peta admin */
+
+.sp-map-card {
+    align-self: start;
+    height: fit-content;
+    min-height: 0;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    box-sizing: border-box;
+}
+
+.sp-map-wrap {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 380px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+#admin-map {
+    width: 100%;
+    height: 100%;
+}
+/* Animasi grafik laporan per kategori */
+.sp-category-bar {
+    animation: barMasuk 1.2s ease-out;
+}
+
+@keyframes barMasuk {
+    from {
+        width: 0;
+    }
+}
+
+/* Animasi grafik tren laporan */
+.sp-trend-chart polyline {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: garisBerjalan 2s ease forwards;
+}
+
+@keyframes garisBerjalan {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+/* Animasi Distribusi Status */
+.sp-status-chart,
+.sp-status-chart svg,
+.sp-status-chart circle,
+.sp-status-chart path {
+    animation: statusMuncul 1.5s ease-out;
+    transform-origin: center;
+}
+
+@keyframes statusMuncul {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+    
+/* Perkecil card Laporan Terbaru */
+.sp-bottom-grid > .sp-table-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Supaya tabel tidak memaksa card melebar */
+.sp-table-card .sp-table-scroll {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+/* Atur ukuran kolom tabel */
+.sp-table-card table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Cegah teks panjang memperlebar tabel */
+.sp-table-card th,
+.sp-table-card td {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.sp-bottom-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.sp-bottom-grid > .sp-table-card,
+.sp-bottom-grid > .sp-activity-card {
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .sp-bottom-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+}
+
+</style>
+
 @php
     $statusTotal = max(1, array_sum($statusChart ?? []));
 
@@ -485,32 +608,26 @@
 
 
                         <button
-                            id="map-recenter"
-                            type="button"
-                            aria-label="Pusatkan peta ke Kota Depok"
-                            title="Pusatkan peta"
-                        >
-
-                            <svg
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.7"
-                                aria-hidden="true"
-                            >
-                                <circle
-                                    cx="12"
-                                    cy="12"
-                                    r="3"
-                                />
-
-                                <path
-                                    stroke-linecap="round"
-                                    d="M12 2v3M12 19v3M2 12h3M19 12h3"
-                                />
-                            </svg>
-
-                        </button>
+    id="map-recenter"
+    type="button"
+    aria-label="Corong Filter Peta"
+    title="Corong Filter Peta"
+    class="inline-flex items-center justify-center p-2 text-slate-600 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 hover:text-emerald-600 hover:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all duration-150"
+>
+    <!-- Ikon Corong Filter Peta-->
+    <svg
+        class="w-5 h-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+    >
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    </svg>
+</button>
 
                     </div>
 
@@ -817,9 +934,10 @@
                         Distribusi Status
                     </h2>
 
-                    <span>
-                        Semua
-                    </span>
+                      <a href="{{ route('admin.verifikasi.index') }}"
+       class="text-sm font-semibold text-emerald-700 hover:text-emerald-900 hover:underline">
+        Semua
+    </a>
 
                 </div>
 
