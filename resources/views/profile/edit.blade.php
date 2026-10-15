@@ -62,23 +62,61 @@
         <div class="space-y-6">
 
             {{-- FOTO PROFIL --}}
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-                @if($user->foto_profil)
-                    <img
-                        src="{{ asset('storage/' . $user->foto_profil) }}"
-                        alt="Foto profil {{ $user->nama_lengkap }}"
-                        class="h-24 w-24 rounded-full border
-                               border-slate-200 object-cover"
-                    >
+          ```blade
+{{-- FOTO PROFIL --}}
+<div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div class="flex h-24 w-24 shrink-0 items-center justify-center
+                overflow-hidden rounded-full border border-slate-200
+                bg-emerald-100 text-xl font-semibold text-emerald-700">
+
+        @if($user->foto_profil)
+            <img
+                src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($user->foto_profil) }}"
+                alt="Foto profil {{ $user->nama_lengkap }}"
+                class="h-full w-full object-cover"
+            >
+        @else
+            {{ mb_strtoupper(mb_substr($user->nama_lengkap ?? 'U', 0, 1)) }}
+        @endif
+
+    </div>
+
+    <div class="flex-1">
+        <label
+            for="foto_profil"
+            class="block text-sm font-semibold text-slate-700"
+        >
+            Foto profil
+        </label>
+
+        <input
+            id="foto_profil"
+            name="foto_profil"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            class="mt-2 block w-full text-sm text-slate-600"
+        >
+
+        <p class="mt-1 text-xs text-slate-500">
+            Format JPG, PNG, atau WEBP. Maksimal 2 MB.
+        </p>
+    </div>
+</div>
+
                 @else
-                    <div
-                        class="flex h-24 w-24 shrink-0 items-center
-                               justify-center rounded-full bg-emerald-100
-                               text-3xl font-bold text-emerald-800"
-                        aria-label="Inisial pengguna"
-                    >
-                        {{ strtoupper(substr($user->nama_lengkap, 0, 1)) }}
-                    </div>
+                    
+<div class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700">
+    @if(auth()->user()->foto_profil)
+        <img
+            src="{{ asset('storage/' . auth()->user()->foto_profil) }}"
+            alt="Foto profil {{ auth()->user()->nama_lengkap }}"
+            class="h-full w-full object-cover"
+        >
+    @else
+        {{ strtoupper(substr(auth()->user()->nama_lengkap ?? 'U', 0, 2)) }}
+    @endif
+</div>
+
                 @endif
 
                 <div class="flex-1">

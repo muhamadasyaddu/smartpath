@@ -435,30 +435,32 @@
             <div class="flex items-center gap-3">
                 @auth
                     {{-- Pengguna yang sudah login --}}
-                    <div class="relative">
-                        <button
-                            id="homeAccountToggle"
-                            type="button"
-                            class="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:border-emerald-400/50 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#062a25]"
-                            aria-haspopup="true"
-                            aria-expanded="false"
-                            aria-controls="homeAccountMenu"
-                        >
-                            @if(auth()->user()->foto_profil)
-                                <img
-                                    src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url(auth()->user()->foto_profil) }}"
-                                    alt=""
-                                    class="h-8 w-8 rounded-full border border-white/20 object-cover"
-                                    loading="lazy"
-                                >
-                            @else
-                                <span
-                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white"
-                                    aria-hidden="true"
-                                >
-                                    {{ mb_strtoupper(mb_substr(auth()->user()->nama_lengkap ?: 'U', 0, 1)) }}
-                                </span>
-                            @endif
+                   
+{{-- Pengguna yang sudah login --}}
+<div class="relative">
+    <button
+        id="homeAccountToggle"
+        type="button"
+        class="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:border-emerald-400/50 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#062a25]"
+        aria-haspopup="true"
+        aria-expanded="false"
+        aria-controls="homeAccountMenu"
+    >
+        @if(auth()->user()->foto_profil)
+            <img
+                src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url(auth()->user()->foto_profil) }}"
+                alt=""
+                class="h-8 w-8 rounded-full border border-white/20 object-cover"
+                loading="lazy"
+            >
+        @else
+            <span class="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-emerald-100 text-sm font-bold text-emerald-800">
+                {{ mb_strtoupper(mb_substr(auth()->user()->nama_lengkap ?? 'U', 0, 1)) }}
+            </span>
+        @endif
+
+     
+
 
                             <span class="hidden max-w-36 truncate sm:inline">
                                 {{ auth()->user()->nama_lengkap }}
@@ -467,64 +469,66 @@
                             <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
                         </button>
 
-                        <div
-                            id="homeAccountMenu"
-                            class="absolute right-0 z-50 mt-2 hidden w-60 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-slate-800 shadow-xl"
-                            role="menu"
-                            aria-label="Menu akun"
-                        >
-                            <div class="border-b border-slate-100 px-4 py-3">
-                                <p class="truncate text-sm font-semibold text-slate-900">
-                                    {{ auth()->user()->nama_lengkap }}
-                                </p>
-                                <p class="truncate text-xs text-slate-500">
-                                    {{ auth()->user()->email }}
-                                </p>
-                            </div>
+                      
+<div
+    id="homeAccountMenu"
+    class="absolute right-0 z-50 mt-2 hidden w-60 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-slate-800 shadow-xl"
+    role="menu"
+    aria-label="Menu akun"
+>
+    <div class="border-b border-slate-100 px-4 py-3">
+        <p class="truncate text-sm font-semibold text-slate-900">
+            {{ auth()->user()->nama_lengkap }}
+        </p>
+        <p class="truncate text-xs text-slate-500">
+            {{ auth()->user()->email }}
+        </p>
+    </div>
 
-                            <a
-                                href="{{ route('profile.edit') }}"
-                                class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
-                                role="menuitem"
-                            >
-                                <i class="fa-regular fa-user w-4" aria-hidden="true"></i>
-                                Profil Saya
-                            </a>
+    <a
+        href="{{ route('profile.edit') }}"
+        class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
+        role="menuitem"
+    >
+        <i class="fa-regular fa-user w-4" aria-hidden="true"></i>
+        Profil Saya
+    </a>
 
-                            <a
-                                href="{{ route('laporan.index') }}"
-                                class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
-                                role="menuitem"
-                            >
-                                <i class="fa-regular fa-clipboard w-4" aria-hidden="true"></i>
-                                Laporan Saya
-                            </a>
+    <a
+        href="{{ route('laporan.index') }}"
+        class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
+        role="menuitem"
+    >
+        <i class="fa-regular fa-clipboard w-4" aria-hidden="true"></i>
+        Laporan Saya
+    </a>
 
-                            @if(auth()->user()->isAdmin() || auth()->user()->isDinas())
-                                <a
-                                    href="{{ route(auth()->user()->getDashboardRouteName()) }}"
-                                    class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
-                                    role="menuitem"
-                                >
-                                    <i class="fa-solid fa-chart-line w-4" aria-hidden="true"></i>
-                                    Dashboard
-                                </a>
-                            @endif
+    @if(auth()->user()->isAdmin() || auth()->user()->isDinas())
+        <a
+            href="{{ route(auth()->user()->getDashboardRouteName()) }}"
+            class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
+            role="menuitem"
+        >
+            <i class="fa-solid fa-chart-line w-4" aria-hidden="true"></i>
+            Dashboard
+        </a>
+    @endif
 
-                            <div class="my-1 border-t border-slate-100"></div>
+    <div class="my-1 border-t border-slate-100"></div>
 
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button
-                                    type="submit"
-                                    class="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-red-600 transition hover:bg-red-50 focus:bg-red-50"
-                                    role="menuitem"
-                                >
-                                    <i class="fa-solid fa-arrow-right-from-bracket w-4" aria-hidden="true"></i>
-                                    Keluar
-                                </button>
-                            </form>
-                        </div>
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button
+            type="submit"
+            class="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-red-600 transition hover:bg-red-50 focus:bg-red-50"
+            role="menuitem"
+        >
+            <i class="fa-solid fa-arrow-right-from-bracket w-4" aria-hidden="true"></i>
+            Keluar
+        </button>
+    </form>
+</div>
+
                     </div>
                 @else
                     {{-- Pengunjung yang belum login --}}
