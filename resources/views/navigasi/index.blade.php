@@ -3,7 +3,7 @@
 @section('title', 'Navigasi SmartPath')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/smartpath-warga.css') }}">
+<link rel="stylesheet" href="{{ asset('css/smartpath-warga.css') }}">
 @endpush
 
 @section('content')
@@ -60,17 +60,17 @@
     .navigation-map-card {
         position: relative;
         display: grid;
-        grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
-        grid-template-rows: clamp(560px, 72vh, 720px);
+        grid-template-columns: minmax(340px, 360px) minmax(0, 1fr);
+        grid-template-rows: clamp(540px, 76vh, 760px);
         overflow: hidden;
         min-height: 0;
         height: auto;
         margin-top: 16px;
         scroll-margin-top: 80px;
         border: 1px solid #dbe4e9;
-        border-radius: 16px;
+        border-radius: 12px;
         background: #e2e8f0;
-        box-shadow: 0 8px 24px rgba(15, 23, 42, .07);
+        box-shadow: 0 2px 8px rgb(15 23 42 / 5%);
     }
 
     .navigation-map {
@@ -83,17 +83,18 @@
     }
 
     .navigation-map .leaflet-container {
-        font-family: 'Inter', sans-serif;
+        font-family: Inter, Arial, sans-serif;
     }
 
     .navigation-map-topbar {
         position: absolute;
         z-index: 800;
-        top: 16px;
-        left: calc(max(280px, min(320px, 34%)) + 16px);
-        right: 16px;
+        top: 14px;
+        left: auto;
+        right: 14px;
         display: flex;
         justify-content: space-between;
+        gap: 8px;
         pointer-events: none;
     }
 
@@ -104,14 +105,13 @@
         align-items: center;
         gap: 8px;
         padding: 9px 12px;
-        border: 1px solid rgba(226, 232, 240, .95);
-        border-radius: 10px;
-        background: rgba(255, 255, 255, .94);
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #fff;
         color: #0f172a;
         font-size: 13px;
         font-weight: 700;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, .08);
-        backdrop-filter: blur(8px);
+        box-shadow: 0 1px 4px rgb(15 23 42 / 8%);
     }
 
     .navigation-gps-status {
@@ -128,7 +128,7 @@
 
     .navigation-gps-dot.is-active {
         background: #059669;
-        box-shadow: 0 0 0 4px rgba(5, 150, 105, .12);
+        box-shadow: 0 0 0 4px rgb(5 150 105 / 12%);
     }
 
     .navigation-overlay {
@@ -143,9 +143,8 @@
         border: 0;
         border-right: 1px solid #e2e8f0;
         border-radius: 0;
-        background: #ffffff;
+        background: #fff;
         box-shadow: none;
-        backdrop-filter: none;
     }
 
     .navigation-map-card.is-navigation-active .navigation-overlay {
@@ -158,10 +157,11 @@
     }
 
     .navigation-map-card.is-navigation-active .navigation-overlay__body {
-        padding: 10px 12px 12px;
+        padding: 16px 20px;
     }
 
-    .navigation-map-card.is-navigation-active .navigation-overlay__body > :not(#kontrol-navigasi):not(#status-perjalanan) {
+    .navigation-map-card.is-navigation-active
+    .navigation-overlay__body > :not(#kontrol-navigasi):not(#status-perjalanan) {
         display: none;
     }
 
@@ -171,8 +171,8 @@
     }
 
     .navigation-overlay__header {
-        padding: 16px 18px 13px;
-        border-bottom: 1px solid #eef2f7;
+        padding: 20px 20px 16px;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .navigation-overlay__heading {
@@ -183,11 +183,11 @@
 
     .navigation-overlay__icon {
         display: flex;
-        width: 34px;
-        height: 34px;
+        width: 38px;
+        height: 38px;
         align-items: center;
         justify-content: center;
-        border-radius: 9px;
+        border-radius: 10px;
         background: #ecfdf5;
         color: #047857;
     }
@@ -195,46 +195,46 @@
     .navigation-overlay h2 {
         margin: 0;
         color: #0f172a;
-        font-size: 15px;
-        line-height: 1.35;
-        font-weight: 750;
+        font-size: 16px;
+        line-height: 1.4;
+        font-weight: 700;
     }
 
     .navigation-overlay__subheading {
         margin-top: 3px;
         color: #64748b;
         font-size: 13px;
-        line-height: 1.5;
+        line-height: 1.6;
     }
 
     .navigation-overlay__body {
-        padding: 16px 18px 18px;
+        padding: 20px;
     }
 
     .navigation-label {
         display: block;
-        margin-bottom: 7px;
+        margin-bottom: 8px;
         color: #334155;
-        font-size: 13px;
-        font-weight: 700;
+        font-size: 14px;
+        font-weight: 650;
     }
 
     .navigation-input {
         width: 100%;
-        min-height: 46px;
+        min-height: 48px;
         padding: 11px 13px;
         border: 1px solid #cbd5e1;
-        border-radius: 10px;
+        border-radius: 8px;
         outline: none;
-        background: #ffffff;
+        background: #fff;
         color: #0f172a;
-        font-size: 14px;
+        font-size: 15px;
         line-height: 1.5;
     }
 
     .navigation-input:focus {
         border-color: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, .12);
+        box-shadow: 0 0 0 3px rgb(5 150 105 / 12%);
     }
 
     .navigation-helper {
@@ -253,10 +253,10 @@
 
     .navigation-primary,
     .navigation-secondary {
-        min-height: 44px;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 750;
+        min-height: 46px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 650;
     }
 
     .navigation-primary {
@@ -266,7 +266,7 @@
         gap: 8px;
         border: 1px solid #047857;
         background: #047857;
-        color: #ffffff;
+        color: #fff;
         cursor: pointer;
     }
 
@@ -287,7 +287,7 @@
         gap: 8px;
         padding: 0 14px;
         border: 1px solid #cbd5e1;
-        background: #ffffff;
+        background: #fff;
         color: #334155;
         cursor: pointer;
     }
@@ -296,19 +296,16 @@
         background: #f8fafc;
     }
 
-    .navigation-status {
-        margin-top: 12px;
-    }
-
+    .navigation-status,
     .navigation-result,
     .navigation-active {
-        margin-top: 12px;
+        margin-top: 16px;
     }
 
     .alert {
-        border-radius: 10px;
         padding: 11px 12px;
         border: 1px solid transparent;
+        border-radius: 10px;
         font-size: 13px;
         line-height: 1.55;
     }
@@ -346,7 +343,7 @@
     .card {
         border: 1px solid #e2e8f0;
         border-radius: 11px;
-        background: #ffffff;
+        background: #fff;
     }
 
     .card-body {
@@ -384,7 +381,7 @@
     .btn-success {
         border: 1px solid #047857;
         background: #047857;
-        color: #ffffff;
+        color: #fff;
     }
 
     .btn-success:hover {
@@ -393,7 +390,7 @@
 
     .btn-danger {
         border: 1px solid #fecaca;
-        background: #ffffff;
+        background: #fff;
         color: #b91c1c;
     }
 
@@ -404,7 +401,7 @@
     .btn-outline-primary {
         width: 100%;
         border: 1px solid #d1d5db;
-        background: #ffffff;
+        background: #fff;
         color: #0f172a;
         text-align: left;
     }
@@ -418,9 +415,9 @@
     .hambatan-ditemukan,
     .hambatan-pesan,
     .info-perjalanan {
-        border-radius: 10px;
         padding: 12px;
         border: 1px solid #e2e8f0;
+        border-radius: 10px;
         font-size: 13px;
         line-height: 1.55;
     }
@@ -454,7 +451,7 @@
         padding: 11px;
         border: 1px solid #e2e8f0;
         border-radius: 9px;
-        background: #ffffff;
+        background: #fff;
     }
 
     .hambatan-card h4 {
@@ -505,10 +502,90 @@
         font-size: 18px !important;
     }
 
-    @media (max-width: 900px) {
+    .smartpath-navigation .nav-icon {
+        display: inline-block;
+        flex: 0 0 auto;
+        width: 1.15em;
+        text-align: center;
+        line-height: 1;
+        vertical-align: -.08em;
+    }
 
+    .smartpath-navigation .nav-icon--primary {
+        color: #047857;
+    }
+
+    .smartpath-navigation .nav-icon--muted {
+        color: #64748b;
+    }
+
+    .smartpath-navigation .nav-icon--warning {
+        color: #b45309;
+    }
+
+    .smartpath-navigation .nav-icon--danger {
+        color: #b91c1c;
+    }
+
+    .smartpath-navigation button:focus-visible,
+    .navigation-input:focus-visible,
+    .navigation-primary:focus-visible,
+    .navigation-secondary:focus-visible {
+        outline: 3px solid rgb(13 148 136 / 35%);
+        outline-offset: 3px;
+    }
+
+    /* SCREEN READER MELAYANG */
+    #smartpath-screen-reader {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 9999;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 48px;
+        padding: 12px 17px;
+        border: 1px solid #047857;
+        border-radius: 999px;
+        background: #047857;
+        color: #fff;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: 0 4px 14px rgb(15 23 42 / 18%);
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    #smartpath-screen-reader:hover {
+        background: #065f46;
+    }
+
+    #smartpath-screen-reader:active {
+        cursor: grabbing;
+    }
+
+    #smartpath-screen-reader:focus-visible {
+        outline: 3px solid #10b981;
+        outline-offset: 4px;
+    }
+
+    #smartpath-screen-reader i {
+        font-size: 19px;
+    }
+
+    #smartpath-screen-reader:disabled {
+        cursor: not-allowed;
+        opacity: .7;
+    }
+
+    @media (max-width: 900px) {
         .navigation-shell {
-            padding: 22px 16px 36px;
+            padding: 16px 12px 28px;
         }
 
         .navigation-map-card {
@@ -516,6 +593,7 @@
             position: relative;
             min-height: 620px;
             height: 76vh;
+            overflow: hidden;
         }
 
         .navigation-map {
@@ -525,32 +603,32 @@
             height: 100%;
         }
 
-        .navigation-map-topbar {
-            left: 16px;
-        }
-
         .navigation-overlay {
             position: absolute;
             left: 18px;
             bottom: 18px;
             width: min(430px, calc(100% - 36px));
             max-height: calc(100% - 118px);
-            border: 1px solid rgba(226, 232, 240, .96);
+            border: 1px solid #e2e8f0;
             border-radius: 16px;
-            background: rgba(255, 255, 255, .97);
-            box-shadow: 0 16px 45px rgba(15, 23, 42, .16);
-            backdrop-filter: blur(12px);
+            background: rgb(255 255 255 / 97%);
+            box-shadow: 0 16px 45px rgb(15 23 42 / 16%);
+            overflow-y: auto;
         }
 
         .navigation-map-card.is-navigation-active .navigation-overlay {
             width: min(340px, calc(100% - 36px));
-            max-height: min(190px, calc(100% - 118px));
+            max-height: min(250px, calc(100% - 118px));
         }
 
+        .navigation-map-topbar {
+            top: 10px;
+            left: 10px;
+            right: 10px;
+        }
     }
 
     @media (max-width: 640px) {
-
         .navigation-shell {
             padding: 18px 12px 28px;
         }
@@ -559,12 +637,6 @@
             min-height: 640px;
             height: 78vh;
             border-radius: 12px;
-        }
-
-        .navigation-map-topbar {
-            top: 10px;
-            left: 10px;
-            right: 10px;
         }
 
         .navigation-overlay {
@@ -576,230 +648,13 @@
         }
 
         .navigation-actions {
-            grid-template-columns: 1fr;
-        }
-
-    }
-
-
-    
-    /* =========================================================
-    SMARTPATH NAVIGATION — REFINEMENT
-    Pertahankan struktur dan fungsi JavaScript yang ada.
-    ========================================================= */
-
-    .smartpath-navigation {
-        background: #f8fafc;
-        color: #0f172a;
-    }
-
-    .navigation-header {
-        margin-bottom: 12px;
-    }
-
-    .navigation-eyebrow {
-        font-size: 12px;
-        letter-spacing: 0.045em;
-        text-transform: uppercase;
-    }
-
-    .navigation-title {
-        font-size: clamp(24px, 2.4vw, 32px);
-        font-weight: 750;
-        letter-spacing: -0.035em;
-        line-height: 1.2;
-    }
-
-    .navigation-description {
-        max-width: 700px;
-        font-size: 15px;
-        line-height: 1.7;
-    }
-
-    .navigation-map-card {
-        grid-template-columns: minmax(340px, 360px) minmax(0, 1fr);
-        grid-template-rows: clamp(540px, 76vh, 760px);
-        border: 1px solid #dbe4e9;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgb(15 23 42 / 5%);
-    }
-
-    .navigation-overlay {
-        background: #fff;
-        border-right: 1px solid #e2e8f0;
-    }
-
-    .navigation-overlay__header {
-        padding: 20px 20px 16px;
-        border-bottom-color: #e2e8f0;
-    }
-
-    .navigation-overlay__icon {
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        background: #ecfdf5;
-        color: #047857;
-    }
-
-    .navigation-overlay h2 {
-        font-size: 16px;
-        font-weight: 700;
-        letter-spacing: -0.015em;
-    }
-
-    .navigation-overlay__subheading {
-        font-size: 13px;
-        line-height: 1.6;
-    }
-
-    .navigation-overlay__body {
-        padding: 20px;
-    }
-
-    .navigation-label {
-        margin-bottom: 8px;
-        font-size: 14px;
-        font-weight: 650;
-    }
-
-    .navigation-input {
-        min-height: 48px;
-        border-radius: 8px;
-        border-color: #cbd5e1;
-        font-size: 15px;
-    }
-
-    .navigation-input:focus-visible,
-    .navigation-primary:focus-visible,
-    .navigation-secondary:focus-visible,
-    .navigation-overlay button:focus-visible {
-        outline: 3px solid rgb(13 148 136 / 35%);
-        outline-offset: 2px;
-    }
-
-    .navigation-primary,
-    .navigation-secondary {
-        min-height: 46px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 650;
-    }
-
-    .navigation-primary {
-        background: #047857;
-        border-color: #047857;
-    }
-
-    .navigation-primary:hover {
-        background: #065f46;
-        border-color: #065f46;
-    }
-
-    .navigation-secondary {
-        padding-inline: 14px;
-    }
-
-    .navigation-status,
-    .navigation-result,
-    .navigation-active {
-        margin-top: 16px;
-    }
-
-    .navigation-result .card,
-    .navigation-active .card {
-        border: 0;
-        border-radius: 0;
-        box-shadow: none;
-        background: transparent;
-    }
-
-    .navigation-result .card-body,
-    .navigation-active .card-body {
-        padding: 16px 0;
-    }
-
-    .navigation-result .card h2,
-    .navigation-active .card h2 {
-        font-size: 17px;
-        line-height: 1.4;
-    }
-
-    .navigation-result .card p,
-    .navigation-active .card p {
-        font-size: 14px;
-        line-height: 1.65;
-    }
-
-    .navigation-result .btn,
-    .navigation-active .btn {
-        width: 100%;
-        min-height: 48px;
-        border-radius: 8px;
-        font-size: 15px;
-    }
-
-    .navigation-map-topbar {
-        top: 14px;
-        left: auto;
-        right: 14px;
-        gap: 8px;
-    }
-
-    .navigation-map-title,
-    .navigation-gps-status {
-        border-radius: 8px;
-        box-shadow: 0 1px 4px rgb(15 23 42 / 8%);
-        backdrop-filter: none;
-    }
-
-    .navigation-map .leaflet-container {
-        font-family: Inter, Arial, sans-serif;
-    }
-
-    .navigation-map .leaflet-control-zoom a {
-        color: #0f172a;
-    }
-
-    .navigation-map-card.is-navigation-active .navigation-overlay__body {
-        padding: 16px 20px;
-    }
-
-    @media (max-width: 900px) {
-        .navigation-shell {
-            padding: 16px 12px 28px;
-        }
-
-        .navigation-map-card {
             grid-template-columns: minmax(0, 1fr);
-            grid-template-rows: minmax(340px, 52vh) auto;
-            overflow: visible;
         }
 
-        .navigation-map {
-            grid-column: 1;
-            grid-row: 1;
-            min-height: 340px;
+        .navigation-secondary {
+            width: 100%;
         }
 
-        .navigation-overlay {
-            grid-column: 1;
-            grid-row: 2;
-            max-height: none;
-            overflow: visible;
-            border-right: 0;
-            border-top: 1px solid #e2e8f0;
-            border-radius: 0 0 12px 12px;
-        }
-
-        .navigation-map-topbar {
-            top: 10px;
-            right: 10px;
-            left: auto;
-        }
-    }
-
-    @media (max-width: 480px) {
         .navigation-title {
             font-size: 25px;
         }
@@ -812,12 +667,11 @@
             padding: 16px;
         }
 
-        .navigation-actions {
-            grid-template-columns: minmax(0, 1fr);
-        }
-
-        .navigation-secondary {
-            width: 100%;
+        #smartpath-screen-reader {
+            right: 14px;
+            bottom: 14px;
+            padding: 12px 14px;
+            font-size: 13px;
         }
     }
 
@@ -826,90 +680,20 @@
         .smartpath-navigation *::before,
         .smartpath-navigation *::after {
             scroll-behavior: auto !important;
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: .01ms !important;
         }
     }
-
-    
-        /* ==========================================================
-        SMARTPATH — SISTEM IKON NAVIGASI
-        Konsisten, ringkas, dan ramah aksesibilitas.
-        ========================================================== */
-
-        .smartpath-navigation .nav-icon {
-            display: inline-block;
-            flex: 0 0 auto;
-            width: 1.15em;
-            text-align: center;
-            line-height: 1;
-            vertical-align: -0.08em;
-        }
-
-        .smartpath-navigation .nav-icon--primary {
-            color: #047857;
-        }
-
-        .smartpath-navigation .nav-icon--muted {
-            color: #64748b;
-        }
-
-        .smartpath-navigation .nav-icon--warning {
-            color: #b45309;
-        }
-
-        .smartpath-navigation .nav-icon--danger {
-            color: #b91c1c;
-        }
-
-        .smartpath-navigation .navigation-primary .nav-icon {
-            color: inherit;
-        }
-
-        .smartpath-navigation .navigation-secondary .nav-icon {
-            color: #475569;
-        }
-
-        .smartpath-navigation .btn-danger .nav-icon {
-            color: inherit;
-        }
-
-        .smartpath-navigation button:focus-visible {
-            outline: 3px solid #059669;
-            outline-offset: 3px;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .smartpath-navigation *,
-            .smartpath-navigation *::before,
-            .smartpath-navigation *::after {
-                scroll-behavior: auto !important;
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-
-
-
 </style>
 
-
 <main class="smartpath-navigation">
-
     <div class="navigation-shell">
 
         <header class="navigation-header">
-
             <div>
-
                 <div class="navigation-eyebrow">
-                    <i
-                        class="fa-solid fa-route"
-                        aria-hidden="true"
-                    ></i>
-
+                    <i class="fa-solid fa-route" aria-hidden="true"></i>
                     Navigasi Aksesibilitas
                 </div>
 
@@ -927,58 +711,48 @@
                     class="warga-dashboard__voice-button mt-4"
                     data-read-page
                     data-read-status="navigation-read-status"
-                    data-read-text="Halaman Navigasi Aksesibilitas SmartPath. Masukkan nama tempat atau alamat pada kolom Tujuan perjalanan, lalu pilih Cari Rute. Setelah rute ditemukan, tekan Mulai Perjalanan untuk memulai panduan suara dan pemantauan GPS. Tombol Posisi menampilkan posisi kamu pada peta. Hambatan sepanjang rute ditampilkan sebagai informasi teks."
+                    data-read-text="Halaman Navigasi Aksesibilitas SmartPath. Masukkan nama tempat atau alamat pada kolom Tujuan perjalanan, lalu pilih Cari Rute. Setelah rute ditemukan, tekan Mulai navigasi untuk memulai panduan suara dan pemantauan GPS. Tombol Lokasi saya menampilkan posisi kamu pada peta. Hambatan sepanjang rute ditampilkan sebagai informasi teks."
                     aria-controls="navigation-read-status"
                     aria-pressed="false"
                 >
                     <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
                     <span data-read-label>Dengar Panduan</span>
                 </button>
-                <span id="navigation-read-status" class="sr-only" role="status" aria-live="polite"></span>
 
+                <span
+                    id="navigation-read-status"
+                    class="sr-only"
+                    role="status"
+                    aria-live="polite"
+                ></span>
             </div>
-
         </header>
 
-        {{-- ACCESSIBILITY --}}
         <section class="navigation-accessibility-note">
-
             <div class="flex gap-3">
-
                 <i
                     class="fa-solid fa-universal-access mt-0.5 text-emerald-700"
                     aria-hidden="true"
                 ></i>
 
                 <div>
-
                     <div class="navigation-accessibility-note__title">
                         Informasi aksesibilitas
                     </div>
 
                     <p>
-                        Informasi hambatan tetap tersedia dalam bentuk teks
-                        dan dapat dibacakan melalui fitur suara perangkat.
-                        Kontrol utama navigasi ditempatkan langsung di dalam
-                        area peta agar pengguna tidak perlu berpindah ke panel
-                        jauh di bawah halaman.
+                        Informasi hambatan tersedia dalam bentuk teks dan dapat
+                        dibacakan melalui fitur suara. Gunakan tombol Dengar Panduan
+                        untuk mendengarkan informasi halaman.
                     </p>
-
                 </div>
-
             </div>
-
         </section>
 
-
-        {{-- ==========================================================
-             MAP + FLOATING NAVIGATION PANEL
-        =========================================================== --}}
         <section
             class="navigation-map-card"
             aria-labelledby="navigation-map-title"
         >
-
             <div
                 id="peta-navigasi"
                 class="navigation-map"
@@ -986,80 +760,44 @@
                 aria-label="Peta navigasi SmartPath Kota Depok"
             ></div>
 
-
-            {{-- TOP BAR --}}
             <div class="navigation-map-topbar">
-
-                <div
-                    id="navigation-map-title"
-                    class="navigation-map-title"
-                >
+                <div id="navigation-map-title" class="navigation-map-title">
                     <i
                         class="fa-solid fa-map-location-dot text-emerald-700"
                         aria-hidden="true"
                     ></i>
-
                     Peta Perjalanan
                 </div>
 
-
                 <div class="navigation-gps-status">
-
                     <span
                         id="navigation-gps-dot"
                         class="navigation-gps-dot"
                         aria-hidden="true"
                     ></span>
 
-                    <span id="navigation-gps-label">
-                        GPS perangkat
-                    </span>
-
+                    <span id="navigation-gps-label">GPS perangkat</span>
                 </div>
-
             </div>
 
-
-            {{-- FLOATING CONTROL PANEL --}}
-            <aside
-                class="navigation-overlay"
-                aria-label="Kontrol navigasi"
-            >
-
+            <aside class="navigation-overlay" aria-label="Kontrol navigasi">
                 <div class="navigation-overlay__header">
-
                     <div class="navigation-overlay__heading">
-
-                        <span
-                            class="navigation-overlay__icon"
-                            aria-hidden="true"
-                        >
+                        <span class="navigation-overlay__icon" aria-hidden="true">
                             <i class="fa-solid fa-location-arrow"></i>
                         </span>
 
                         <div>
-
-                            <h2>
-                                Tentukan Lokasi Tujuan
-                            </h2>
-
+                            <h2>Tentukan Lokasi Tujuan</h2>
                             <p class="navigation-overlay__subheading">
                                 Cari tempat atau alamat di sekitar Kota Depok.
                             </p>
-
                         </div>
-
                     </div>
-
                 </div>
 
-
                 <div class="navigation-overlay__body">
-
-                    <label
-                        for="tujuan"
-                        class="navigation-label"
-                    >
+                    <label for="tujuan" class="navigation-label">
                         Tujuan perjalanan
                     </label>
 
@@ -1072,45 +810,34 @@
                         aria-describedby="tujuan-help"
                     >
 
-                    <p
-                        id="tujuan-help"
-                        class="navigation-helper"
-                    >
-                        Masukkan nama fasilitas, tempat umum,
-                        atau alamat tujuan.
+                    <p id="tujuan-help" class="navigation-helper">
+                        Masukkan nama fasilitas, tempat umum, atau alamat tujuan.
                     </p>
 
+                    <div class="navigation-actions">
+                        <button
+                            type="button"
+                            id="btn-mulai-navigasi"
+                            class="navigation-primary"
+                        >
+                            <i class="fa-solid fa-route" aria-hidden="true"></i>
+                            <span>Cari Rute</span>
+                        </button>
 
-                    
-                <div class="navigation-actions">
-
-                    <button
-                        type="button"
-                        id="btn-mulai-navigasi"
-                        class="navigation-primary"
-                    >
-                        <i class="fa-solid fa-route" aria-hidden="true"></i>
-                        <span>Cari Rute</span>
-                    </button>
-
-                    
-                    <button
-                        type="button"
-                        id="btn-map-center"
-                        class="navigation-secondary"
-                        title="Tampilkan posisi saya pada peta"
-                        aria-label="Tampilkan posisi saya pada peta"
-                    >
-                        <i
-                            class="fa-solid fa-location-crosshairs"
-                            aria-hidden="true"
-                        ></i>
-                        <span>Lokasi saya</span>
-                    </button>
-
-                </div>
-
-
+                        <button
+                            type="button"
+                            id="btn-map-center"
+                            class="navigation-secondary"
+                            title="Tampilkan posisi saya pada peta"
+                            aria-label="Tampilkan posisi saya pada peta"
+                        >
+                            <i
+                                class="fa-solid fa-location-crosshairs"
+                                aria-hidden="true"
+                            ></i>
+                            <span>Lokasi saya</span>
+                        </button>
+                    </div>
 
                     <div
                         id="status-navigasi"
@@ -1119,12 +846,7 @@
                         aria-live="polite"
                     ></div>
 
-
-                    <div
-                        id="kontrol-navigasi"
-                        class="navigation-result"
-                    ></div>
-
+                    <div id="kontrol-navigasi" class="navigation-result"></div>
 
                     <div
                         id="status-perjalanan"
@@ -1132,32 +854,41 @@
                         role="status"
                         aria-live="polite"
                     ></div>
-
                 </div>
-
             </aside>
-
         </section>
 
-
-        {{-- HAMBATAN --}}
         <section
             id="hasil-hambatan"
             class="mt-5"
             aria-live="polite"
             aria-label="Informasi hambatan aksesibilitas sepanjang rute"
         ></section>
-
-
     </div>
-
 </main>
+
+{{-- SCREEN READER MELAYANG --}}
+<button
+    type="button"
+    id="smartpath-screen-reader"
+    aria-label="Mulai membacakan isi halaman"
+    aria-pressed="false"
+>
+    <i class="fa-solid fa-blind" aria-hidden="true"></i>
+    <span id="smartpath-screen-reader-label">Dengar Panduan</span>
+</button>
+
+<span
+    id="smartpath-screen-reader-status"
+    class="sr-only"
+    role="status"
+    aria-live="polite"
+></span>
 
     </div>
 </div>
 
 @endsection
-
 
 @push('scripts')
 
@@ -1166,10 +897,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-    // ==========================================================
-    // ELEMEN HTML
-    // ==========================================================
     const btnNavigasi = document.getElementById('btn-mulai-navigasi');
     const tujuanInput = document.getElementById('tujuan');
     const statusNavigasi = document.getElementById('status-navigasi');
@@ -1179,9 +906,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const navigationMapCard = document.querySelector('.navigation-map-card');
     const btnMapCenter = document.getElementById('btn-map-center');
 
-    // ==========================================================
-    // STATE NAVIGASI
-    // ==========================================================
     let watchId = null;
     let navigasiAktif = false;
     let posisiSekarang = null;
@@ -1198,11 +922,10 @@ document.addEventListener('DOMContentLoaded', function () {
     let markerTujuan = null;
     let garisRute = null;
 
-    // KONSTANTA BATAS JARAK
-    const BATAS_PERINGATAN_HAMBATAN = 50; // Jarak peringatan hambatan (meter)
-    const BATAS_TUJUAN = 20;              // Jarak sampai tujuan (meter)
-    const BATAS_PRA_ARAHAN = 80;          // Mulai memberi peringatan pra-arahan (meter)
-    const BATAS_ARAHAN = 50;              // Jarak eksekusi instruksi suara (meter)
+    const BATAS_PERINGATAN_HAMBATAN = 50;
+    const BATAS_TUJUAN = 20;
+    const BATAS_PRA_ARAHAN = 80;
+    const BATAS_ARAHAN = 50;
 
     if (typeof L !== 'undefined') {
         petaNavigasi = L.map('peta-navigasi', { zoomControl: true })
@@ -1216,12 +939,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btnMapCenter.addEventListener('click', function () {
         if (!petaNavigasi) {
-            tampilkanPesanPerjalanan('Peta tidak dapat dimuat. Silakan muat ulang halaman.', 'error');
+            tampilkanPesanPerjalanan(
+                'Peta tidak dapat dimuat. Silakan muat ulang halaman.',
+                'error'
+            );
             return;
         }
 
         if (!navigator.geolocation) {
-            tampilkanPesanPerjalanan('Browser atau perangkat ini tidak mendukung GPS.', 'error');
+            tampilkanPesanPerjalanan(
+                'Browser atau perangkat ini tidak mendukung GPS.',
+                'error'
+            );
             return;
         }
 
@@ -1237,7 +966,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const latitude = position.coords.latitude;
                 const longitude = position.coords.longitude;
                 const accuracy = position.coords.accuracy;
-                
+
+                perbaruiMarkerPengguna(latitude, longitude, accuracy);
+
                 const akurasiTeks = Number.isFinite(accuracy)
                     ? accuracy <= 50
                         ? 'Lokasi cukup akurat'
@@ -1248,9 +979,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 statusNavigasi.innerHTML = `
                     <div class="alert ${
-                        accuracy <= 50
-                            ? 'alert-success'
-                            : 'alert-warning'
+                        accuracy <= 50 ? 'alert-success' : 'alert-warning'
                     }" role="status">
                         <strong>${akurasiTeks}</strong>
                         <p class="mt-1">
@@ -1292,11 +1021,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     });
 
-    // ==========================================================
-    // EVENT LISTENER TOMBOL CARI RUTE
-    // ==========================================================
     btnNavigasi.addEventListener('click', function () {
-
         const tujuan = tujuanInput.value.trim();
 
         if (tujuan === '') {
@@ -1318,7 +1043,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Reset data navigasi sebelumnya
         hentikanPemantauanGPS();
         navigasiAktif = false;
         posisiSekarang = null;
@@ -1335,16 +1059,16 @@ document.addEventListener('DOMContentLoaded', function () {
         hasilHambatan.innerHTML = '';
         navigationMapCard.classList.remove('is-navigation-active');
 
-        // Loading state
         btnNavigasi.disabled = true;
-        btnNavigasi.innerHTML = '<i class="fa-solid fa-location-dot" aria-hidden="true"></i> Mendeteksi lokasi...';
+        btnNavigasi.innerHTML =
+            '<i class="fa-solid fa-location-dot" aria-hidden="true"></i> Mendeteksi lokasi...';
+
         statusNavigasi.innerHTML = `
             <div class="alert alert-info">
                 Sedang mendeteksi lokasi kamu...
             </div>
         `;
 
-        // Ambil GPS Awal
         navigator.geolocation.getCurrentPosition(
             function (position) {
                 const latitude = position.coords.latitude;
@@ -1355,16 +1079,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 posisiSekarang = { latitude, longitude, accuracy };
                 perbaruiMarkerPengguna(latitude, longitude, accuracy);
 
-                console.log('GPS AWAL:', latitude, longitude, 'Akurasi:', accuracy);
-
                 statusNavigasi.innerHTML = `
                     <div class="alert alert-info">
-                        
                         Sedang mencari koordinat tujuan...
                     </div>
                 `;
 
-                // Cari Lokasi Tujuan via Server
                 fetch('{{ route('navigasi.cari-tujuan') }}', {
                     method: 'POST',
                     headers: {
@@ -1380,11 +1100,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .then(async response => {
                     const data = await response.json();
-                    console.log('RESPONSE PENCARIAN TUJUAN:', data);
 
                     if (!response.ok) {
                         throw new Error(data.message || 'Pencarian tujuan gagal.');
                     }
+
                     return data;
                 })
                 .then(data => {
@@ -1392,9 +1112,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         throw new Error(data.message || 'Tujuan tidak ditemukan.');
                     }
 
-                    // Jika hasil pencarian berupa daftar pilihan lokasi (kategori)
-                    if (data.tipe_pencarian === 'kategori' && Array.isArray(data.hasil)) {
-                        console.log('PILIHAN TUJUAN:', data.hasil);
+                    if (
+                        data.tipe_pencarian === 'kategori' &&
+                        Array.isArray(data.hasil)
+                    ) {
                         tampilkanPilihanTujuan(data.hasil);
 
                         statusNavigasi.innerHTML = `
@@ -1403,26 +1124,29 @@ document.addEventListener('DOMContentLoaded', function () {
                                     <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                                     Pilih Tujuan
                                 </h2>
-                                Ditemukan ${data.hasil.length} pilihan di sekitar lokasi kamu. Silakan pilih salah satu tujuan.
+                                Ditemukan ${data.hasil.length} pilihan di sekitar lokasi kamu.
+                                Silakan pilih salah satu tujuan.
                             </div>
                         `;
+
                         return null;
                     }
 
-                    // Jika tujuan spesifik
                     tujuanNavigasi = {
                         nama: data.tujuan,
                         latitude: parseFloat(data.latitude),
                         longitude: parseFloat(data.longitude)
                     };
 
-                    console.log('TUJUAN DITEMUKAN:', data);
-                    console.log('JARAK TUJUAN DARI PENGGUNA:', data.jarak_pengguna, 'meter');
-
-                    return cariRuteKeTujuan(latitude, longitude, data.latitude, data.longitude);
+                    return cariRuteKeTujuan(
+                        latitude,
+                        longitude,
+                        data.latitude,
+                        data.longitude
+                    );
                 })
                 .then(rute => {
-                    if (!rute) return; // Jika memilih dari kategori, rute diproses setelah diklik
+                    if (!rute) return;
                     prosesHasilRute(rute, latitude, longitude, accuracy);
                 })
                 .catch(error => {
@@ -1435,12 +1159,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .finally(() => {
                     btnNavigasi.disabled = false;
-                    btnNavigasi.innerHTML = '<i class="fa-solid fa-route" aria-hidden="true"></i> Cari Rute';
+                    btnNavigasi.innerHTML =
+                        '<i class="fa-solid fa-route" aria-hidden="true"></i> Cari Rute';
                 });
             },
             function (error) {
                 console.error('GPS Error:', error);
                 let pesan = '';
+
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
                         pesan = 'Izin lokasi ditolak. Silakan izinkan akses lokasi pada browser.';
@@ -1458,8 +1184,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 statusNavigasi.innerHTML = `
                     <div class="alert alert-danger">${escapeHtml(pesan)}</div>
                 `;
+
                 btnNavigasi.disabled = false;
-                btnNavigasi.innerHTML = '<i class="fa-solid fa-route" aria-hidden="true"></i> Cari Rute';
+                btnNavigasi.innerHTML =
+                    '<i class="fa-solid fa-route" aria-hidden="true"></i> Cari Rute';
             },
             {
                 enableHighAccuracy: true,
@@ -1469,9 +1197,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     });
 
-    // ==========================================================
-    // FUNGSI PENCARIAN & PROSES RUTE
-    // ==========================================================
     function tampilkanPilihanTujuan(hasil) {
         kontrolNavigasi.innerHTML = `
             <div class="card shadow-sm border-0 mt-4">
@@ -1480,7 +1205,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                         Pilih tujuan
                     </strong>
-                    <p class="text-muted">Pilih salah satu tujuan yang berada di sekitar lokasi kamu.</p>
+                    <p class="text-muted">
+                        Pilih salah satu tujuan yang berada di sekitar lokasi kamu.
+                    </p>
                     <div id="daftar-pilihan-tujuan"></div>
                 </div>
             </div>
@@ -1489,22 +1216,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const daftar = document.getElementById('daftar-pilihan-tujuan');
 
         hasil.forEach(function (item) {
-            const jarak = formatJarak(item.jarak_pengguna);
             const tombol = document.createElement('button');
-
             tombol.type = 'button';
             tombol.className = 'btn btn-outline-primary w-100 text-start mb-3 p-3';
+
             tombol.innerHTML = `
                 <strong>${escapeHtml(item.tujuan)}</strong><br>
                 <small class="text-muted">
                     <i class="fa-solid fa-route" aria-hidden="true"></i>
-                    ${escapeHtml(jarak)}
+                    ${escapeHtml(formatJarak(item.jarak_pengguna))}
                 </small>
             `;
 
             tombol.addEventListener('click', function () {
-                console.log('TUJUAN DIPILIH:', item);
-
                 tujuanNavigasi = {
                     nama: item.tujuan,
                     latitude: parseFloat(item.latitude),
@@ -1513,8 +1237,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 statusNavigasi.innerHTML = `
                     <div class="alert alert-info">
-                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i> Tujuan dipilih.<br>
-                        <strong>${escapeHtml(item.tujuan)}</strong><br>
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                        Tujuan dipilih: <strong>${escapeHtml(item.tujuan)}</strong>.
                         Sedang mencari rute perjalanan...
                     </div>
                 `;
@@ -1552,15 +1276,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function cariRuteKeTujuan(latitudeAwal, longitudeAwal, latitudeTujuan, longitudeTujuan) {
-        const dataRute = {
-            latitude_awal: latitudeAwal,
-            longitude_awal: longitudeAwal,
-            latitude_tujuan: latitudeTujuan,
-            longitude_tujuan: longitudeTujuan
-        };
-
-        console.log('DATA YANG DIKIRIM KE RUTE:', dataRute);
-
         return fetch('{{ route('navigasi.rute') }}', {
             method: 'POST',
             headers: {
@@ -1568,17 +1283,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(dataRute)
+            body: JSON.stringify({
+                latitude_awal: latitudeAwal,
+                longitude_awal: longitudeAwal,
+                latitude_tujuan: latitudeTujuan,
+                longitude_tujuan: longitudeTujuan
+            })
         })
         .then(async response => {
             const hasilRute = await response.json();
-            console.log('RESPONSE RUTE:', hasilRute);
 
             if (!response.ok) {
                 if (hasilRute.errors) {
-                    const pesanValidasi = Object.values(hasilRute.errors).flat().join('<br>');
+                    const pesanValidasi = Object.values(hasilRute.errors)
+                        .flat()
+                        .join('\n');
+
                     throw new Error(pesanValidasi);
                 }
+
                 throw new Error(hasilRute.message || 'Rute tidak dapat ditemukan.');
             }
 
@@ -1595,14 +1318,11 @@ document.addEventListener('DOMContentLoaded', function () {
         window.ruteNavigasi = rute.geometry;
         langkahNavigasi = rute.steps || [];
         langkahBerikutnyaIndex = 0;
+
         tampilkanRuteDiPeta(rute.geometry, latitude, longitude);
 
         const jarakKm = (rute.distance / 1000).toFixed(2);
         const durasiMenit = Math.ceil(rute.duration / 60);
-
-        console.log('RUTE BERHASIL:', rute);
-        console.log('JARAK:', jarakKm, 'km');
-        console.log('DURASI:', durasiMenit, 'menit');
 
         statusNavigasi.innerHTML = `
             <div class="alert alert-success">
@@ -1614,8 +1334,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div><strong>Tujuan:</strong> ${escapeHtml(dataTujuan())}</div>
                     <div><strong>Jarak:</strong> ${jarakKm} km</div>
                     <div><strong>Perkiraan waktu:</strong> ${durasiMenit} menit</div>
-                    <div><strong>Lokasi awal:</strong> ${latitude}, ${longitude}</div>
-                    <div><strong>Lokasi tujuan:</strong> ${tujuanNavigasi.latitude}, ${tujuanNavigasi.longitude}</div>
                     <div><strong>Akurasi GPS:</strong> ±${Math.round(accuracy)} meter</div>
                 </div>
             </div>
@@ -1625,13 +1343,8 @@ document.addEventListener('DOMContentLoaded', function () {
         tampilkanTombolMulai(jarakKm, durasiMenit);
     }
 
-    // ==========================================================
-    // KONTROL MULAI NAVIGASI
-    // ==========================================================
-    
     function tampilkanTombolMulai(jarakKm, durasiMenit) {
         const tujuan = dataTujuan();
-
         const jarak = Number(jarakKm);
         const durasi = Number(durasiMenit);
 
@@ -1664,18 +1377,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         <p class="text-sm font-medium text-slate-500">
                             Tujuan perjalanan
                         </p>
-                        <h2
-                            id="route-summary-title"
-                            class="mt-1 break-words text-lg font-bold text-slate-900"
-                        >
+                        <h2 id="route-summary-title"
+                            class="mt-1 break-words text-lg font-bold text-slate-900">
                             ${escapeHtml(tujuan || 'Tujuan terpilih')}
                         </h2>
                     </div>
 
-                    <span
-                        class="shrink-0 rounded-full bg-emerald-50
-                            px-3 py-1 text-xs font-semibold text-emerald-800"
-                    >
+                    <span class="shrink-0 rounded-full bg-emerald-50
+                                 px-3 py-1 text-xs font-semibold text-emerald-800">
                         Rute tersedia
                     </span>
                 </div>
@@ -1690,9 +1399,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
 
                     <div>
-                        <p class="text-sm text-slate-500">
-                            Perkiraan waktu
-                        </p>
+                        <p class="text-sm text-slate-500">Perkiraan waktu</p>
                         <p class="mt-1 text-xl font-bold text-slate-900">
                             ${durasiTeks}
                         </p>
@@ -1700,11 +1407,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
 
                 <p class="mb-4 text-sm leading-6 text-slate-600">
-                    Perkiraan berdasarkan rute yang ditemukan.
-                    Kondisi jalur dan hambatan di lapangan dapat berubah.
+                    Perkiraan berdasarkan rute yang ditemukan. Kondisi jalur
+                    dan hambatan di lapangan dapat berubah.
                 </p>
 
-                
                 <button
                     type="button"
                     id="btn-mulai-perjalanan"
@@ -1713,32 +1419,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     <i class="fa-solid fa-route" aria-hidden="true"></i>
                     Mulai navigasi
                 </button>
-
             </section>
         `;
 
-        const tombolMulai = document.getElementById(
-            'btn-mulai-perjalanan'
-        );
+        const tombolMulai = document.getElementById('btn-mulai-perjalanan');
 
         if (tombolMulai) {
-            tombolMulai.addEventListener(
-                'click',
-                mulaiNavigasiAktif
-            );
+            tombolMulai.addEventListener('click', mulaiNavigasiAktif);
         }
     }
-
 
     function mulaiNavigasiAktif() {
         if (!tujuanNavigasi) {
             tampilkanPesanPerjalanan('Tujuan belum tersedia.', 'error');
             return;
         }
+
         if (!geometryNavigasi) {
             tampilkanPesanPerjalanan('Data rute belum tersedia.', 'error');
             return;
         }
+
         if (!navigator.geolocation) {
             tampilkanPesanPerjalanan('GPS tidak tersedia pada perangkat ini.', 'error');
             return;
@@ -1751,9 +1452,12 @@ document.addEventListener('DOMContentLoaded', function () {
         hambatanSudahDiumumkan.clear();
         langkahSudahDiumumkan.clear();
 
-        // Lewati step "depart" jika pertama kali
         langkahBerikutnyaIndex = 0;
-        if (langkahNavigasi.length > 0 && langkahNavigasi[0].type === 'depart') {
+
+        if (
+            langkahNavigasi.length > 0 &&
+            langkahNavigasi[0].type === 'depart'
+        ) {
             langkahBerikutnyaIndex = 1;
         }
 
@@ -1785,19 +1489,21 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
 
-        document.getElementById('btn-hentikan-navigasi').addEventListener('click', hentikanNavigasi);
+        document.getElementById('btn-hentikan-navigasi')
+            .addEventListener('click', hentikanNavigasi);
 
         bacakanTeks('Navigasi dimulai. Tujuan kamu adalah ' + tujuanNavigasi.nama);
+
         navigationMapCard.scrollIntoView({
-            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? 'auto'
+                : 'smooth',
             block: 'start'
         });
+
         mulaiPemantauanGPS();
     }
 
-    // ==========================================================
-    // PEMANTAUAN GPS (WATCH POSITION)
-    // ==========================================================
     function mulaiPemantauanGPS() {
         watchId = navigator.geolocation.watchPosition(
             function (position) {
@@ -1809,7 +1515,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 posisiSekarang = { latitude, longitude, accuracy };
                 perbaruiMarkerPengguna(latitude, longitude, accuracy);
-
                 updateInfoPosisi();
 
                 const jarakKeTujuan = hitungJarakMeter(
@@ -1829,7 +1534,10 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             function (error) {
                 console.error('Watch GPS Error:', error);
-                tampilkanPesanPerjalanan('Posisi GPS tidak dapat diperbarui. Pastikan lokasi perangkat tetap aktif.', 'error');
+                tampilkanPesanPerjalanan(
+                    'Posisi GPS tidak dapat diperbarui. Pastikan lokasi perangkat tetap aktif.',
+                    'error'
+                );
             },
             {
                 enableHighAccuracy: true,
@@ -1848,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!markerPengguna) {
             markerPengguna = L.circleMarker(posisi, {
                 radius: 9,
-                color: '#ffffff',
+                color: '#fff',
                 weight: 3,
                 fillColor: '#2563eb',
                 fillOpacity: 1
@@ -1867,13 +1575,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function tampilkanRuteDiPeta(geometry, latitudeAwal, longitudeAwal) {
-        if (!petaNavigasi || !geometry || !Array.isArray(geometry.coordinates)) return;
+        if (!petaNavigasi || !geometry || !Array.isArray(geometry.coordinates)) {
+            return;
+        }
 
-        const koordinat = geometry.coordinates.map(function (item) {
-            return [item[1], item[0]];
-        });
+        const koordinat = geometry.coordinates.map(item => [item[1], item[0]]);
 
         if (garisRute) petaNavigasi.removeLayer(garisRute);
+
         garisRute = L.polyline(koordinat, {
             color: '#2563eb',
             weight: 7,
@@ -1883,6 +1592,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }).addTo(petaNavigasi);
 
         if (markerTujuan) petaNavigasi.removeLayer(markerTujuan);
+
         markerTujuan = L.marker([
             tujuanNavigasi.latitude,
             tujuanNavigasi.longitude
@@ -1895,11 +1605,13 @@ document.addEventListener('DOMContentLoaded', function () {
             longitudeAwal,
             posisiSekarang ? posisiSekarang.accuracy : 0
         );
+
         petaNavigasi.fitBounds(garisRute.getBounds(), { padding: [32, 32] });
     }
 
     function updateInfoPosisi() {
         const infoPosisi = document.getElementById('info-posisi');
+
         if (!infoPosisi || !posisiSekarang) return;
 
         const jarakKeTujuan = hitungJarakMeter(
@@ -1931,9 +1643,6 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     }
 
-    // ==========================================================
-    // PENGECEKAN HAMBATAN
-    // ==========================================================
     function cekHambatanSepanjangRute(geometry) {
         fetch("{{ route('navigasi.cek-hambatan') }}", {
             method: 'POST',
@@ -1946,11 +1655,9 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => {
             if (!response.ok) {
-                return response.text().then(text => {
-                    console.error('Response error:', text);
-                    throw new Error('Gagal mengecek hambatan.');
-                });
+                throw new Error('Gagal mengecek hambatan.');
             }
+
             return response.json();
         })
         .then(data => {
@@ -1958,12 +1665,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 hambatanNavigasi = data.hambatan || [];
                 tampilkanHambatan(hambatanNavigasi);
             } else {
-                tampilkanPesanHambatan(data.message || 'Pengecekan hambatan gagal.', 'error');
+                tampilkanPesanHambatan(
+                    data.message || 'Pengecekan hambatan gagal.',
+                    'error'
+                );
             }
         })
         .catch(error => {
             console.error('Hambatan Error:', error);
-            tampilkanPesanHambatan('Terjadi kesalahan saat mengecek hambatan.', 'error');
+            tampilkanPesanHambatan(
+                'Terjadi kesalahan saat mengecek hambatan.',
+                'error'
+            );
         });
     }
 
@@ -1971,7 +1684,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!hambatanNavigasi || hambatanNavigasi.length === 0) return;
 
         hambatanNavigasi.forEach(function (hambatan) {
-            if (!hambatan.latitude || !hambatan.longitude) return;
+            if (
+                hambatan.latitude == null ||
+                hambatan.longitude == null
+            ) {
+                return;
+            }
 
             const jarak = hitungJarakMeter(
                 latitude,
@@ -1992,8 +1710,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (hambatanSudahDiumumkan.has(id)) return;
         hambatanSudahDiumumkan.add(id);
 
-        let jarakText = jarak < 1 ? 'kurang dari satu meter'
-            : (jarak >= 1000 ? (jarak / 1000).toFixed(1) + ' kilometer' : Math.round(jarak) + ' meter');
+        const jarakText = jarak < 1
+            ? 'kurang dari satu meter'
+            : jarak >= 1000
+                ? (jarak / 1000).toFixed(1) + ' kilometer'
+                : Math.round(jarak) + ' meter';
 
         const namaHambatan = hambatan.judul || 'hambatan aksesibilitas';
         const pesan = `Peringatan. Terdapat ${namaHambatan} sekitar ${jarakText} dari posisi kamu.`;
@@ -2016,7 +1737,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function tampilkanHambatan(hambatan) {
         if (!hambatan || hambatan.length === 0) {
-            const pesan = 'Tidak ditemukan laporan hambatan aksesibilitas terverifikasi di sepanjang rute yang diperiksa.';
+            const pesan =
+                'Tidak ditemukan laporan hambatan aksesibilitas terverifikasi di sepanjang rute yang diperiksa.';
+
             hasilHambatan.innerHTML = `
                 <div class="hambatan-aman" role="status" aria-live="polite">
                     <h3>Tidak ditemukan hambatan</h3>
@@ -2041,21 +1764,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 <article class="hambatan-card">
                     <h4>Hambatan ${index + 1}: ${escapeHtml(item.judul)}</h4>
                     <p><strong>Kategori:</strong> ${escapeHtml(item.kategori || 'Tidak diketahui')}</p>
-                    <p><strong>Jarak dari rute:</strong> ${item.jarak_dari_rute} meter</p>
+                    <p><strong>Jarak dari rute:</strong> ${escapeHtml(item.jarak_dari_rute)} meter</p>
                     <p><strong>Prioritas:</strong> ${escapeHtml(item.tingkat_prioritas || 'Belum dinilai')}</p>
                     <p><strong>Lokasi:</strong> ${escapeHtml(item.alamat || 'Alamat tidak tersedia')}</p>
                 </article>
             `;
         });
 
-        html += `</div>`;
+        html += '</div>';
         hasilHambatan.innerHTML = html;
 
         if (!navigasiAktif) {
             let teksSuara = `Ditemukan ${hambatan.length} hambatan aksesibilitas sepanjang rute. `;
+
             hambatan.forEach(function (item, index) {
                 teksSuara += `Hambatan ${index + 1}: ${item.judul || 'Tidak diketahui'}. Jarak dari rute ${item.jarak_dari_rute} meter. `;
             });
+
             bacakanTeks(teksSuara);
         }
     }
@@ -2069,7 +1794,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function tampilkanPesanPerjalanan(pesan, tipe = 'info') {
-        const classAlert = tipe === 'error' ? 'alert alert-danger' : 'alert alert-info';
+        const classAlert = tipe === 'error'
+            ? 'alert alert-danger'
+            : 'alert alert-info';
+
         statusPerjalanan.innerHTML = `
             <div class="${classAlert}" role="alert" aria-live="polite">
                 ${escapeHtml(pesan)}
@@ -2077,7 +1805,7 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     }
 
-    function sampaiTujuan(jarak) {
+    function sampaiTujuan() {
         if (!navigasiAktif) return;
 
         navigasiAktif = false;
@@ -2087,7 +1815,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         statusPerjalanan.innerHTML = `
             <div class="alert alert-success" role="status" aria-live="assertive">
-                <strong>🏁 Tujuan Tercapai</strong>
+                <strong>Tujuan Tercapai</strong>
                 <div class="mt-2">${escapeHtml(tujuanNavigasi.nama)}</div>
                 <div class="mt-2">Anda telah sampai di tujuan.</div>
             </div>
@@ -2096,26 +1824,14 @@ document.addEventListener('DOMContentLoaded', function () {
         bacakanTeks(pesan);
     }
 
-    // ==========================================================
-    // VOICE GUIDANCE
-    // ==========================================================
     function prosesVoiceGuidance(latitude, longitude) {
-        if (!navigasiAktif) return;
-
-        if (!langkahNavigasi.length) {
-            console.log('Tidak ada langkah navigasi.');
-            return;
-        }
+        if (!navigasiAktif || !langkahNavigasi.length) return;
 
         const langkah = langkahNavigasi[langkahBerikutnyaIndex];
 
-        if (!langkah) {
-            console.log('Semua langkah navigasi sudah selesai.');
-            return;
-        }
+        if (!langkah) return;
 
-        if (langkah.latitude === null || langkah.longitude === null) {
-            console.log('Koordinat langkah tidak tersedia:', langkah);
+        if (langkah.latitude == null || langkah.longitude == null) {
             langkahBerikutnyaIndex++;
             return;
         }
@@ -2127,55 +1843,34 @@ document.addEventListener('DOMContentLoaded', function () {
             langkah.longitude
         );
 
-        console.log(
-            'LANGKAH BERIKUTNYA:',
-            langkahBerikutnyaIndex,
-            '|',
-            langkah.type,
-            '|',
-            langkah.modifier,
-            '|',
-            langkah.name,
-            '| Jarak:',
-            jarak.toFixed(1),
-            'meter'
-        );
-
-        // 1. PERINGATAN AWAL (PRA-ARAHAN)
         if (
             jarak <= BATAS_PRA_ARAHAN &&
             jarak > BATAS_ARAHAN &&
             !langkahSudahDiumumkan.has(langkahBerikutnyaIndex)
         ) {
             const instruksiAwal = buatInstruksiSuara(langkah, 'awal');
+
             if (instruksiAwal) {
-                console.log('VOICE PRA-ARAHAN:', instruksiAwal);
                 bacakanTeks(instruksiAwal);
                 langkahSudahDiumumkan.add(langkahBerikutnyaIndex);
             }
         }
 
-        // 2. EKSEKUSI ARAHAN
         if (jarak <= BATAS_ARAHAN) {
             const instruksi = buatInstruksiSuara(langkah, 'aksi');
-            if (instruksi) {
-                console.log('VOICE GUIDANCE:', instruksi);
-                bacakanTeks(instruksi);
-            }
+
+            if (instruksi) bacakanTeks(instruksi);
 
             langkahBerikutnyaIndex++;
-            console.log('PINDAH KE LANGKAH:', langkahBerikutnyaIndex);
 
-            // Informasi jalan berikutnya jika ada perubahan nama jalan
             const langkahBerikutnya = langkahNavigasi[langkahBerikutnyaIndex];
+
             if (
                 langkahBerikutnya &&
                 langkahBerikutnya.type === 'new name' &&
                 langkahBerikutnya.name
             ) {
-                const pesanJalan = `Lanjut di ${langkahBerikutnya.name}.`;
-                console.log('VOICE JALAN:', pesanJalan);
-                bacakanTeks(pesanJalan);
+                bacakanTeks(`Lanjut di ${langkahBerikutnya.name}.`);
             }
         }
     }
@@ -2186,7 +1881,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const namaJalan = langkah.name;
 
         if (type === 'depart') {
-            return namaJalan ? `Mulai perjalanan melalui ${namaJalan}.` : 'Mulai perjalanan.';
+            return namaJalan
+                ? `Mulai perjalanan melalui ${namaJalan}.`
+                : 'Mulai perjalanan.';
         }
 
         if (type === 'arrive') {
@@ -2194,60 +1891,86 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (type === 'turn' || type === 'continue' || type === 'end of road') {
+            const awalan = mode === 'awal' ? 'Dalam 80 meter, ' : '';
+
             if (modifier === 'left') {
-                return mode === 'awal' ? 'Dalam 80 meter, belok kiri.' : (namaJalan ? `Belok kiri menuju ${namaJalan}.` : 'Belok kiri.');
+                return mode === 'awal'
+                    ? `${awalan}belok kiri.`
+                    : namaJalan
+                        ? `Belok kiri menuju ${namaJalan}.`
+                        : 'Belok kiri.';
             }
+
             if (modifier === 'right') {
-                return mode === 'awal' ? 'Dalam 80 meter, belok kanan.' : (namaJalan ? `Belok kanan menuju ${namaJalan}.` : 'Belok kanan.');
+                return mode === 'awal'
+                    ? `${awalan}belok kanan.`
+                    : namaJalan
+                        ? `Belok kanan menuju ${namaJalan}.`
+                        : 'Belok kanan.';
             }
+
             if (modifier === 'slight left') {
-                return mode === 'awal' ? 'Dalam 80 meter, ambil arah sedikit ke kiri.' : 'Ambil arah sedikit ke kiri.';
+                return `${awalan}ambil arah sedikit ke kiri.`;
             }
+
             if (modifier === 'slight right') {
-                return mode === 'awal' ? 'Dalam 80 meter, ambil arah sedikit ke kanan.' : 'Ambil arah sedikit ke kanan.';
+                return `${awalan}ambil arah sedikit ke kanan.`;
             }
+
             if (modifier === 'sharp left') {
-                return mode === 'awal' ? 'Dalam 80 meter, belok tajam ke kiri.' : 'Belok tajam ke kiri.';
+                return `${awalan}belok tajam ke kiri.`;
             }
+
             if (modifier === 'sharp right') {
-                return mode === 'awal' ? 'Dalam 80 meter, belok tajam ke kanan.' : 'Belok tajam ke kanan.';
+                return `${awalan}belok tajam ke kanan.`;
             }
-            return namaJalan ? `Lanjut melalui ${namaJalan}.` : 'Lanjut mengikuti rute.';
+
+            return namaJalan
+                ? `Lanjut melalui ${namaJalan}.`
+                : 'Lanjut mengikuti rute.';
         }
 
         if (type === 'roundabout') {
-            return mode === 'awal' ? 'Dalam 80 meter, masuk ke bundaran dan ikuti rute.' : 'Masuk bundaran dan ikuti rute.';
+            return mode === 'awal'
+                ? 'Dalam 80 meter, masuk ke bundaran dan ikuti rute.'
+                : 'Masuk bundaran dan ikuti rute.';
         }
 
         if (type === 'merge') {
-            return mode === 'awal' ? 'Dalam 80 meter, bergabung ke jalur berikutnya.' : 'Bergabung ke jalur berikutnya.';
+            return mode === 'awal'
+                ? 'Dalam 80 meter, bergabung ke jalur berikutnya.'
+                : 'Bergabung ke jalur berikutnya.';
         }
 
         if (type === 'fork') {
-            return mode === 'awal' ? 'Dalam 80 meter, ambil percabangan sesuai rute.' : 'Ambil percabangan sesuai rute.';
+            return mode === 'awal'
+                ? 'Dalam 80 meter, ambil percabangan sesuai rute.'
+                : 'Ambil percabangan sesuai rute.';
         }
 
         if (type === 'on ramp') {
-            return mode === 'awal' ? 'Dalam 80 meter, masuk ke jalur berikutnya.' : 'Masuk ke jalur berikutnya.';
+            return mode === 'awal'
+                ? 'Dalam 80 meter, masuk ke jalur berikutnya.'
+                : 'Masuk ke jalur berikutnya.';
         }
 
         if (type === 'off ramp') {
-            return mode === 'awal' ? 'Dalam 80 meter, keluar dari jalur sesuai rute.' : 'Keluar dari jalur sesuai rute.';
+            return mode === 'awal'
+                ? 'Dalam 80 meter, keluar dari jalur sesuai rute.'
+                : 'Keluar dari jalur sesuai rute.';
         }
 
         return null;
     }
 
-    // ==========================================================
-    // NAVIGASI DILANJUTKAN / DIHENTIKAN
-    // ==========================================================
     function hentikanNavigasi() {
         navigasiAktif = false;
         navigationMapCard.classList.remove('is-navigation-active');
         hentikanPemantauanGPS();
 
         statusPerjalanan.innerHTML = `
-           <i class="fa-solid fa-stop" aria-hidden="true"></i> Navigasi dihentikan.
+            <i class="fa-solid fa-stop" aria-hidden="true"></i>
+            Navigasi dihentikan.
         `;
 
         bacakanTeks('Navigasi dihentikan.');
@@ -2271,9 +1994,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // ==========================================================
-    // FUNGSI UTILITAS
-    // ==========================================================
     function hitungJarakMeter(lat1, lon1, lat2, lon2) {
         const earthRadius = 6371000;
         const lat1Rad = degToRad(lat1);
@@ -2281,11 +2001,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const deltaLat = degToRad(lat2 - lat1);
         const deltaLon = degToRad(lon2 - lon1);
 
-        const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-                  Math.cos(lat1Rad) * Math.cos(lat2Rad) *
-                  Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+        const a =
+            Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+            Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+            Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
 
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
         return earthRadius * c;
     }
 
@@ -2312,13 +2034,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function dataTujuan() {
-        return (tujuanNavigasi && tujuanNavigasi.nama) ? tujuanNavigasi.nama : 'Tujuan tidak diketahui';
+        return tujuanNavigasi && tujuanNavigasi.nama
+            ? tujuanNavigasi.nama
+            : 'Tujuan tidak diketahui';
     }
 
     function escapeHtml(text) {
         if (text === null || text === undefined) return '';
+
         const div = document.createElement('div');
         div.textContent = String(text);
+
         return div.innerHTML;
     }
 
@@ -2329,6 +2055,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         window.speechSynthesis.cancel();
+
         const suara = new SpeechSynthesisUtterance(teks);
         suara.lang = 'id-ID';
         suara.rate = 0.9;
@@ -2337,7 +2064,192 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.speechSynthesis.speak(suara);
     }
+});
 
+/* ==========================================================
+   SCREEN READER MELAYANG — BACA HALAMAN DAN BISA DIGESER
+========================================================== */
+document.addEventListener('DOMContentLoaded', function () {
+    const tombol = document.getElementById('smartpath-screen-reader');
+    const label = document.getElementById('smartpath-screen-reader-label');
+    const status = document.getElementById('smartpath-screen-reader-status');
+
+    if (!tombol || !label || !status) return;
+
+    if (!('speechSynthesis' in window)) {
+        tombol.disabled = true;
+        status.textContent = 'Browser ini belum mendukung fitur pembaca suara.';
+        return;
+    }
+
+    let membaca = false;
+    let menggeser = false;
+    let digeser = false;
+    let mulaiX = 0;
+    let mulaiY = 0;
+    let awalX = 0;
+    let awalY = 0;
+    let idBacaan = 0;
+
+    function ubahStatus(aktif, pesan) {
+        membaca = aktif;
+
+        tombol.setAttribute('aria-pressed', aktif ? 'true' : 'false');
+        tombol.setAttribute(
+            'aria-label',
+            aktif
+                ? 'Hentikan pembacaan halaman'
+                : 'Mulai membacakan isi halaman'
+        );
+
+        label.textContent = aktif ? 'Hentikan Bacaan' : 'Dengar Panduan';
+        status.textContent = pesan || '';
+    }
+
+    function hentikanBacaan() {
+        idBacaan++;
+        window.speechSynthesis.cancel();
+        ubahStatus(false, 'Pembacaan dihentikan.');
+    }
+
+    function mulaiBacaan() {
+        const konten = document.querySelector('.smartpath-navigation');
+
+        if (!konten) {
+            ubahStatus(false, 'Konten halaman tidak ditemukan.');
+            return;
+        }
+
+        const salinan = konten.cloneNode(true);
+
+        salinan.querySelectorAll(
+            'script, style, button, input, textarea, select, ' +
+            '[aria-hidden="true"], #peta-navigasi'
+        ).forEach(function (elemen) {
+            elemen.remove();
+        });
+
+        const teks = salinan.innerText.replace(/\s+/g, ' ').trim();
+
+        if (!teks) {
+            ubahStatus(false, 'Tidak ada teks halaman yang dapat dibacakan.');
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+
+        const nomorBacaan = ++idBacaan;
+        const suara = new SpeechSynthesisUtterance(teks);
+
+        suara.lang = 'id-ID';
+        suara.rate = 0.9;
+        suara.pitch = 1;
+        suara.volume = 1;
+
+        suara.onend = function () {
+            if (nomorBacaan !== idBacaan) return;
+            ubahStatus(false, 'Pembacaan halaman selesai.');
+        };
+
+        suara.onerror = function (event) {
+            if (nomorBacaan !== idBacaan) return;
+
+            if (
+                event.error !== 'canceled' &&
+                event.error !== 'interrupted'
+            ) {
+                ubahStatus(false, 'Suara tidak dapat diputar. Silakan coba lagi.');
+            }
+        };
+
+        ubahStatus(true, 'Halaman sedang dibacakan.');
+        window.speechSynthesis.speak(suara);
+    }
+
+    tombol.addEventListener('click', function (event) {
+        if (digeser) {
+            digeser = false;
+            event.preventDefault();
+            return;
+        }
+
+        if (membaca || window.speechSynthesis.speaking) {
+            hentikanBacaan();
+        } else {
+            mulaiBacaan();
+        }
+    });
+
+    function mulaiGeser(event) {
+        if (event.type === 'mousedown' && event.button !== 0) return;
+
+        const titik = event.type === 'touchstart'
+            ? event.touches[0]
+            : event;
+
+        menggeser = true;
+        digeser = false;
+
+        mulaiX = titik.clientX;
+        mulaiY = titik.clientY;
+
+        const rect = tombol.getBoundingClientRect();
+
+        awalX = rect.left;
+        awalY = rect.top;
+
+        tombol.style.right = 'auto';
+        tombol.style.bottom = 'auto';
+        tombol.style.left = awalX + 'px';
+        tombol.style.top = awalY + 'px';
+    }
+
+    function gerakkanTombol(event) {
+        if (!menggeser) return;
+
+        const titik = event.type === 'touchmove'
+            ? event.touches[0]
+            : event;
+
+        const dx = titik.clientX - mulaiX;
+        const dy = titik.clientY - mulaiY;
+
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            digeser = true;
+        }
+
+        if (!digeser) return;
+
+        if (event.cancelable) event.preventDefault();
+
+        const batasX = window.innerWidth - tombol.offsetWidth;
+        const batasY = window.innerHeight - tombol.offsetHeight;
+
+        const x = Math.max(0, Math.min(batasX, awalX + dx));
+        const y = Math.max(0, Math.min(batasY, awalY + dy));
+
+        tombol.style.left = x + 'px';
+        tombol.style.top = y + 'px';
+    }
+
+    function selesaiGeser() {
+        menggeser = false;
+    }
+
+    tombol.addEventListener('mousedown', mulaiGeser);
+    document.addEventListener('mousemove', gerakkanTombol);
+    document.addEventListener('mouseup', selesaiGeser);
+
+    tombol.addEventListener('touchstart', mulaiGeser, {
+        passive: true
+    });
+
+    document.addEventListener('touchmove', gerakkanTombol, {
+        passive: false
+    });
+
+    document.addEventListener('touchend', selesaiGeser);
+    document.addEventListener('touchcancel', selesaiGeser);
 });
 </script>
 

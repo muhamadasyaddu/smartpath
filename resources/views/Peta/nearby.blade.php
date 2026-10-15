@@ -330,6 +330,39 @@
         border: 0;
     }
 
+    /* SCREEN READER MELAYANG */
+    #nearby-screen-reader {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 12px 17px;
+        border: 1px solid #047857;
+        border-radius: 999px;
+        background: #047857;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+        cursor: pointer;
+    }
+
+    #nearby-screen-reader:hover {
+        background: #065f46;
+    }
+
+    #nearby-screen-reader:focus-visible {
+        outline: 3px solid #10b981;
+        outline-offset: 4px;
+    }
+
+    #nearby-screen-reader i {
+        font-size: 19px;
+    }
+
     @media (max-width: 700px) {
         .nearby-page {
             padding: 24px 16px 40px;
@@ -364,18 +397,24 @@
             flex-direction: column;
             gap: 7px;
         }
+
+        #nearby-screen-reader {
+            right: 14px;
+            bottom: 14px;
+            padding: 12px 14px;
+            font-size: 13px;
+        }
     }
 </style>
 
-
 <main class="nearby-page">
-
     <div class="nearby-container">
 
-        {{-- Header Utama --}}
+        {{-- HEADER UTAMA --}}
         <header class="nearby-header">
-
-            <a href="{{ url('/peta') }}" class="nearby-back" aria-label="Kembali ke halaman Peta SmartPath">
+            <a href="{{ url('/peta') }}"
+               class="nearby-back"
+               aria-label="Kembali ke halaman Peta SmartPath">
                 <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
                 Kembali ke Peta
             </a>
@@ -390,50 +429,26 @@
                 bentuk daftar agar lebih mudah diakses oleh pengguna
                 screen reader.
             </p>
-
-            <button
-                type="button"
-                class="warga-dashboard__voice-button mt-4"
-                data-read-page
-                data-read-status="nearby-read-status"
-                data-read-text="Halaman Nearby SmartPath. Gunakan tombol Gunakan Lokasi Saya untuk mencari hambatan aksesibilitas terverifikasi dalam radius 50 meter. Hasil ditampilkan sebagai daftar teks dan diurutkan berdasarkan jarak."
-                aria-controls="nearby-read-status"
-                aria-pressed="false"
-            >
-                <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
-                <span data-read-label>Dengar Panduan</span>
-            </button>
-            <span id="nearby-read-status" class="sr-only" role="status" aria-live="polite"></span>
-
         </header>
 
-
-        {{-- Section Kontrol Lokasi --}}
-        <section 
-            class="location-card" 
-            aria-labelledby="location-heading" 
-            aria-describedby="location-desc"
-        >
+        {{-- KONTROL LOKASI --}}
+        <section class="location-card"
+                 aria-labelledby="location-heading"
+                 aria-describedby="location-desc">
 
             <div class="location-info">
-
                 <div class="location-icon" aria-hidden="true">
                     <i class="fa-solid fa-location-crosshairs"></i>
                 </div>
 
                 <div class="location-text">
-
                     <h2 id="location-heading">Lokasi Saya</h2>
-
                     <p id="location-desc">
                         Aktifkan lokasi untuk melihat hambatan
                         aksesibilitas di sekitar kamu.
                     </p>
-
                 </div>
-
             </div>
-
 
             <button
                 type="button"
@@ -445,96 +460,83 @@
                 <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                 <span>Gunakan Lokasi Saya</span>
             </button>
-
         </section>
 
-
-        {{-- Section Daftar Hambatan --}}
+        {{-- DAFTAR HAMBATAN --}}
         <section aria-labelledby="section-heading-title">
-
             <div class="section-heading">
-
                 <h2 id="section-heading-title">
                     Hambatan Aksesibilitas Terdekat
                 </h2>
 
-                <span
-                    class="radius-label"
-                    id="radius-desc"
-                    aria-label="Jangkauan radius pencarian lima puluh meter"
-                >
+                <span class="radius-label"
+                      id="radius-desc"
+                      aria-label="Jangkauan radius pencarian lima puluh meter">
                     Radius 50 meter
                 </span>
-
             </div>
 
+            <div id="screen-reader-announcement"
+                 class="sr-only"
+                 aria-live="polite"
+                 aria-atomic="true"></div>
 
-            {{-- Dynamic Live Region untuk Screen Reader --}}
-            <div
-                id="screen-reader-announcement"
-                class="sr-only"
-                aria-live="polite"
-                aria-atomic="true">
-            </div>
+            <div id="obstacle-list"
+                 class="obstacle-list"
+                 role="region"
+                 aria-labelledby="section-heading-title"
+                 aria-describedby="radius-desc">
 
-
-            {{-- Container Hasil --}}
-            <div
-                id="obstacle-list"
-                class="obstacle-list"
-                role="region"
-                aria-labelledby="section-heading-title"
-                aria-describedby="radius-desc"
-            >
-
-                {{-- Initial State --}}
                 <div class="empty-state" role="status">
-
                     <div class="empty-icon" aria-hidden="true">
                         <i class="fa-solid fa-location-crosshairs"></i>
                     </div>
 
                     <h3>Lokasi belum digunakan</h3>
-
                     <p>
                         Gunakan tombol "Gunakan Lokasi Saya"
                         untuk mencari hambatan aksesibilitas
                         yang berada di sekitar lokasi kamu.
                     </p>
-
                 </div>
-
             </div>
-
         </section>
 
-
-        {{-- Informasi Aksesibilitas --}}
+        {{-- INFORMASI AKSESIBILITAS --}}
         <aside class="accessibility-note" aria-label="Catatan Aksesibilitas">
-
             <i class="fa-solid fa-universal-access" aria-hidden="true"></i>
-
             <p>
                 Halaman ini menggunakan informasi berbasis teks
                 sehingga dapat dibaca oleh teknologi pembaca layar
                 seperti TalkBack atau VoiceOver.
             </p>
-
         </aside>
-
     </div>
-
 </main>
 
+{{-- TOMBOL SCREEN READER MELAYANG --}}
+<button
+    type="button"
+    id="nearby-screen-reader"
+    aria-label="Bacakan isi halaman Nearby Obstacles"
+    aria-pressed="false"
+>
+    <i class="fa-solid fa-blind" aria-hidden="true"></i>
+    <span id="nearby-screen-reader-label">Dengar Panduan</span>
+</button>
 
+<span id="nearby-screen-reader-status"
+      class="sr-only"
+      role="status"
+      aria-live="polite"></span>
+
+{{-- SCRIPT GPS DAN DAFTAR HAMBATAN --}}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
     const btnLocation = document.getElementById('btn-location');
     const obstacleList = document.getElementById('obstacle-list');
     const announcement = document.getElementById('screen-reader-announcement');
     const radiusMeter = 50;
-
     const laporan = @json($laporanData);
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -552,38 +554,39 @@ document.addEventListener('DOMContentLoaded', function () {
         return earthRadius * c;
     }
 
+    function escapeHtml(value) {
+        const element = document.createElement('div');
+        element.textContent = value == null ? '' : String(value);
+        return element.innerHTML;
+    }
+
     function tampilkanHambatan(data) {
-
-        /*
-         * STAGE 3: Skenario Tidak ada hambatan dalam 50 m
-         */
         if (data.length === 0) {
-
             obstacleList.innerHTML = `
-                <div
-                    class="empty-state"
-                    role="status"
-                    tabindex="0"
-                    aria-label="Hasil pencarian: Tidak ditemukan hambatan aksesibilitas terverifikasi dalam radius 50 meter dari lokasi Anda."
-                >
+                <div class="empty-state"
+                     role="status"
+                     tabindex="0"
+                     aria-label="Tidak ditemukan hambatan aksesibilitas terverifikasi dalam radius 50 meter dari lokasi Anda.">
                     <div class="empty-icon" aria-hidden="true">
                         <i class="fa-solid fa-check"></i>
                     </div>
                     <h3>Tidak ada hambatan dalam radius 50 meter</h3>
-                    <p>Tidak ditemukan laporan hambatan aksesibilitas terverifikasi dalam jarak 50 meter dari lokasi kamu.</p>
+                    <p>
+                        Tidak ditemukan laporan hambatan aksesibilitas
+                        terverifikasi dalam jarak 50 meter dari lokasi kamu.
+                    </p>
                 </div>
             `;
 
-            announcement.textContent = 'Pencarian selesai. Tidak ditemukan hambatan aksesibilitas dalam radius 50 meter dari lokasi Anda.';
+            announcement.textContent =
+                'Pencarian selesai. Tidak ditemukan hambatan aksesibilitas dalam radius 50 meter dari lokasi Anda.';
             return;
         }
 
-        /*
-         * STAGE 2 & 3: Banyak hambatan diurutkan dari terdekat & accessible card layout
-         */
         obstacleList.innerHTML = data.map(function (item, index) {
-
-            const priority = item.tingkat_prioritas ? String(item.tingkat_prioritas).toLowerCase() : 'belum dinilai';
+            const priority = item.tingkat_prioritas
+                ? String(item.tingkat_prioritas).toLowerCase()
+                : 'belum dinilai';
 
             let priorityClass = 'priority-low';
             let priorityLabel = 'Prioritas Rendah';
@@ -599,26 +602,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 priorityLabel = 'Belum Dinilai';
             }
 
-            let distanceText = item.distance < 1 ? 'kurang dari 1 meter' : Math.round(item.distance) + ' meter';
+            const distanceText = item.distance < 1
+                ? 'kurang dari 1 meter'
+                : Math.round(item.distance) + ' meter';
+
             const kategori = item.kategori ?? 'Kategori tidak tersedia';
             const alamat = item.alamat_lengkap ?? item.alamat ?? 'Alamat tidak tersedia';
             const judul = item.judul ?? 'Hambatan aksesibilitas';
-
-
-    function escapeHtml(value) {
-    const element = document.createElement('div');
-
-                element.textContent =
-                    value == null ? '' : String(value);
-
-                return element.innerHTML;
-            }
 
             return `
                 <article
                     class="obstacle-card"
                     tabindex="0"
-                    role="article"
                     aria-labelledby="obs-title-${index}"
                     aria-describedby="obs-cat-${index} obs-addr-${index} obs-dist-${index} obs-prio-${index}"
                 >
@@ -631,12 +626,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             <h3 class="obstacle-title" id="obs-title-${index}">
                                 ${escapeHtml(judul)}
                             </h3>
-                            <span 
-                                class="priority-badge ${priorityClass}" 
-                                id="obs-prio-${index}"
-                                aria-label="Tingkat bahaya: ${priorityLabel}"
-                            >
-                                ${priorityLabel}
+
+                            <span class="priority-badge ${priorityClass}"
+                                  id="obs-prio-${index}"
+                                  aria-label="Tingkat bahaya: ${escapeHtml(priorityLabel)}">
+                                ${escapeHtml(priorityLabel)}
                             </span>
                         </div>
 
@@ -659,41 +653,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const jumlah = data.length;
         const nearest = data[0];
-        const nearestDistance = nearest.distance < 1 ? 'kurang dari 1 meter' : Math.round(nearest.distance) + ' meter';
+        const nearestDistance = nearest.distance < 1
+            ? 'kurang dari 1 meter'
+            : Math.round(nearest.distance) + ' meter';
 
-        announcement.textContent = `Pencarian selesai. Ditemukan ${jumlah} hambatan aksesibilitas dalam radius 50 meter. Hambatan terdekat adalah ${nearest.judul}, berjarak ${nearestDistance} dari lokasi Anda.`;
+        announcement.textContent =
+            `Pencarian selesai. Ditemukan ${jumlah} hambatan aksesibilitas dalam radius 50 meter. Hambatan terdekat adalah ${nearest.judul}, berjarak ${nearestDistance} dari lokasi Anda.`;
     }
 
-    if (!btnLocation || !obstacleList) {
+    if (!btnLocation || !obstacleList || !announcement) {
         console.error('Elemen Nearby tidak ditemukan.');
         return;
     }
 
     btnLocation.addEventListener('click', function () {
-
-        /*
-         * STAGE 3: Skenario Browser tidak mendukung GPS
-         */
         if (!navigator.geolocation) {
             const pesan = 'Perangkat atau browser Anda tidak mendukung fitur lokasi.';
+
             obstacleList.innerHTML = `
                 <div class="empty-state" role="alert" tabindex="0">
-                    <div class="empty-icon" aria-hidden="true"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="empty-icon" aria-hidden="true">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
                     <h3>Browser Tidak Mendukung</h3>
-                    <p>${pesan}</p>
+                    <p>${escapeHtml(pesan)}</p>
                 </div>
             `;
+
             announcement.textContent = pesan;
             return;
         }
 
-        /*
-         * STAGE 2: Update status tombol GPS saat diproses
-         */
         btnLocation.disabled = true;
         btnLocation.setAttribute('aria-busy', 'true');
-        btnLocation.setAttribute('aria-label', 'Sedang mencari lokasi Anda, mohon tunggu...');
-        
+        btnLocation.setAttribute(
+            'aria-label',
+            'Sedang mencari lokasi Anda, mohon tunggu...'
+        );
+
         btnLocation.innerHTML = `
             <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
             <span>Mencari lokasi...</span>
@@ -709,13 +706,10 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
 
-        announcement.textContent = 'Sedang mengakses GPS dan mencari lokasi Anda.';
+        announcement.textContent =
+            'Sedang mengakses GPS dan mencari lokasi Anda.';
 
         navigator.geolocation.getCurrentPosition(
-
-            /*
-             * GPS BERHASIL
-             */
             function (position) {
                 const userLatitude = position.coords.latitude;
                 const userLongitude = position.coords.longitude;
@@ -733,7 +727,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         };
                     })
                     .filter(function (item) {
-                        return item.distance <= radiusMeter;
+                        return Number.isFinite(item.distance) &&
+                            Number.isFinite(parseFloat(item.latitude)) &&
+                            Number.isFinite(parseFloat(item.longitude)) &&
+                            item.distance <= radiusMeter;
                     })
                     .sort(function (a, b) {
                         return a.distance - b.distance;
@@ -741,31 +738,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 tampilkanHambatan(nearbyReports);
 
-                // Reset Status Tombol pasca sukses
                 btnLocation.disabled = false;
                 btnLocation.setAttribute('aria-busy', 'false');
-                btnLocation.setAttribute('aria-label', 'Perbarui lokasi saya untuk mencari ulang hambatan');
-                
+                btnLocation.setAttribute(
+                    'aria-label',
+                    'Perbarui lokasi saya untuk mencari ulang hambatan'
+                );
+
                 btnLocation.innerHTML = `
                     <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                     <span>Perbarui Lokasi</span>
                 `;
             },
-
-            /*
-             * STAGE 3: Skenario GPS Ditolak / Gagal
-             */
             function (error) {
                 let pesan = 'Lokasi tidak dapat diperoleh.';
                 let judulError = 'Lokasi Tidak Tersedia';
 
-                if (error.code === 1) { // PERMISSION_DENIED
+                if (error.code === 1) {
                     judulError = 'Izin Lokasi Ditolak';
                     pesan = 'Akses lokasi ditolak. Silakan berikan izin lokasi di pengaturan browser Anda untuk melanjutkan.';
-                } else if (error.code === 2) { // POSITION_UNAVAILABLE
+                } else if (error.code === 2) {
                     judulError = 'Sinyal Lokasi Lemah';
                     pesan = 'Sinyal GPS atau jaringan lokasi tidak dapat diperoleh. Pastikan koneksi dan GPS aktif.';
-                } else if (error.code === 3) { // TIMEOUT
+                } else if (error.code === 3) {
                     judulError = 'Waktu Permintaan Habis';
                     pesan = 'Waktu pengambilan lokasi habis. Silakan coba tekan tombol perbarui kembali.';
                 }
@@ -775,24 +770,25 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="empty-icon" aria-hidden="true">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <h3>${judulError}</h3>
-                        <p>${pesan}</p>
+                        <h3>${escapeHtml(judulError)}</h3>
+                        <p>${escapeHtml(pesan)}</p>
                     </div>
                 `;
 
                 announcement.textContent = `Peringatan: ${pesan}`;
 
-                // Reset Status Tombol pasca error
                 btnLocation.disabled = false;
                 btnLocation.setAttribute('aria-busy', 'false');
-                btnLocation.setAttribute('aria-label', 'Coba lagi menggunakan lokasi saya');
+                btnLocation.setAttribute(
+                    'aria-label',
+                    'Coba lagi menggunakan lokasi saya'
+                );
 
                 btnLocation.innerHTML = `
                     <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                     <span>Gunakan Lokasi Saya</span>
                 `;
             },
-
             {
                 enableHighAccuracy: false,
                 timeout: 30000,
@@ -805,10 +801,106 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </div>
 </div>
-
 @endsection
 
 @push('scripts')
     <script src="{{ asset('js/smartpath-warga.js') }}" defer></script>
-    <script src="{{ asset('js/smartpath-read-page.js') }}" defer></script>
+
+    {{-- SCREEN READER MELAYANG --}}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tombol = document.getElementById('nearby-screen-reader');
+        const label = document.getElementById('nearby-screen-reader-label');
+        const status = document.getElementById('nearby-screen-reader-status');
+
+        if (!tombol || !label || !status) return;
+
+        if (!('speechSynthesis' in window)) {
+            tombol.disabled = true;
+            status.textContent = 'Browser tidak mendukung pembaca suara.';
+            return;
+        }
+
+        let membaca = false;
+        let nomorBacaan = 0;
+
+        function resetTombol(pesan) {
+            membaca = false;
+            tombol.setAttribute('aria-pressed', 'false');
+            label.textContent = 'Dengar Panduan';
+            status.textContent = pesan || '';
+        }
+
+        function hentikanBacaan() {
+            nomorBacaan++;
+            window.speechSynthesis.cancel();
+            resetTombol('Pembacaan dihentikan.');
+        }
+
+        function mulaiBacaan() {
+            const halaman = document.querySelector('.nearby-page');
+
+            if (!halaman) {
+                status.textContent = 'Konten halaman tidak ditemukan.';
+                return;
+            }
+
+            const salinan = halaman.cloneNode(true);
+
+            salinan.querySelectorAll(
+                'script, style, button, input, select, textarea, .sr-only'
+            ).forEach(function (elemen) {
+                elemen.remove();
+            });
+
+            const teks = salinan.innerText.replace(/\s+/g, ' ').trim();
+
+            if (!teks) {
+                status.textContent = 'Tidak ada teks yang dapat dibacakan.';
+                return;
+            }
+
+            nomorBacaan++;
+            const idBacaan = nomorBacaan;
+
+            window.speechSynthesis.cancel();
+
+            const ucapan = new SpeechSynthesisUtterance(teks);
+            ucapan.lang = 'id-ID';
+            ucapan.rate = 0.9;
+            ucapan.pitch = 1;
+
+            membaca = true;
+            tombol.setAttribute('aria-pressed', 'true');
+            label.textContent = 'Hentikan Bacaan';
+            status.textContent = 'Halaman sedang dibacakan.';
+
+            ucapan.onend = function () {
+                if (idBacaan !== nomorBacaan) return;
+                resetTombol('Pembacaan halaman selesai.');
+            };
+
+            ucapan.onerror = function (event) {
+                if (idBacaan !== nomorBacaan) return;
+
+                if (event.error !== 'canceled' &&
+                    event.error !== 'interrupted') {
+                    resetTombol('Suara gagal diputar. Silakan coba lagi.');
+                } else {
+                    resetTombol('Pembacaan dihentikan.');
+                }
+            };
+
+            window.speechSynthesis.speak(ucapan);
+        }
+
+        tombol.addEventListener('click', function () {
+            if (membaca || window.speechSynthesis.speaking) {
+                hentikanBacaan();
+            } else {
+                mulaiBacaan();
+            }
+        });
+    });
+    </script>
 @endpush
