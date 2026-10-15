@@ -404,7 +404,26 @@
             <!-- Desktop Menu (Semua ke halaman yang sama) -->
             <nav class="hidden lg:flex items-center gap-8 text-base">
                 <!-- Tambahkan class nav-link ke semua menu, dan ganti href ke #id_section -->
-                <a href="#beranda" data-section="beranda" class="nav-link text-white border-b-2 border-emerald-400 pb-5">Beranda</a>
+                
+               
+                    @auth
+                        <a
+                            href="{{ route(auth()->user()->getDashboardRouteName()) }}"
+                            class="nav-link text-white transition hover:text-emerald-300"
+                        >
+                            Dashboard
+                        </a>
+                    @else
+                        <a
+                            href="#beranda"
+                            data-section="beranda"
+                            class="nav-link text-white border-b-2 border-emerald-400 pb-5"
+                        >
+                            Beranda
+                        </a>
+                    @endauth
+
+
                 <a href="{{ route('tentang') }}" class="nav-link text-slate-300 hover:text-white transition">Tentang</a>
                 <a href="#fitur" data-section="fitur" class="nav-link text-slate-300 hover:text-white transition">Fitur</a>
                 <a href="{{ route('peta.index') }}" class="nav-link text-slate-300 hover:text-white transition">Peta</a>
@@ -412,62 +431,162 @@
                 <a href="#kontak" data-section="kontak" class="nav-link text-slate-300 hover:text-white transition">Kontak</a>
             </nav>
 
-            <!-- Actions -->
+            {{-- Actions: autentikasi dan menu akun --}}
             <div class="flex items-center gap-3">
-                
-                <div class="hidden sm:flex items-center gap-2">
-                    <a href="{{ route('login') }}" 
-                       class="inline-flex items-center justify-center
-                              rounded-xl
-                              border border-white/20
-                              bg-white/5
-                              px-5 py-2.5
-                              text-sm font-semibold text-white
-                              backdrop-blur-sm
-                              transition-all duration-300
-                              hover:bg-white/10
-                              hover:border-emerald-400/50
-                              hover:text-emerald-300">
-                        Masuk
-                    </a>
-                    
-                    <a href="{{ route('register.post') }}" 
-                       class="inline-flex items-center justify-center
-                              rounded-xl
-                              bg-emerald-700 hover:bg-emerald-600
-                              px-5 py-2.5
-                              text-sm font-bold text-white
-                              transition-all duration-300
-                              hover:scale-105">
-                        Daftar
-                    </a>
-
-                    <button id="themeToggle"
+                @auth
+                    {{-- Pengguna yang sudah login --}}
+                    <div class="relative">
+                        <button
+                            id="homeAccountToggle"
                             type="button"
-                            aria-label="Aktifkan mode gelap"
-                            class="w-11 h-11 rounded-xl
-                                   border border-white/20
-                                   bg-white/5
-                                   text-white
-                                   backdrop-blur-sm
-                                   transition-all duration-300
-                                   hover:bg-white/10
-                                   hover:border-emerald-400/50
-                                   hover:text-emerald-300">
-                        <i id="themeIcon" class="fa-solid fa-moon" aria-hidden="true"></i>
-                    </button>
-                </div>
+                            class="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-sm font-semibold text-white transition hover:border-emerald-400/50 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#062a25]"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            aria-controls="homeAccountMenu"
+                        >
+                            @if(auth()->user()->foto_profil)
+                                <img
+                                    src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url(auth()->user()->foto_profil) }}"
+                                    alt=""
+                                    class="h-8 w-8 rounded-full border border-white/20 object-cover"
+                                    loading="lazy"
+                                >
+                            @else
+                                <span
+                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white"
+                                    aria-hidden="true"
+                                >
+                                    {{ mb_strtoupper(mb_substr(auth()->user()->nama_lengkap ?: 'U', 0, 1)) }}
+                                </span>
+                            @endif
 
-                <button id="mobileMenuBtn" type="button" class="lg:hidden text-white text-xl" aria-label="Buka menu" aria-expanded="false" aria-controls="mobileMenu">
+                            <span class="hidden max-w-36 truncate sm:inline">
+                                {{ auth()->user()->nama_lengkap }}
+                            </span>
+
+                            <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
+                        </button>
+
+                        <div
+                            id="homeAccountMenu"
+                            class="absolute right-0 z-50 mt-2 hidden w-60 overflow-hidden rounded-xl border border-slate-200 bg-white py-2 text-slate-800 shadow-xl"
+                            role="menu"
+                            aria-label="Menu akun"
+                        >
+                            <div class="border-b border-slate-100 px-4 py-3">
+                                <p class="truncate text-sm font-semibold text-slate-900">
+                                    {{ auth()->user()->nama_lengkap }}
+                                </p>
+                                <p class="truncate text-xs text-slate-500">
+                                    {{ auth()->user()->email }}
+                                </p>
+                            </div>
+
+                            <a
+                                href="{{ route('profile.edit') }}"
+                                class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
+                                role="menuitem"
+                            >
+                                <i class="fa-regular fa-user w-4" aria-hidden="true"></i>
+                                Profil Saya
+                            </a>
+
+                            <a
+                                href="{{ route('laporan.index') }}"
+                                class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
+                                role="menuitem"
+                            >
+                                <i class="fa-regular fa-clipboard w-4" aria-hidden="true"></i>
+                                Laporan Saya
+                            </a>
+
+                            @if(auth()->user()->isAdmin() || auth()->user()->isDinas())
+                                <a
+                                    href="{{ route(auth()->user()->getDashboardRouteName()) }}"
+                                    class="flex items-center gap-3 px-4 py-3 text-sm transition hover:bg-emerald-50 hover:text-emerald-800 focus:bg-emerald-50"
+                                    role="menuitem"
+                                >
+                                    <i class="fa-solid fa-chart-line w-4" aria-hidden="true"></i>
+                                    Dashboard
+                                </a>
+                            @endif
+
+                            <div class="my-1 border-t border-slate-100"></div>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button
+                                    type="submit"
+                                    class="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-red-600 transition hover:bg-red-50 focus:bg-red-50"
+                                    role="menuitem"
+                                >
+                                    <i class="fa-solid fa-arrow-right-from-bracket w-4" aria-hidden="true"></i>
+                                    Keluar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    {{-- Pengunjung yang belum login --}}
+                    <div class="hidden items-center gap-2 sm:flex">
+                        <a
+                            href="{{ route('login') }}"
+                            class="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:border-emerald-400/50 hover:bg-white/10 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                        >
+                            Masuk
+                        </a>
+
+                        <a
+                            href="{{ route('auth.register') }}"
+                            class="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                        >
+                            Daftar
+                        </a>
+                    </div>
+                @endauth
+
+                {{-- Tombol tema tetap tersedia untuk semua pengguna --}}
+                <button
+                    id="themeToggle"
+                    type="button"
+                    aria-label="Aktifkan mode gelap"
+                    class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/5 text-white transition hover:border-emerald-400/50 hover:bg-white/10 hover:text-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                >
+                    <i id="themeIcon" class="fa-solid fa-moon" aria-hidden="true"></i>
+                </button>
+
+                <button
+                    id="mobileMenuBtn"
+                    type="button"
+                    class="text-xl text-white lg:hidden"
+                    aria-label="Buka menu"
+                    aria-expanded="false"
+                    aria-controls="mobileMenu"
+                >
                     <i class="fa-solid fa-bars" aria-hidden="true"></i>
                 </button>
             </div>
-        </div>
+
 
         <!-- Mobile Menu -->
         <div id="mobileMenu" class="lg:hidden mobile-menu bg-[#062a25]/95 dark:bg-[#020617]/95 px-6 py-4 border-t border-white/10">
             <nav class="flex flex-col space-y-3 text-[14px]">
-                <a href="#beranda" class="text-white font-semibold">Beranda</a>
+                
+
+                @auth
+                    <a
+                        href="{{ route(auth()->user()->getDashboardRouteName()) }}"
+                        class="text-white font-semibold transition hover:text-emerald-300"
+                    >
+                        Dashboard
+                    </a>
+                @else
+                    <a href="#beranda" class="text-white font-semibold">
+                        Beranda
+                    </a>
+                @endauth
+
+
                 <a href="{{ route('tentang') }}" class="text-slate-300 hover:text-white transition">Tentang</a>
                 <a href="#fitur" class="text-slate-300 hover:text-white transition">Fitur</a>
                 <a href="{{ route('peta.index') }}" class="text-slate-300 hover:text-white transition">Peta</a>
@@ -1330,7 +1449,52 @@
                 });
             });
         })();
+
+        // Dropdown akun pada header landing page.
+        (() => {
+            const toggle = document.getElementById('homeAccountToggle');
+            const menu = document.getElementById('homeAccountMenu');
+
+            if (!toggle || !menu) return;
+
+            const closeMenu = (returnFocus = false) => {
+                menu.classList.add('hidden');
+                toggle.setAttribute('aria-expanded', 'false');
+
+                if (returnFocus) {
+                    toggle.focus();
+                }
+            };
+
+            toggle.addEventListener('click', () => {
+                const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+
+                menu.classList.toggle('hidden', isOpen);
+                toggle.setAttribute('aria-expanded', String(!isOpen));
+            });
+
+            document.addEventListener('click', (event) => {
+                if (
+                    !toggle.contains(event.target) &&
+                    !menu.contains(event.target)
+                ) {
+                    closeMenu();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (
+                    event.key === 'Escape' &&
+                    toggle.getAttribute('aria-expanded') === 'true'
+                ) {
+                    closeMenu(true);
+                }
+            });
+        })();
+
     </script>
+
+    
 
     <script src="{{ asset('js/smartpath-accessibility.js') }}" defer></script>
 </body>

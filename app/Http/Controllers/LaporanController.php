@@ -387,6 +387,21 @@ public function adminIndex(Request $request)
                     (int) $validated['kategori_hambatan_id']
                 );
 
+                
+                $fasilitasTerdekat = FasilitasPublik::getNearest(
+                    (float) $validated['latitude'],
+                    (float) $validated['longitude'],
+                    PHP_FLOAT_MAX
+                );
+
+                $jarakFasilitas = $fasilitasTerdekat
+                    ? $fasilitasTerdekat->calculateDistance(
+                        (float) $validated['latitude'],
+                        (float) $validated['longitude']
+                    )
+                    : null;
+
+
                 $laporan = Laporan::create([
                     'pelapor_id' => auth()->id(),
                     'kategori_hambatan_id' => $validated['kategori_hambatan_id'],
@@ -395,12 +410,17 @@ public function adminIndex(Request $request)
                     'latitude' => $validated['latitude'],
                     'longitude' => $validated['longitude'],
                     'alamat_lengkap' => $validated['alamat_lengkap'] ?? null,
+                    'jarak_fasilitas_meter' => $jarakFasilitas !== null
+                        ? round($jarakFasilitas, 2)
+                        : null,
                     'judul' => $validated['judul'],
                     'deskripsi' => $validated['deskripsi'],
                     'status' => 'menunggu_verifikasi',
                     'jumlah_pelapor' => 1,
                     'sumber_koordinat' => $validated['sumber_koordinat'],
                     'platform_pelapor' => 'web',
+                    'fasilitas_terdekat_id' => $fasilitasTerdekat?->id,
+                        
                 ]);
 
                 /*
@@ -621,29 +641,64 @@ public function unduhPdf($id)
         'laporan-' . $laporan->kode_laporan . '.pdf'
     );
 }   
-    
+            
+        /**
+         * Detail laporan.
+         */
+        public function show(Laporan $laporan)
+        {
+            $this->authorizeView($laporan);
 
-    /**
-     * Detail laporan.
-     */
-    public function show(Laporan $laporan)
-    {
-        $this->authorizeView($laporan);
+            $laporan->load([
+                'kategoriHambatan',
+                'pelapor',
+                'wilayah',
+                'fotoLaporan',
+                'verifikasi.admin',
+                'riwayatStatus.diubahOleh',
+                'laporanInduk',
+                'laporanAnak.pelapor',
+                'fasilitasTerdekat',
+            ]);
 
-        $laporan->load([
-            'kategoriHambatan',
-            'pelapor',
-            'wilayah',
-            'fotoLaporan',
-            'verifikasi.admin',
-            'riwayatStatus.diubahOleh',
-            'laporanInduk',
-            'laporanAnak.pelapor',
-            'fasilitasTerdekat',
-        ]);
+            // Fallback untuk laporan lama yang belum memiliki
+            // fasilitas terdekat tersimpan.
+            $fasilitas = $laporan->fasilitasTerdekat;
 
-        return view('Laporan.show', compact('laporan'));
-    }
+            if (!$fasilitas) {
+                $fasilitas = FasilitasPublik::getNearest(
+                    (float) $laporan->latitude,
+                    (float) $laporan->longitude,
+                    PHP_FLOAT_MAX
+                );
+
+                if ($fasilitas) {
+                    // Hanya untuk tampilan; tidak menulis ulang database.
+                    $laporan->setRelation(
+                        'fasilitasTerdekat',
+                        $fasilitas
+                    );
+                }
+            }
+
+            // Gunakan jarak tersimpan. Jika belum ada, hitung jarak
+            // berdasarkan koordinat fasilitas yang ditampilkan.
+            if ($fasilitas && $laporan->jarak_fasilitas_meter === null) {
+                $laporan->setAttribute(
+                    'jarak_fasilitas_meter',
+                    round(
+                        $fasilitas->calculateDistance(
+                            (float) $laporan->latitude,
+                            (float) $laporan->longitude
+                        ),
+                        2
+                    )
+                );
+            }
+
+            return view('Laporan.show', compact('laporan'));
+        }
+
 
     /**
      * Form edit.
