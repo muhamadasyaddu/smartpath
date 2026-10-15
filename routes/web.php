@@ -47,6 +47,12 @@ Route::get(
     [PetaController::class, 'getFasilitasData']
 )->name('peta.fasilitas');
 
+
+Route::get(
+    '/peta/ekspor',
+    [PetaController::class, 'exportExcel']
+)->name('peta.export');
+
 // ============================================
 // AUTENTIKASI
 // ============================================

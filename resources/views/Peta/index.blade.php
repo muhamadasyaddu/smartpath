@@ -1123,21 +1123,104 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function createFacilityIcon() {
+    
+    
+    
+    function createFacilityIcon(f) {
+        const jenis = f.jenis || 'lainnya';
+
+        const icons = {
+            rumah_sakit: {
+                color: '#DC2626',
+                label: 'Rumah sakit',
+                svg: '<path d="M12 5v14M5 12h14" stroke-width="3"/>'
+            },
+            puskesmas: {
+                color: '#0D9488',
+                label: 'Puskesmas',
+                svg: '<path d="M12 5v14M5 12h14" stroke-width="2.5"/>'
+            },
+            sekolah: {
+                color: '#2563EB',
+                label: 'Sekolah',
+                svg: '<path d="M3 9l9-5 9 5-9 5-9-5Z"/><path d="M7 12v5c3 2 7 2 10 0v-5M21 9v6"/>'
+            },
+            perguruan_tinggi: {
+                color: '#4F46E5',
+                label: 'Perguruan tinggi',
+                svg: '<path d="M3 9l9-5 9 5-9 5-9-5Z"/><path d="M7 12v5c3 2 7 2 10 0v-5"/>'
+            },
+            halte: {
+                color: '#0891B2',
+                label: 'Halte',
+                svg: '<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8 7h8M8 17h.01M16 17h.01M5 13h14"/>'
+            },
+            stasiun: {
+                color: '#7C3AED',
+                label: 'Stasiun',
+                svg: '<rect x="5" y="3" width="14" height="15" rx="4"/><path d="M8 8h8M8 13h8M8 21l4-3 4 3"/>'
+            },
+            terminal: {
+                color: '#0369A1',
+                label: 'Terminal',
+                svg: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="M6 9h12M7 15h.01M17 15h.01M8 19v2M16 19v2"/>'
+            },
+            kantor_pemerintah: {
+                color: '#475569',
+                label: 'Kantor pemerintah',
+                svg: '<path d="M3 9l9-5 9 5H3ZM5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/>'
+            },
+            pasar: {
+                color: '#B45309',
+                label: 'Pasar',
+                svg: '<path d="M4 10v10h16V10M3 10l2-6h14l2 6"/><path d="M3 10a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M9 20v-6h6v6"/>'
+            },
+            tempat_ibadah: {
+                color: '#059669',
+                label: 'Tempat ibadah',
+                svg: '<path d="M4 20h16M6 20V10l6-5 6 5v10M9 13h6M12 5V2M10 3h4"/>'
+            },
+            lainnya: {
+                color: '#64748B',
+                label: 'Fasilitas publik lainnya',
+                svg: '<path d="M4 20h16M6 20V7h12v13M9 10h2M13 10h2M9 14h2M13 14h2"/>'
+            }
+        };
+
+        const item = icons[jenis] || icons.lainnya;
+
         return window.L.divIcon({
             className: 'sp-facility-icon',
             html: `
-                <div class="sp-facility-marker">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M4 20h16M6 20V7a2 2 0 012-2h8a2 2 0 012 2v13M9 9h1m-1 3h1m4-3h1m-1 3h1M9 20v-4h6v4"/>
-                    </svg>
+                <div
+                    class="sp-facility-marker"
+                    title="${item.label}"
+                    style="
+                        background:${item.color};
+                        color:#fff;
+                        border:2px solid #fff;
+                        box-shadow:0 2px 7px rgba(15,23,42,.3);
+                    "
+                >
+                    <svg
+                        viewBox="0 0 24 24"
+                        width="19"
+                        height="19"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        aria-hidden="true"
+                    >${item.svg}</svg>
                 </div>
             `,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
+            popupAnchor: [0, -14]
         });
     }
+
 
     // ============ POPUPS ============
     function createReportPopup(report) {
@@ -1289,7 +1372,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
             const marker = window.L.marker([lat, lng], {
-                icon: createFacilityIcon(),
+                icon: createFacilityIcon(f),
                 title: `Fasilitas publik ${f.nama}`,
                 alt: `Fasilitas publik ${f.nama}`,
                 keyboard: true
@@ -1456,36 +1539,34 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     });
 
-    // Export CSV
-    document.getElementById('btn-export').addEventListener('click', function () {
-        if (!laporanData.length) {
-            alert('Tidak ada data untuk diekspor.');
-            return;
+            /// Ekspor workbook Excel (.xlsx) dengan mengikuti filter peta.
+        const exportButton = document.getElementById('btn-export');
+        const exportUrl = @json(route('peta.export'));
+
+        if (exportButton) {
+            exportButton.addEventListener('click', function () {
+                if (!laporanData.length) {
+                    alert('Tidak ada data laporan yang tersedia untuk diekspor.');
+                    return;
+                }
+
+                const selectedStatuses = Array.from(
+                    document.querySelectorAll('.filter-status:checked')
+                ).map(input => input.value);
+
+                const selectedCategories = Array.from(
+                    document.querySelectorAll('.filter-kategori:checked')
+                ).map(input => input.value);
+
+                const params = new URLSearchParams();
+
+                params.set('status', selectedStatuses.join(','));
+                params.set('kategori', selectedCategories.join(','));
+                params.set('prioritas_tinggi', highPriorityOnly ? '1' : '0');
+
+                window.location.href = `${exportUrl}?${params.toString()}`;
+            });
         }
-
-        const headers = ['ID', 'Judul', 'Kategori', 'Status', 'Skor Prioritas', 'Latitude', 'Longitude', 'Alamat'];
-        const rows = laporanData.map(r => [
-            r.id ?? '',
-            r.judul ?? '',
-            r.kategori ?? '',
-            r.status_label || r.status || '',
-            r.skor_prioritas ?? '',
-            r.latitude ?? '',
-            r.longitude ?? '',
-            (r.alamat_lengkap || '').replace(/[\r\n]+/g, ' ')
-        ]);
-
-        const csv = [headers, ...rows]
-            .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-            .join('\n');
-
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `smartpath-laporan-${new Date().toISOString().slice(0,10)}.csv`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-    });
 
     // Sidebar toggle (mobile)
     const sidebar = document.getElementById('map-sidebar');

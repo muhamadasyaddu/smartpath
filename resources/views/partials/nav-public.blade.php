@@ -45,9 +45,20 @@
                     {{-- Dropdown Profil --}}
                     <div class="relative group">
                         <button type="button" class="flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-medium text-slate-700 transition-colors hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2" aria-haspopup="true" aria-expanded="false" aria-controls="public-account-menu" aria-label="Menu akun {{ auth()->user()->nama_lengkap }}">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700">
-                                {{ strtoupper(substr(auth()->user()->nama_lengkap ?? 'U', 0, 2)) }}
-                            </div>
+                            <div class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-100 text-xs font-semibold text-emerald-700">
+                    @if (
+                        auth()->user()->foto_profil &&
+                        \Illuminate\Support\Facades\Storage::disk('public')->exists(auth()->user()->foto_profil)
+                    )
+                        <img
+                            src="{{ asset('storage/' . ltrim(auth()->user()->foto_profil, '/')) }}"
+                            alt="Foto profil {{ auth()->user()->nama_lengkap }}"
+                            class="h-full w-full object-cover"
+                        >
+                    @else
+                        {{ mb_strtoupper(mb_substr(auth()->user()->nama_lengkap ?: 'U', 0, 1)) }}
+                    @endif
+                </div>
                             <span class="hidden sm:inline">{{ auth()->user()->nama_lengkap }}</span>
                         </button>
 
