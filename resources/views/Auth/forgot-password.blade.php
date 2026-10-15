@@ -551,7 +551,7 @@
 {{-- ============================================
      HTML CONTENT
 ============================================ --}}
-<div class="sp-forgot-page">
+<div class="sp-forgot-page" id="main-content">
 
     <div class="shape shape-one"></div>
     <div class="shape shape-two"></div>
@@ -739,5 +739,79 @@
 
     </div>
 </div>
+
+
+{{-- ===== AKSESIBILITAS SUARA / SCREEN READER ===== --}}
+<div class="screen-reader-control" aria-label="Fitur aksesibilitas suara"
+     style="position:fixed;right:20px;bottom:20px;z-index:9998;">
+    <button id="forgotScreenReaderButton" type="button"
+        style="display:inline-flex;align-items:center;gap:10px;border:1px solid #047857;background:#047857;color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.18);cursor:pointer;"
+        aria-label="Mulai pembaca layar untuk konten halaman" aria-pressed="false">
+        <i class="fa-solid fa-person-walking-with-cane" aria-hidden="true"></i>
+        <span id="forgotScreenReaderLabel">Screen Reader</span>
+    </button>
+    <p id="forgotSpeechStatus"
+       style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;"
+       role="status" aria-live="polite"></p>
+</div>
+
+<script>
+    // Membacakan konten halaman Lupa Kata Sandi dan bisa dihentikan kapan saja.
+    (() => {
+        const readerButton = document.getElementById('forgotScreenReaderButton');
+        const readerLabel = document.getElementById('forgotScreenReaderLabel');
+        const speechStatus = document.getElementById('forgotSpeechStatus');
+        if (!readerButton) return;
+
+        if (!('speechSynthesis' in window)) {
+            readerButton.disabled = true;
+            readerButton.title = 'Browser ini tidak mendukung fitur pembaca layar.';
+            if (speechStatus) speechStatus.textContent = 'Fitur suara tidak didukung oleh browser ini.';
+            return;
+        }
+
+        let readingPage = false;
+        const resetReader = () => {
+            readingPage = false;
+            readerButton.setAttribute('aria-pressed', 'false');
+            readerLabel.textContent = 'Screen Reader';
+        };
+
+        readerButton.addEventListener('click', () => {
+            if (window.speechSynthesis.speaking || readingPage) {
+                window.speechSynthesis.cancel();
+                resetReader();
+                if (speechStatus) speechStatus.textContent = 'Pembacaan dihentikan.';
+                return;
+            }
+
+            const main = document.getElementById('main-content');
+            const text = main ? main.innerText.replace(/\s+/g, ' ').trim() : '';
+            if (!text) {
+                if (speechStatus) speechStatus.textContent = 'Konten halaman tidak ditemukan.';
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            readingPage = true;
+            readerButton.setAttribute('aria-pressed', 'true');
+            readerLabel.textContent = 'Hentikan Bacaan';
+            if (speechStatus) speechStatus.textContent = 'Isi halaman sedang dibacakan.';
+            utterance.onend = () => {
+                resetReader();
+                if (speechStatus) speechStatus.textContent = 'Pembacaan halaman selesai.';
+            };
+            utterance.onerror = () => {
+                resetReader();
+                if (speechStatus) speechStatus.textContent = 'Suara tidak dapat diputar. Silakan coba lagi.';
+            };
+            window.speechSynthesis.speak(utterance);
+        });
+    })();
+</script>
 
 @endsection
