@@ -784,7 +784,19 @@
     outline-offset: 2px;
 }
 
-.warga-nearby-item__icon,
+.warga-nearby-item__icon {
+    display: flex;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+/* Ikon kondisi kosong: tetap hijau */
 .warga-nearby-empty__icon {
     display: flex;
     width: 42px;
@@ -795,7 +807,7 @@
     border-radius: 9px;
     background: #ecfdf5;
     color: #059669;
-}
+}   
 
 .warga-nearby-item__body {
     min-width: 0;

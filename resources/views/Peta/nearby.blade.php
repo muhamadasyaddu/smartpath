@@ -175,17 +175,17 @@
     }
 
     .obstacle-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
-        background: #ecfdf5;
-        color: #059669;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 19px;
-        flex-shrink: 0;
-    }
+          width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #fff7ed;
+    color: #ea580c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+}
 
     .obstacle-content {
         flex: 1;
@@ -404,7 +404,28 @@
             padding: 12px 14px;
             font-size: 13px;
         }
+        .empty-icon--warning {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+/* Ikon peringatan pada daftar Hambatan Terdekat */
+.obstacle-icon {
+    background-color: #fff7ed !important;
+    color: #ea580c !important;
+}
+
+.obstacle-icon i {
+    color: #ea580c !important;
+}
+
     }
+    
+/* Netral untuk kartu hambatan */
+.obstacle-card {
+    border-color: #e2e8f0;
+}
+
 </style>
 
 <main class="nearby-page">
@@ -488,9 +509,9 @@
                  aria-describedby="radius-desc">
 
                 <div class="empty-state" role="status">
-                    <div class="empty-icon" aria-hidden="true">
-                        <i class="fa-solid fa-location-crosshairs"></i>
-                    </div>
+                   <div class="empty-icon empty-icon--warning" aria-hidden="true">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+</div>
 
                     <h3>Lokasi belum digunakan</h3>
                     <p>
