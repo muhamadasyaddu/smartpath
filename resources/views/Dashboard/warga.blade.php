@@ -233,7 +233,7 @@
             class="inline-flex items-center gap-2 rounded-full border border-emerald-700 bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-800 focus-visible:outline-white"
             aria-label="Mulai pembaca layar untuk konten halaman" aria-pressed="false">
             <i class="fa-solid fa-blind text-lg shrink-0" aria-hidden="true"></i>
-            <span id="homeScreenReaderLabel">Screen Reader</span>
+            <span id="homeScreenReaderLabel">Dengar Panduan</span>
         </button>
         <p id="homeSpeechStatus" class="sr-only" role="status" aria-live="polite"></p>
     </div>
@@ -299,30 +299,72 @@
             if (readerButton && 'speechSynthesis' in window) {
                 let readingPage = false;
 
+                let speechRunId = 0;
+
+                // Membaca satu kalimat terlebih dahulu, lalu lanjut ke kalimat berikutnya.
                 function speakText(text, onEnd) {
                     window.speechSynthesis.cancel();
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'id-ID';
-                    utterance.rate = 1;
-                    utterance.pitch = 1;
-                    utterance.onend = () => { if (onEnd) onEnd(); };
-                    utterance.onerror = () => {
-                        if (speechStatus) speechStatus.textContent = 'Suara tidak dapat diputar.';
-                        readingPage = false;
-                        readerButton.setAttribute('aria-pressed', 'false');
-                        readerLabel.textContent = 'Screen Reader';
-                    };
-                    window.speechSynthesis.speak(utterance);
+                    const currentRunId = ++speechRunId;
+
+                    const sentences = text
+                        .replace(/\\s+/g, ' ')
+                        .match(/[^.!?]+[.!?]+|[^.!?]+$/g);
+
+                    const sentenceQueue = (sentences || [])
+                        .map(sentence => sentence.trim())
+                        .filter(Boolean);
+
+                    let sentenceIndex = 0;
+
+                    function speakNextSentence() {
+                        if (currentRunId !== speechRunId) return;
+
+                        if (sentenceIndex >= sentenceQueue.length) {
+                            if (onEnd) onEnd();
+                            return;
+                        }
+
+                        const utterance = new SpeechSynthesisUtterance(
+                            sentenceQueue[sentenceIndex]
+                        );
+
+                        utterance.lang = 'id-ID';
+                        utterance.rate = 0.75;
+                        utterance.pitch = 1;
+
+                        utterance.onend = () => {
+                            if (currentRunId !== speechRunId) return;
+                            sentenceIndex++;
+
+                            // Jeda sebentar agar setiap kalimat terdengar jelas.
+                            window.setTimeout(speakNextSentence, 450);
+                        };
+
+                        utterance.onerror = () => {
+                            if (currentRunId !== speechRunId) return;
+                            if (speechStatus) {
+                                speechStatus.textContent = 'Suara tidak dapat diputar.';
+                            }
+                            readingPage = false;
+                            readerButton.setAttribute('aria-pressed', 'false');
+                            readerLabel.textContent = 'Dengar Panduan';
+                        };
+
+                        window.speechSynthesis.speak(utterance);
+                    }
+
+                    speakNextSentence();
                 }
 
                 readerButton.addEventListener('click', (e) => {
                     if (hasMoved) return;
 
                     if (window.speechSynthesis.speaking || readingPage) {
+                        speechRunId++;
                         window.speechSynthesis.cancel();
                         readingPage = false;
                         readerButton.setAttribute('aria-pressed', 'false');
-                        readerLabel.textContent = 'Screen Reader';
+                        readerLabel.textContent = 'Dengar Panduan';
                         if (speechStatus) speechStatus.textContent = 'Pembacaan dihentikan.';
                         return;
                     }

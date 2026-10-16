@@ -705,26 +705,6 @@
                     Tentukan tujuan perjalanan untuk mendapatkan rute pejalan kaki
                     dan peringatan hambatan aksesibilitas yang telah terverifikasi.
                 </p>
-
-                <button
-                    type="button"
-                    class="warga-dashboard__voice-button mt-4"
-                    data-read-page
-                    data-read-status="navigation-read-status"
-                    data-read-text="Halaman Navigasi Aksesibilitas SmartPath. Masukkan nama tempat atau alamat pada kolom Tujuan perjalanan, lalu pilih Cari Rute. Setelah rute ditemukan, tekan Mulai navigasi untuk memulai panduan suara dan pemantauan GPS. Tombol Lokasi saya menampilkan posisi kamu pada peta. Hambatan sepanjang rute ditampilkan sebagai informasi teks."
-                    aria-controls="navigation-read-status"
-                    aria-pressed="false"
-                >
-                    <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
-                    <span data-read-label>Dengar Panduan</span>
-                </button>
-
-                <span
-                    id="navigation-read-status"
-                    class="sr-only"
-                    role="status"
-                    aria-live="polite"
-                ></span>
             </div>
         </header>
 
@@ -742,7 +722,7 @@
 
                     <p>
                         Informasi hambatan tersedia dalam bentuk teks dan dapat
-                        dibacakan melalui fitur suara. Gunakan tombol Dengar Panduan
+                        dibacakan melalui fitur suara. Gunakan tombol Screen Reader di bagian bawah halaman
                         untuk mendengarkan informasi halaman.
                     </p>
                 </div>
