@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Profil Saya - SmartPath')
@@ -15,13 +14,13 @@
     </div>
 
     @if (session('sukses'))
-        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800" role="status">
+        <div role="status" class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
             {{ session('sukses') }}
         </div>
     @endif
 
     @if ($errors->any())
-        <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+        <div role="alert" class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
             <ul class="list-disc space-y-1 pl-5">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -30,69 +29,142 @@
         </div>
     @endif
 
+    {{-- KARTU FOTO PROFIL --}}
+    <section class="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <h2 class="mb-5 text-lg font-semibold text-slate-900">Foto Profil</h2>
+
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-center">
+            <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-emerald-100 text-2xl font-semibold text-emerald-700">
+                @if (
+                    $user->foto_profil &&
+                    \Illuminate\Support\Facades\Storage::disk('public')->exists($user->foto_profil)
+                )
+                    <button
+                        type="button"
+                        id="openProfilePhoto"
+                        class="h-full w-full cursor-zoom-in"
+                        aria-label="Perbesar foto profil"
+                    >
+                        <img
+                            id="profilePhotoPreview"
+                            src="{{ asset('storage/' . ltrim($user->foto_profil, '/')) }}"
+                            alt="Foto profil {{ $user->nama_lengkap }}"
+                            class="h-full w-full object-cover"
+                        >
+                    </button>
+                    <span id="profilePhotoInitial" class="hidden">
+                        {{ mb_strtoupper(mb_substr($user->nama_lengkap ?: 'U', 0, 1)) }}
+                    </span>
+                @else
+                    <button
+                        type="button"
+                        id="openProfilePhoto"
+                        class="hidden h-full w-full cursor-zoom-in"
+                        aria-label="Perbesar foto profil"
+                    >
+                        <img
+                            id="profilePhotoPreview"
+                            src=""
+                            alt="Pratinjau foto profil"
+                            class="h-full w-full object-cover"
+                        >
+                    </button>
+                    <span id="profilePhotoInitial">
+                        {{ mb_strtoupper(mb_substr($user->nama_lengkap ?: 'U', 0, 1)) }}
+                    </span>
+                @endif
+            </div>
+
+            <div class="min-w-0 flex-1">
+                <p class="text-sm text-slate-600">
+                    Klik foto untuk melihat ukuran besar.
+                </p>
+                <p class="mt-1 text-xs leading-5 text-slate-500">
+                    Format JPG, PNG, atau WEBP. Ukuran maksimal 2 MB.
+                </p>
+
+                {{-- FORM UPLOAD FOTO --}}
+                <form
+                    id="profilePhotoForm"
+                    action="{{ route('profile.updateFoto') }}"
+                    method="POST"
+                    enctype="multipart/form-data"
+                    class="mt-4"
+                >
+                    @csrf
+                    @method('PUT')
+
+                    <input
+                        type="file"
+                        name="foto_profil"
+                        id="foto_profil"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                        class="hidden"
+                    >
+
+                    <div class="flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            id="chooseProfilePhoto"
+                            class="rounded-xl bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+                        >
+                            Ubah Foto
+                        </button>
+
+                        <button
+                            type="submit"
+                            id="saveProfilePhoto"
+                            class="hidden rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2"
+                        >
+                            Simpan Foto
+                        </button>
+
+                        @if ($user->foto_profil)
+                            <button
+                                type="button"
+                                id="deleteProfilePhoto"
+                                class="rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                            >
+                                Hapus Foto
+                            </button>
+                        @endif
+                    </div>
+
+                    <p
+                        id="photoSelectionStatus"
+                        class="mt-2 text-sm text-slate-500"
+                        aria-live="polite"
+                    ></p>
+
+                    @error('foto_profil')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </form>
+
+                {{-- FORM HAPUS FOTO --}}
+                <form
+                    id="deleteProfilePhotoForm"
+                    action="{{ route('profile.deleteFoto') }}"
+                    method="POST"
+                    class="hidden"
+                >
+                    @csrf
+                    @method('DELETE')
+                </form>
+            </div>
+        </div>
+    </section>
+
+    {{-- FORM DATA PROFIL --}}
     <form
         action="{{ route('profile.update') }}"
         method="POST"
-        enctype="multipart/form-data"
         class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
     >
         @csrf
         @method('PUT')
 
         <div class="space-y-6">
-            {{-- FOTO PROFIL --}}
-            <div class="flex flex-col gap-4 border-b border-slate-100 pb-6 sm:flex-row sm:items-center">
-                <div class="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-emerald-100 text-xl font-semibold text-emerald-700">
-                    @if (
-                        $user->foto_profil &&
-                        \Illuminate\Support\Facades\Storage::disk('public')->exists($user->foto_profil)
-                    )
-                        <img
-                            id="profile-photo-preview"
-                            src="{{ asset('storage/' . ltrim($user->foto_profil, '/')) }}"
-                            alt="Foto profil {{ $user->nama_lengkap }}"
-                            class="h-full w-full object-cover"
-                        >
-                        <span id="profile-photo-initial" class="hidden">
-                            {{ mb_strtoupper(mb_substr($user->nama_lengkap ?: 'U', 0, 1)) }}
-                        </span>
-                    @else
-                        <img
-                            id="profile-photo-preview"
-                            src=""
-                            alt="Pratinjau foto profil"
-                            class="hidden h-full w-full object-cover"
-                        >
-                        <span id="profile-photo-initial">
-                            {{ mb_strtoupper(mb_substr($user->nama_lengkap ?: 'U', 0, 1)) }}
-                        </span>
-                    @endif
-                </div>
-
-                <div class="min-w-0 flex-1">
-                    <label for="foto_profil" class="block text-sm font-semibold text-slate-700">
-                        Foto profil
-                    </label>
-
-                    <input
-                        id="foto_profil"
-                        name="foto_profil"
-                        type="file"
-                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-                        aria-describedby="foto-profil-help"
-                        class="mt-2 block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:font-medium file:text-emerald-800 hover:file:bg-emerald-100"
-                    >
-
-                    <p id="foto-profil-help" class="mt-2 text-xs leading-5 text-slate-500">
-                        Format JPG, PNG, atau WEBP. Ukuran maksimal 2 MB.
-                        Pilih foto lalu tekan Simpan Perubahan.
-                    </p>
-
-                    @error('foto_profil')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
 
             {{-- NAMA LENGKAP --}}
             <div>
@@ -153,7 +225,7 @@
                 @enderror
             </div>
 
-            {{-- ROLE AKUN: TIDAK DAPAT DIUBAH DARI FORM PROFIL --}}
+            {{-- ROLE AKUN --}}
             <div>
                 <label for="peran" class="block text-sm font-semibold text-slate-700">
                     Role akun
@@ -241,7 +313,7 @@
                 </div>
             </div>
 
-            {{-- SIMPAN --}}
+            {{-- TOMBOL SIMPAN DATA PROFIL --}}
             <div class="flex justify-end border-t border-slate-100 pt-5">
                 <button
                     type="submit"
@@ -253,44 +325,128 @@
         </div>
     </form>
 </main>
+
+{{-- MODAL FOTO UKURAN BESAR --}}
+<div
+    id="profilePhotoModal"
+    class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Foto profil ukuran besar"
+>
+    <button
+        type="button"
+        id="closeProfilePhoto"
+        class="absolute right-5 top-5 rounded-full bg-white px-4 py-2 text-2xl font-bold text-slate-900"
+        aria-label="Tutup foto"
+    >
+        &times;
+    </button>
+
+    <img
+        id="profilePhotoLarge"
+        src=""
+        alt="Foto profil ukuran besar"
+        class="max-h-[85vh] max-w-full rounded-xl object-contain"
+    >
+</div>
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const input = document.getElementById('foto_profil');
-    const preview = document.getElementById('profile-photo-preview');
-    const initial = document.getElementById('profile-photo-initial');
-
-    if (!input || !preview || !initial) return;
+    const chooseButton = document.getElementById('chooseProfilePhoto');
+    const saveButton = document.getElementById('saveProfilePhoto');
+    const deleteButton = document.getElementById('deleteProfilePhoto');
+    const preview = document.getElementById('profilePhotoPreview');
+    const initial = document.getElementById('profilePhotoInitial');
+    const openButton = document.getElementById('openProfilePhoto');
+    const modal = document.getElementById('profilePhotoModal');
+    const largePhoto = document.getElementById('profilePhotoLarge');
+    const closeButton = document.getElementById('closeProfilePhoto');
+    const deleteForm = document.getElementById('deleteProfilePhotoForm');
+    const status = document.getElementById('photoSelectionStatus');
 
     let temporaryUrl = null;
 
-    input.addEventListener('change', function () {
-        const file = this.files && this.files[0];
+    chooseButton?.addEventListener('click', function () {
+        input?.click();
+    });
+
+    input?.addEventListener('change', function () {
+        const file = input.files?.[0];
 
         if (!file) return;
 
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
         if (!allowedTypes.includes(file.type)) {
-            this.value = '';
+            input.value = '';
             alert('Pilih foto dengan format JPG, PNG, atau WEBP.');
             return;
         }
 
         if (file.size > 2 * 1024 * 1024) {
-            this.value = '';
+            input.value = '';
             alert('Ukuran foto maksimal 2 MB.');
             return;
         }
 
-        if (temporaryUrl) URL.revokeObjectURL(temporaryUrl);
+        if (temporaryUrl) {
+            URL.revokeObjectURL(temporaryUrl);
+        }
 
         temporaryUrl = URL.createObjectURL(file);
-        preview.src = temporaryUrl;
-        preview.classList.remove('hidden');
-        initial.classList.add('hidden');
+
+        if (preview) {
+            preview.src = temporaryUrl;
+            preview.classList.remove('hidden');
+        }
+
+        initial?.classList.add('hidden');
+        openButton?.classList.remove('hidden');
+        openButton?.classList.add('block');
+        saveButton?.classList.remove('hidden');
+
+        if (status) {
+            status.textContent = 'Pratinjau diperbarui. Klik Simpan Foto untuk menyimpan.';
+        }
+    });
+
+    openButton?.addEventListener('click', function () {
+        if (!preview || !preview.src) return;
+
+        largePhoto.src = preview.src;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        closeButton?.focus();
+    });
+
+    function closeModal() {
+        modal?.classList.add('hidden');
+        modal?.classList.remove('flex');
+        if (largePhoto) largePhoto.src = '';
+    }
+
+    closeButton?.addEventListener('click', closeModal);
+
+    modal?.addEventListener('click', function (event) {
+        if (event.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') closeModal();
+    });
+
+    deleteButton?.addEventListener('click', function () {
+        if (!confirm('Yakin ingin menghapus foto profil?')) return;
+
+        deleteForm?.submit();
+    });
+
+    window.addEventListener('beforeunload', function () {
+        if (temporaryUrl) URL.revokeObjectURL(temporaryUrl);
     });
 });
 </script>

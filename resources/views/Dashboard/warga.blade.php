@@ -127,10 +127,6 @@
                                 <p class="text-xs text-slate-500">Peta interaktif yang menampilkan lokasi hambatan aksesibilitas dan fasilitas publik di sekitar Anda.</p>
                             </div>
                         </div>
-                        <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-[10px] font-bold tracking-wide text-emerald-700 border border-emerald-100">
-                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
-                            DATA TERVERIFIKASI
-                        </span>
                     </div>
 
                     <div id="warga-map" class="warga-dashboard__map h-96 w-full" role="region" aria-label="Peta interaktif aksesibilitas"></div>
@@ -298,16 +294,14 @@
             
             if (readerButton && 'speechSynthesis' in window) {
                 let readingPage = false;
-
                 let speechRunId = 0;
 
-                // Membaca satu kalimat terlebih dahulu, lalu lanjut ke kalimat berikutnya.
                 function speakText(text, onEnd) {
                     window.speechSynthesis.cancel();
                     const currentRunId = ++speechRunId;
 
                     const sentences = text
-                        .replace(/\\s+/g, ' ')
+                        .replace(/\s+/g, ' ')
                         .match(/[^.!?]+[.!?]+|[^.!?]+$/g);
 
                     const sentenceQueue = (sentences || [])
@@ -335,8 +329,6 @@
                         utterance.onend = () => {
                             if (currentRunId !== speechRunId) return;
                             sentenceIndex++;
-
-                            // Jeda sebentar agar setiap kalimat terdengar jelas.
                             window.setTimeout(speakNextSentence, 450);
                         };
 
@@ -375,12 +367,10 @@
                     let targetContent = '';
                     let statusMessage = '';
 
-                    // Jika tombol digeser ke area sidebar (sisi kiri layar)
                     if (sidebar && btnRect.left < sidebar.getBoundingClientRect().right) {
                         targetContent = sidebar.innerText.replace(/\s+/g, ' ').trim();
                         statusMessage = 'Menu sidebar sedang dibacakan.';
                     } else {
-                        // Jika di area dashboard utama
                         const main = document.getElementById('warga-dashboard') || document.querySelector('.warga-workspace') || document.body;
                         targetContent = main ? main.innerText.replace(/\s+/g, ' ').trim() : '';
                         statusMessage = 'Konten dashboard sedang dibacakan.';
@@ -396,7 +386,7 @@
                     speakText(targetContent, () => {
                         readingPage = false;
                         readerButton.setAttribute('aria-pressed', 'false');
-                        readerLabel.textContent = 'Screen Reader';
+                        readerLabel.textContent = 'Dengar Panduan';
                         if (speechStatus) speechStatus.textContent = 'Pembacaan selesai.';
                     });
                 });

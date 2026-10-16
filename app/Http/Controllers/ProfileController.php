@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateProfileRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Audit;
 use App\Models\Wilayah;
-use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class ProfileController extends Controller
@@ -33,79 +33,67 @@ class ProfileController extends Controller
     /**
      * Simpan perubahan profil.
      */
-    public function update(UpdateProfileRequest $request)
-    {
-        $user = $request->user();
-        $validated = $request->validated();
+    
 
-        $fotoLama = $user->foto_profil;
-        $fotoBaru = null;
+public function updateFoto(Request $request)
+{
+    $request->validate([
+        'foto_profil' => [
+            'required',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:2048',
+        ],
+    ]);
 
-        /*
-         * Simpan foto baru dengan nama yang dibuat oleh Laravel.
-         * Jangan mempercayai nama file dari perangkat pengguna.
-         */
-        if ($request->hasFile('foto_profil')) {
-            $fotoBaru = $request->file('foto_profil')
-                ->store('profil', 'public');
+    $user = $request->user();
+    $fotoLama = $user->foto_profil;
 
-            if (!$fotoBaru) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'foto_profil' => 'Foto gagal disimpan. Silakan coba lagi.',
-                    ]);
-            }
+    $fotoBaru = $request->file('foto_profil')
+        ->store('foto-profil', 'public');
 
-            $validated['foto_profil'] = $fotoBaru;
-        }
+    if (!$fotoBaru) {
+        return back()->withErrors([
+            'foto_profil' => 'Foto gagal disimpan.',
+        ]);
+    }
 
-        $dataLama = [
-            'nama_lengkap' => $user->nama_lengkap,
-            'email' => $user->email,
-        ];
+    try {
+        $user->foto_profil = $fotoBaru;
+        $user->save();
+    } catch (\Throwable $e) {
+        Storage::disk('public')->delete($fotoBaru);
+        throw $e;
+    }
 
-        try {
-            $user->update($validated);
-        } catch (Throwable $exception) {
-            /*
-             * Jika pembaruan database gagal, hapus file baru yang
-             * telanjur tersimpan agar tidak menjadi file yatim.
-             */
-            if ($fotoBaru) {
-                Storage::disk('public')->delete($fotoBaru);
-            }
+    if ($fotoLama && $fotoLama !== $fotoBaru) {
+        Storage::disk('public')->delete($fotoLama);
+    }
 
-            throw $exception;
-        }
+    return redirect()
+        ->route('profile.edit')
+        ->with('sukses', 'Foto profil berhasil diperbarui.');
+}
 
-        /*
-         * Hapus foto lama hanya setelah foto baru berhasil disimpan
-         * dan perubahan pengguna sudah dilakukan.
-         */
-        if (
-            $fotoBaru &&
-            $fotoLama &&
-            $fotoLama !== $fotoBaru
-        ) {
-            Storage::disk('public')->delete($fotoLama);
-        }
+public function deleteFoto(Request $request)
+{
+    $user = $request->user();
+    $fotoLama = $user->foto_profil;
 
-        Audit::log(
-            $user->id,
-            'ubah_profil',
-            'users',
-            $user->id,
-            $dataLama,
-            [
-                'nama_lengkap' => $user->nama_lengkap,
-                'email' => $user->email,
-            ],
-            'Profil diperbarui'
-        );
-
+    if (!$fotoLama) {
         return redirect()
             ->route('profile.edit')
-            ->with('sukses', 'Profil berhasil diperbarui.');
+            ->with('sukses', 'Foto profil memang sudah kosong.');
     }
+
+    $user->foto_profil = null;
+    $user->save();
+
+    Storage::disk('public')->delete($fotoLama);
+
+    return redirect()
+        ->route('profile.edit')
+        ->with('sukses', 'Foto profil berhasil dihapus.');
+}
+
 }

@@ -159,6 +159,18 @@ Route::middleware('auth')->group(function () {
         '/profil',
         [ProfileController::class, 'update']
     )->name('profile.update');
+
+    
+Route::put(
+    '/profil/foto',
+    [ProfileController::class, 'updateFoto']
+)->name('profile.updateFoto');
+
+Route::delete(
+    '/profil/foto',
+    [ProfileController::class, 'deleteFoto']
+)->name('profile.deleteFoto');
+
 });
 
 // ============================================
