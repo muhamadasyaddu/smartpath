@@ -1135,11 +1135,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 label: 'Rumah sakit',
                 svg: '<path d="M12 5v14M5 12h14" stroke-width="3"/>'
             },
+            
             puskesmas: {
                 color: '#0D9488',
                 label: 'Puskesmas',
                 svg: '<path d="M12 5v14M5 12h14" stroke-width="2.5"/>'
             },
+
             sekolah: {
                 color: '#2563EB',
                 label: 'Sekolah',
