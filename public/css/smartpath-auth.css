@@ -157,4 +157,40 @@ body {
         background: #ffffff !important;
     }
 
+    /* ==========================================================
+   SMARTPATH — BACKGROUND LOGIN & REGISTER
+   ========================================================== */
+
+html,
+body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+}
+
+/* Latar belakang halaman autentikasi */
+.auth-page,
+.auth-container,
+.auth-wrapper,
+.login-page,
+.register-page {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+/* Area utama/form login dan register */
+.auth-card,
+.auth-panel,
+.login-card,
+.register-card {
+    background-color: #ffffff !important;
+}
+
+/* Tetap nyaman digunakan pada perangkat mobile */
+@media (max-width: 640px) {
+    body {
+        background: #ffffff !important;
+    }
+}
+
 }
