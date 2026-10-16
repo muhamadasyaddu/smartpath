@@ -352,7 +352,7 @@
         <i class="fa-solid fa-blind text-lg shrink-0" aria-hidden="true"></i>
 
         <span id="homeScreenReaderLabel">
-            Screen Reader
+            Dengar Panduan
         </span>
     </button>
 

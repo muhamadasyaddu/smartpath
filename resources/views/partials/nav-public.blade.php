@@ -9,7 +9,7 @@
                 </a>
 
                 <div class="hidden items-center gap-6 md:flex">
-                    <a href="{{ route('beranda') }}" class="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700">Beranda</a>
+                    <a href="{{ route('warga.dashboard') }}" class="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700">Dashboard</a>
                     <a href="{{ route('peta.index') }}" class="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700">Peta</a>
                     @auth
                         <a href="{{ route('laporan.create') }}" class="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700">Lapor</a>

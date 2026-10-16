@@ -12,9 +12,9 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between gap-4">
            <a
-                href="{{ route('beranda') }}"
+                href="{{ auth()->user()->peran === 'administrator' ? route('admin.dashboard') : (auth()->user()->peran === 'dinas' ? route('dinas.dashboard') : route('warga.dashboard')) }}"
                 class="flex shrink-0 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
-                aria-label="SmartPath - Beranda"
+                aria-label="SmartPath - Dashboard"
             >
                 <img
                     src="{{ asset('logo-smartpath-cropped.png') }}"
@@ -28,15 +28,15 @@
                 aria-label="Navigasi utama"
             >
                 <a
-                    href="{{ route('beranda') }}"
+                    href="{{ auth()->user()->peran === 'administrator' ? route('admin.dashboard') : (auth()->user()->peran === 'dinas' ? route('dinas.dashboard') : route('warga.dashboard')) }}"
                     @class([
                         'rounded-sm py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
-                        'text-emerald-700 font-semibold' => request()->routeIs('beranda'),
-                        'text-slate-600 hover:text-emerald-700' => !request()->routeIs('beranda'),
+                        'text-emerald-700 font-semibold' => request()->routeIs('admin.dashboard', 'dinas.dashboard', 'warga.dashboard'),
+                        'text-slate-600 hover:text-emerald-700' => !request()->routeIs('admin.dashboard', 'dinas.dashboard', 'warga.dashboard'),
                     ])
-                    @if(request()->routeIs('beranda')) aria-current="page" @endif
+                    @if(request()->routeIs('admin.dashboard', 'dinas.dashboard', 'warga.dashboard')) aria-current="page" @endif
                 >
-                    Beranda
+                    Dashboard
                 </a>
 
                 <a
@@ -107,14 +107,14 @@
             aria-label="Navigasi seluler"
         >
             <a
-                href="{{ route('beranda') }}"
+                href="{{ auth()->user()->peran === 'administrator' ? route('admin.dashboard') : (auth()->user()->peran === 'dinas' ? route('dinas.dashboard') : route('warga.dashboard')) }}"
                 @class([
                     'whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
-                    'bg-emerald-50 text-emerald-800' => request()->routeIs('beranda'),
-                    'text-slate-600 hover:bg-slate-50' => !request()->routeIs('beranda'),
+                    'bg-emerald-50 text-emerald-800' => request()->routeIs('admin.dashboard', 'dinas.dashboard', 'warga.dashboard'),
+                    'text-slate-600 hover:bg-slate-50' => !request()->routeIs('admin.dashboard', 'dinas.dashboard', 'warga.dashboard'),
                 ])
             >
-                Beranda
+                Dashboard
             </a>
 
             <a
@@ -624,7 +624,7 @@
         class="inline-flex items-center gap-2 rounded-full border border-emerald-700 bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-800 focus-visible:outline-white"
         aria-label="Mulai pembaca layar untuk konten halaman" aria-pressed="false">
         <i class="fa-solid fa-blind text-lg shrink-0" aria-hidden="true"></i>
-        <span id="homeScreenReaderLabel">Screen Reader</span>
+        <span id="homeScreenReaderLabel">Dengar Panduan</span>
     </button>
     <p id="homeSpeechStatus" class="sr-only" role="status" aria-live="polite"></p>
 </div>

@@ -83,6 +83,12 @@
             outline-offset: 3px;
         }
 
+        #homeScreenReaderButton:focus-visible {
+            outline: 4px solid #facc15 !important;
+            outline-offset: 5px !important;
+            box-shadow: 0 0 0 7px rgba(250, 204, 21, 0.28) !important;
+        }
+
         .skip-link {
             position: absolute;
             top: -9999px;
@@ -1452,9 +1458,9 @@
     <!-- Bootstrap 5 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- ===== AKSESIBILITAS SUARA / SCREEN READER ===== -->
-    <div class="screen-reader-control" aria-label="Fitur aksesibilitas suara" style="position:fixed;right:20px;bottom:20px;z-index:9998;">
-        <button id="homeScreenReaderButton" type="button"
-            style="display:inline-flex;align-items:center;gap:10px;border:1px solid #047857;background:#047857;color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.18);cursor:pointer;"
+    <div class="screen-reader-control" aria-label="Fitur aksesibilitas suara" style="position:fixed;right:20px;bottom:20px;z-index:2147483647;pointer-events:auto;">
+        <button id="homeScreenReaderButton" type="button" tabindex="0"
+            style="display:inline-flex;position:relative;z-index:2147483647;pointer-events:auto;align-items:center;gap:10px;border:1px solid #047857;background:#047857;color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.18);cursor:pointer;"
             aria-label="Mulai pembaca layar untuk konten halaman" aria-pressed="false">
             <i class="fa-solid fa-person-walking-with-cane" aria-hidden="true"></i>
             <span id="homeScreenReaderLabel">Screen Reader</span>
@@ -1482,6 +1488,14 @@
                 readerButton.setAttribute('aria-pressed', 'false');
                 readerLabel.textContent = 'Screen Reader';
             };
+
+            // Pastikan tombol bisa dijalankan dengan keyboard: Tab untuk fokus, Enter/Spasi untuk aktifkan.
+            readerButton.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    readerButton.click();
+                }
+            });
 
             readerButton.addEventListener('click', () => {
                 if (window.speechSynthesis.speaking || readingPage) {
