@@ -235,12 +235,12 @@
                 class="warga-hero-banner warga-animate-in relative mb-6 overflow-hidden rounded-3xl border border-emerald-100 shadow-sm"
             >
                 <img
-                    src="{{ asset('smartpath-banner.png') }}"
-                    alt=""
-                    aria-hidden="true"
-                    class="smartpath-hero-img pointer-events-none absolute -right-4 top-1/2 hidden h-[120%] w-[45%] -translate-y-1/2 object-contain object-center opacity-90 sm:block lg:w-[42%]"
-                    loading="eager"
-                >
+    src="{{ asset('banner-baru.png') }}"
+    alt=""
+    aria-hidden="true"
+    class="smartpath-hero-img pointer-events-none absolute right-0 top-1/2 hidden h-[140%] w-[52%] -translate-y-1/2 object-contain object-right opacity-100 sm:block"
+    loading="eager"
+>
 
                 <div
                     class="smartpath-hero-fallback pointer-events-none absolute -right-8 top-1/2 hidden h-40 w-40 -translate-y-1/2 rounded-full bg-emerald-300/30 blur-2xl sm:block"
