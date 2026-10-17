@@ -1764,6 +1764,20 @@
                     );
 
 
+                    const titik = laporanData
+                        .map(function (item) {
+                            return [Number(item.latitude), Number(item.longitude)];
+                        })
+                        .filter(function (p) {
+                            return Number.isFinite(p[0]) && Number.isFinite(p[1]);
+                        });
+
+                    if (titik.length && currentPosition === null) {
+                        map.invalidateSize();
+                        map.fitBounds(titik, { padding: [40, 40], maxZoom: 15 });
+                    }
+
+
                     setText(
                         mapStatus,
                         'Peta aksesibilitas siap digunakan. Data yang ditampilkan berasal dari laporan terverifikasi.'
@@ -2189,7 +2203,7 @@
                     speak(
                         nearbyNarration(),
                         btnReadNearby,
-                        'Dengar Hambatan Terdekat'
+                        'Dengarkan'
                     );
                 }
             );
@@ -2247,6 +2261,8 @@
         */
 
         loadMapData();
+
+        document.addEventListener('smartpath:refresh-map', loadMapData);
 
     });
 })();

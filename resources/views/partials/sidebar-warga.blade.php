@@ -75,7 +75,7 @@
                 class="warga-sidebar__link {{ request()->routeIs('peta.nearby') ? 'is-active' : '' }}"
             >
                 <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
-                <span>Nearby</span>
+                <span>Hambatan Terdekat</span>
             </a>
             <a
                 href="{{ route('navigasi.index') }}"
