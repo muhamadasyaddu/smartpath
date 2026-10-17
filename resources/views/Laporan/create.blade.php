@@ -83,30 +83,51 @@
                 </a>
             </nav>
 
+            
+            @php
+                $pengguna = auth()->user();
+
+                $fotoProfilPath = $pengguna->foto_profil;
+
+                $fotoProfilTersedia = $fotoProfilPath
+                    && \Illuminate\Support\Facades\Storage::disk('public')
+                        ->exists($fotoProfilPath);
+
+                $inisialPengguna = mb_strtoupper(
+                    mb_substr($pengguna->nama_lengkap ?: 'U', 0, 1)
+                );
+            @endphp
+
             <a
                 href="{{ route('profile.edit') }}"
                 class="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
                 aria-label="Buka profil pengguna"
                 @if(request()->routeIs('profile.edit')) aria-current="page" @endif
             >
-                <span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-800">
-                    <svg
-                        class="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                    >
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
+                <span
+                    class="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-emerald-200 bg-emerald-100 text-xs font-semibold text-emerald-800"
+                >
+                    @if ($fotoProfilTersedia)
+                        <img
+                            src="{{ asset('storage/' . ltrim($fotoProfilPath, '/')) }}"
+                            alt=""
+                            class="h-full w-full object-cover"
+                            onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');"
+                        >
+
+                        <span class="hidden">
+                            {{ $inisialPengguna }}
+                        </span>
+                    @else
+                        <span>
+                            {{ $inisialPengguna }}
+                        </span>
+                    @endif
                 </span>
 
-                <span>{{ auth()->user()->nama_lengkap }}</span>
+                <span>{{ $pengguna->nama_lengkap }}</span>
             </a>
+
         </div>
 
         <nav
