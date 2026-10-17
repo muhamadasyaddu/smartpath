@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Audit;
+use Illuminate\Validation\Rule;
 use App\Models\Wilayah;
-use Throwable;
 
 class ProfileController extends Controller
 {
@@ -19,8 +18,9 @@ class ProfileController extends Controller
 
         $user->load([
             'wilayah',
-            'laporanDibuat' => fn ($query) =>
-                $query->orderByDesc('created_at')->limit(5),
+            'laporanDibuat' => function ($query) {
+                $query->orderByDesc('created_at')->limit(5);
+            },
         ]);
 
         $wilayah = Wilayah::aktif()
@@ -31,69 +31,128 @@ class ProfileController extends Controller
     }
 
     /**
-     * Simpan perubahan profil.
+     * Simpan perubahan data profil.
      */
-    
+    public function update(Request $request)
+    {
+        $user = $request->user();
 
-public function updateFoto(Request $request)
-{
-    $request->validate([
-        'foto_profil' => [
-            'required',
-            'image',
-            'mimes:jpg,jpeg,png,webp',
-            'max:2048',
-        ],
-    ]);
+        $validated = $request->validate([
+            'nama_lengkap' => [
+                'required',
+                'string',
+                'max:255',
+            ],
 
-    $user = $request->user();
-    $fotoLama = $user->foto_profil;
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
 
-    $fotoBaru = $request->file('foto_profil')
-        ->store('foto-profil', 'public');
+            'nomor_hp' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
 
-    if (!$fotoBaru) {
-        return back()->withErrors([
-            'foto_profil' => 'Foto gagal disimpan.',
+            'wilayah_id' => [
+                'nullable',
+                'exists:wilayah,id',
+            ],
+
+            'adalah_disabilitas' => [
+                'required',
+                'boolean',
+            ],
+
+            'jenis_disabilitas' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ]);
-    }
 
-    try {
-        $user->foto_profil = $fotoBaru;
+        $user->nama_lengkap = $validated['nama_lengkap'];
+        $user->email = $validated['email'];
+        $user->nomor_hp = $validated['nomor_hp'] ?? null;
+        $user->wilayah_id = $validated['wilayah_id'] ?? null;
+        $user->adalah_disabilitas = $validated['adalah_disabilitas'];
+        $user->jenis_disabilitas = $validated['jenis_disabilitas'] ?? null;
+
         $user->save();
-    } catch (\Throwable $e) {
-        Storage::disk('public')->delete($fotoBaru);
-        throw $e;
-    }
 
-    if ($fotoLama && $fotoLama !== $fotoBaru) {
-        Storage::disk('public')->delete($fotoLama);
-    }
-
-    return redirect()
-        ->route('profile.edit')
-        ->with('sukses', 'Foto profil berhasil diperbarui.');
-}
-
-public function deleteFoto(Request $request)
-{
-    $user = $request->user();
-    $fotoLama = $user->foto_profil;
-
-    if (!$fotoLama) {
         return redirect()
             ->route('profile.edit')
-            ->with('sukses', 'Foto profil memang sudah kosong.');
+            ->with('sukses', 'Perubahan profil berhasil disimpan.');
     }
 
-    $user->foto_profil = null;
-    $user->save();
+    /**
+     * Ubah foto profil pengguna.
+     */
+    public function updateFoto(Request $request)
+    {
+        $request->validate([
+            'foto_profil' => [
+                'required',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:2048',
+            ],
+        ]);
 
-    Storage::disk('public')->delete($fotoLama);
+        $user = $request->user();
+        $fotoLama = $user->foto_profil;
 
-    return redirect()
-        ->route('profile.edit')
-        ->with('sukses', 'Foto profil berhasil dihapus.');
-}
+        $fotoBaru = $request->file('foto_profil')
+            ->store('foto-profil', 'public');
 
+        if (!$fotoBaru) {
+            return back()->withErrors([
+                'foto_profil' => 'Foto gagal disimpan.',
+            ]);
+        }
+
+        try {
+            $user->foto_profil = $fotoBaru;
+            $user->save();
+        } catch (\Throwable $e) {
+            Storage::disk('public')->delete($fotoBaru);
+
+            throw $e;
+        }
+
+        if ($fotoLama && $fotoLama !== $fotoBaru) {
+            Storage::disk('public')->delete($fotoLama);
+        }
+
+        return redirect()
+            ->route('profile.edit')
+            ->with('sukses', 'Foto profil berhasil diperbarui.');
+    }
+
+    /**
+     * Hapus foto profil pengguna.
+     */
+    public function deleteFoto(Request $request)
+    {
+        $user = $request->user();
+        $fotoLama = $user->foto_profil;
+
+        if (!$fotoLama) {
+            return redirect()
+                ->route('profile.edit')
+                ->with('sukses', 'Foto profil memang sudah kosong.');
+        }
+
+        $user->foto_profil = null;
+        $user->save();
+
+        Storage::disk('public')->delete($fotoLama);
+
+        return redirect()
+            ->route('profile.edit')
+            ->with('sukses', 'Foto profil berhasil dihapus.');
+    }
 }

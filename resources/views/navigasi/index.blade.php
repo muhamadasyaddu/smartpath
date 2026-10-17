@@ -583,6 +583,42 @@
         opacity: .7;
     }
 
+
+    /* SCREEN READER PER KARTU NAVIGASI */
+    .smartpath-navigation .navigation-readable-card {
+        cursor: pointer;
+        transition: outline-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .smartpath-navigation .navigation-readable-card:focus-visible {
+        outline: 3px solid #059669;
+        outline-offset: 3px;
+    }
+
+    .smartpath-navigation .navigation-readable-card[data-screen-reader-active="true"] {
+        outline: 3px solid #059669;
+        outline-offset: 3px;
+        background-color: #f0fdf4;
+    }
+
+    #smartpath-screen-reader-status {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .smartpath-navigation .navigation-readable-card {
+            transition: none;
+        }
+    }
+
     @media (max-width: 900px) {
         .navigation-shell {
             padding: 16px 12px 28px;
@@ -2047,14 +2083,15 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 /* ==========================================================
-   SCREEN READER MELAYANG — BACA HALAMAN DAN BISA DIGESER
+   SCREEN READER PER KARTU + TOMBOL MELAYANG YANG BISA DIGESER
 ========================================================== */
 document.addEventListener('DOMContentLoaded', function () {
     const tombol = document.getElementById('smartpath-screen-reader');
     const label = document.getElementById('smartpath-screen-reader-label');
     const status = document.getElementById('smartpath-screen-reader-status');
+    const konten = document.querySelector('.smartpath-navigation');
 
-    if (!tombol || !label || !status) return;
+    if (!tombol || !label || !status || !konten) return;
 
     if (!('speechSynthesis' in window)) {
         tombol.disabled = true;
@@ -2070,80 +2107,139 @@ document.addEventListener('DOMContentLoaded', function () {
     let awalX = 0;
     let awalY = 0;
     let idBacaan = 0;
+    let kartuAktif = null;
+
+    const pemilihKartu = [
+        '.navigation-header',
+        '.navigation-accessibility-note',
+        '.navigation-map-title',
+        '.navigation-gps-status',
+        '.navigation-overlay__header',
+        '#tujuan-help',
+        '#status-navigasi > .alert',
+        '#kontrol-navigasi > .route-summary',
+        '#kontrol-navigasi > .card',
+        '#kontrol-navigasi > .alert',
+        '#status-perjalanan > .alert',
+        '#status-perjalanan > .info-perjalanan',
+        '#hasil-hambatan > .hambatan-aman',
+        '#hasil-hambatan > .hambatan-pesan',
+        '#hasil-hambatan > .hambatan-ditemukan > h3',
+        '#hasil-hambatan .hambatan-card'
+    ].join(',');
 
     function ubahStatus(aktif, pesan) {
         membaca = aktif;
-
         tombol.setAttribute('aria-pressed', aktif ? 'true' : 'false');
         tombol.setAttribute(
             'aria-label',
-            aktif
-                ? 'Hentikan pembacaan halaman'
-                : 'Mulai membacakan isi halaman'
+            aktif ? 'Hentikan pembacaan' : 'Mulai membacakan bagian halaman'
         );
-
         label.textContent = aktif ? 'Hentikan Bacaan' : 'Dengar Panduan';
         status.textContent = pesan || '';
     }
 
-    function hentikanBacaan() {
-        idBacaan++;
-        window.speechSynthesis.cancel();
-        ubahStatus(false, 'Pembacaan dihentikan.');
+    function bersihkanSorotan() {
+        konten.querySelectorAll('[data-screen-reader-active="true"]').forEach(function (elemen) {
+            elemen.removeAttribute('data-screen-reader-active');
+        });
+        kartuAktif = null;
     }
 
-    function mulaiBacaan() {
-        const konten = document.querySelector('.smartpath-navigation');
+    function hentikanBacaan(pesan) {
+        idBacaan++;
+        window.speechSynthesis.cancel();
+        bersihkanSorotan();
+        ubahStatus(false, pesan || 'Pembacaan dihentikan.');
+    }
 
-        if (!konten) {
-            ubahStatus(false, 'Konten halaman tidak ditemukan.');
-            return;
-        }
-
-        const salinan = konten.cloneNode(true);
-
+    function teksDariKartu(kartu) {
+        const salinan = kartu.cloneNode(true);
         salinan.querySelectorAll(
-            'script, style, button, input, textarea, select, ' +
-            '[aria-hidden="true"], #peta-navigasi'
+            'script, style, button, input, textarea, select, [aria-hidden="true"]'
         ).forEach(function (elemen) {
             elemen.remove();
         });
+        return (salinan.innerText || salinan.textContent || '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
 
-        const teks = salinan.innerText.replace(/\s+/g, ' ').trim();
+    function siapkanKartu() {
+        konten.querySelectorAll(pemilihKartu).forEach(function (kartu) {
+            if (kartu.dataset.screenReaderReady === 'true') return;
+            if (!(kartu.innerText || kartu.textContent || '').trim()) return;
 
+            kartu.classList.add('navigation-readable-card');
+            kartu.dataset.screenReaderReady = 'true';
+            kartu.setAttribute('tabindex', '0');
+            kartu.setAttribute('role', 'button');
+            kartu.setAttribute('aria-label', 'Bacakan bagian: ' +
+                (kartu.innerText || kartu.textContent || 'informasi').replace(/\s+/g, ' ').trim().slice(0, 140));
+
+            kartu.addEventListener('click', function (event) {
+                if (event.target.closest('button, a, input, textarea, select, label')) return;
+                event.preventDefault();
+                bacakanKartu(kartu);
+            });
+
+            kartu.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                if (event.target !== kartu) return;
+                event.preventDefault();
+                bacakanKartu(kartu);
+            });
+        });
+    }
+
+    function bacakanKartu(kartu) {
+        siapkanKartu();
+        const teks = teksDariKartu(kartu);
         if (!teks) {
-            ubahStatus(false, 'Tidak ada teks halaman yang dapat dibacakan.');
+            status.textContent = 'Bagian ini tidak memiliki teks untuk dibacakan.';
             return;
         }
 
+        idBacaan++;
+        const nomorBacaan = idBacaan;
         window.speechSynthesis.cancel();
+        bersihkanSorotan();
+        kartuAktif = kartu;
+        kartu.setAttribute('data-screen-reader-active', 'true');
+        ubahStatus(true, 'Sedang membacakan satu bagian.');
 
-        const nomorBacaan = ++idBacaan;
         const suara = new SpeechSynthesisUtterance(teks);
-
         suara.lang = 'id-ID';
-        suara.rate = 0.9;
+        suara.rate = 0.82;
         suara.pitch = 1;
         suara.volume = 1;
 
         suara.onend = function () {
             if (nomorBacaan !== idBacaan) return;
-            ubahStatus(false, 'Pembacaan halaman selesai.');
+            bersihkanSorotan();
+            ubahStatus(false, 'Selesai membacakan bagian ini. Pilih bagian lain untuk mendengarkannya.');
         };
 
         suara.onerror = function (event) {
             if (nomorBacaan !== idBacaan) return;
-
-            if (
-                event.error !== 'canceled' &&
-                event.error !== 'interrupted'
-            ) {
-                ubahStatus(false, 'Suara tidak dapat diputar. Silakan coba lagi.');
-            }
+            bersihkanSorotan();
+            ubahStatus(false, event.error === 'canceled' || event.error === 'interrupted'
+                ? 'Pembacaan dihentikan.'
+                : 'Suara tidak dapat diputar. Silakan coba lagi.');
         };
 
-        ubahStatus(true, 'Halaman sedang dibacakan.');
         window.speechSynthesis.speak(suara);
+    }
+
+    function kartuPertamaTerlihat() {
+        siapkanKartu();
+        const kartu = Array.from(konten.querySelectorAll('.navigation-readable-card'))
+            .find(function (elemen) {
+                const rect = elemen.getBoundingClientRect();
+                const style = window.getComputedStyle(elemen);
+                return rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+            });
+        return kartu || null;
     }
 
     tombol.addEventListener('click', function (event) {
@@ -2152,32 +2248,28 @@ document.addEventListener('DOMContentLoaded', function () {
             event.preventDefault();
             return;
         }
-
         if (membaca || window.speechSynthesis.speaking) {
-            hentikanBacaan();
+            hentikanBacaan('Pembacaan dihentikan.');
+            return;
+        }
+        const kartu = kartuPertamaTerlihat();
+        if (kartu) {
+            bacakanKartu(kartu);
         } else {
-            mulaiBacaan();
+            ubahStatus(false, 'Belum ada bagian halaman yang dapat dibacakan.');
         }
     });
 
     function mulaiGeser(event) {
         if (event.type === 'mousedown' && event.button !== 0) return;
-
-        const titik = event.type === 'touchstart'
-            ? event.touches[0]
-            : event;
-
+        const titik = event.type === 'touchstart' ? event.touches[0] : event;
         menggeser = true;
         digeser = false;
-
         mulaiX = titik.clientX;
         mulaiY = titik.clientY;
-
         const rect = tombol.getBoundingClientRect();
-
         awalX = rect.left;
         awalY = rect.top;
-
         tombol.style.right = 'auto';
         tombol.style.bottom = 'auto';
         tombol.style.left = awalX + 'px';
@@ -2186,50 +2278,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function gerakkanTombol(event) {
         if (!menggeser) return;
-
-        const titik = event.type === 'touchmove'
-            ? event.touches[0]
-            : event;
-
+        const titik = event.type === 'touchmove' ? event.touches[0] : event;
         const dx = titik.clientX - mulaiX;
         const dy = titik.clientY - mulaiY;
-
-        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-            digeser = true;
-        }
-
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) digeser = true;
         if (!digeser) return;
-
         if (event.cancelable) event.preventDefault();
-
         const batasX = window.innerWidth - tombol.offsetWidth;
         const batasY = window.innerHeight - tombol.offsetHeight;
-
-        const x = Math.max(0, Math.min(batasX, awalX + dx));
-        const y = Math.max(0, Math.min(batasY, awalY + dy));
-
-        tombol.style.left = x + 'px';
-        tombol.style.top = y + 'px';
+        tombol.style.left = Math.max(0, Math.min(batasX, awalX + dx)) + 'px';
+        tombol.style.top = Math.max(0, Math.min(batasY, awalY + dy)) + 'px';
     }
 
     function selesaiGeser() {
         menggeser = false;
     }
 
+    document.addEventListener('click', function (event) {
+        if (event.target.closest('button, a, input, textarea, select')) return;
+        const kartu = event.target.closest('.smartpath-navigation ' + pemilihKartu);
+        if (kartu && kartu.classList.contains('navigation-readable-card')) return;
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && (membaca || window.speechSynthesis.speaking)) {
+            hentikanBacaan('Pembacaan dihentikan.');
+        }
+    });
+
     tombol.addEventListener('mousedown', mulaiGeser);
     document.addEventListener('mousemove', gerakkanTombol);
     document.addEventListener('mouseup', selesaiGeser);
-
-    tombol.addEventListener('touchstart', mulaiGeser, {
-        passive: true
-    });
-
-    document.addEventListener('touchmove', gerakkanTombol, {
-        passive: false
-    });
-
+    tombol.addEventListener('touchstart', mulaiGeser, { passive: true });
+    document.addEventListener('touchmove', gerakkanTombol, { passive: false });
     document.addEventListener('touchend', selesaiGeser);
     document.addEventListener('touchcancel', selesaiGeser);
+
+    siapkanKartu();
+    const pengamat = new MutationObserver(function () {
+        siapkanKartu();
+    });
+    pengamat.observe(konten, { childList: true, subtree: true });
 });
 </script>
 

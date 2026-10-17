@@ -4,6 +4,13 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/laporan-create.css') }}">
+    <style>
+        #homeScreenReaderButton { touch-action: manipulation; }
+        #homeScreenReaderButton:focus-visible { outline: 3px solid #10b981; outline-offset: 3px; }
+        .sp-report-card[data-screen-reader-active="true"],
+        .sp-category-card[data-screen-reader-active="true"] { outline: 3px solid #059669; outline-offset: 3px; background-color: #d1fae5; }
+        #homeSpeechStatus { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    </style>
 @endpush
 
 @section('content')
@@ -637,55 +644,147 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // =========================================================
-            // 1. SCREEN READER (PEMBACA LAYAR OLEH TOMBOL)
+            // 1. SCREEN READER: BACA CARD DAN PILIHAN KATEGORI
             // =========================================================
             const readerButton = document.getElementById('homeScreenReaderButton');
             const readerLabel = document.getElementById('homeScreenReaderLabel');
             const speechStatus = document.getElementById('homeSpeechStatus');
-            
-            if (readerButton && 'speechSynthesis' in window) {
-                let readingPage = false;
-                function speakText(text, onEnd) {
+
+            if (readerButton && !('speechSynthesis' in window)) {
+                readerButton.disabled = true;
+                readerButton.title = 'Browser ini tidak mendukung fitur suara.';
+                if (speechStatus) speechStatus.textContent = 'Browser tidak mendukung pembacaan suara.';
+            } else if (readerButton) {
+                let speechRunId = 0;
+                let isReading = false;
+
+                const cardSelector = '.laporan-create-page > header, .sp-report-card';
+
+                function getCardText(card) {
+                    return card ? (card.innerText || card.textContent || '').replace(/\s+/g, ' ').trim() : '';
+                }
+
+                function isVisible(element) {
+                    if (!element || !element.isConnected) return false;
+                    const style = window.getComputedStyle(element);
+                    return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0;
+                }
+
+                function removeHighlight() {
+                    document.querySelectorAll('[data-screen-reader-active="true"]').forEach(function (element) {
+                        element.removeAttribute('data-screen-reader-active');
+                    });
+                }
+
+                function updateButton(reading) {
+                    isReading = reading;
+                    readerButton.setAttribute('aria-pressed', reading ? 'true' : 'false');
+                    readerLabel.textContent = reading ? 'Hentikan Bacaan' : 'Dengar Panduan';
+                    readerButton.setAttribute('aria-label', reading ? 'Hentikan pembacaan suara' : 'Bacakan bagian formulir');
+                }
+
+                function stopReading(message) {
+                    speechRunId++;
                     window.speechSynthesis.cancel();
+                    updateButton(false);
+                    removeHighlight();
+                    if (speechStatus && message) speechStatus.textContent = message;
+                }
+
+                function speakText(text, highlightedElement, statusText) {
+                    if (!text) return;
+                    speechRunId++;
+                    const thisRunId = speechRunId;
+                    window.speechSynthesis.cancel();
+                    removeHighlight();
+
+                    if (highlightedElement) highlightedElement.setAttribute('data-screen-reader-active', 'true');
+                    updateButton(true);
+                    if (speechStatus) speechStatus.textContent = statusText || 'Sedang membacakan bagian yang dipilih.';
+
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'id-ID';
-                    utterance.rate = 1;
+                    utterance.rate = 0.85;
                     utterance.pitch = 1;
-                    utterance.onend = () => { if (onEnd) onEnd(); };
-                    utterance.onerror = () => {
-                        if (speechStatus) speechStatus.textContent = 'Suara tidak dapat diputar. Silakan coba lagi.';
-                        readingPage = false;
-                        readerButton.setAttribute('aria-pressed', 'false');
-                        readerLabel.textContent = 'Screen Reader';
+
+                    utterance.onend = function () {
+                        if (thisRunId !== speechRunId) return;
+                        updateButton(false);
+                        removeHighlight();
+                        if (speechStatus) speechStatus.textContent = 'Selesai membaca bagian ini. Pilih bagian lain untuk mendengarkan lagi.';
                     };
+
+                    utterance.onerror = function (event) {
+                        if (thisRunId !== speechRunId) return;
+                        updateButton(false);
+                        removeHighlight();
+                        if (speechStatus) speechStatus.textContent = (event.error === 'canceled' || event.error === 'interrupted')
+                            ? 'Pembacaan dihentikan.'
+                            : 'Suara tidak dapat diputar. Silakan coba lagi.';
+                    };
+
                     window.speechSynthesis.speak(utterance);
                 }
 
-                readerButton.addEventListener('click', () => {
-                    if (window.speechSynthesis.speaking || readingPage) {
-                        window.speechSynthesis.cancel();
-                        readingPage = false;
-                        readerButton.setAttribute('aria-pressed', 'false');
-                        readerLabel.textContent = 'Screen Reader';
-                        if (speechStatus) speechStatus.textContent = 'Pembacaan dihentikan.';
+                function speakCard(card) {
+                    if (!card || !isVisible(card)) return;
+                    const text = getCardText(card);
+                    if (!text) return;
+                    const heading = card.querySelector('h1, h2, h3, h4');
+                    const headingText = heading ? heading.innerText.trim() : 'bagian formulir';
+                    speakText(text, card, 'Sedang membacakan ' + headingText + '.');
+                }
+
+                // Klik area kosong pada card membacakan isi card tersebut.
+                document.querySelectorAll('.sp-report-card').forEach(function (card) {
+                    card.setAttribute('tabindex', '0');
+                    card.addEventListener('click', function (event) {
+                        if (event.target.closest('button, input, textarea, select, option, label, a, [role="button"], #location-map, .leaflet-container, #drop-zone')) return;
+                        speakCard(card);
+                    });
+                    card.addEventListener('keydown', function (event) {
+                        if (event.target !== card || (event.key !== 'Enter' && event.key !== ' ')) return;
+                        event.preventDefault();
+                        speakCard(card);
+                    });
+                });
+
+                // Klik setiap pilihan kategori akan membacakan nama kategori itu saja.
+                document.querySelectorAll('.sp-category-option input[type="radio"]').forEach(function (input) {
+                    input.addEventListener('change', function () {
+                        if (!this.checked) return;
+                        const option = this.closest('.sp-category-option');
+                        const categoryCard = option ? option.querySelector('.sp-category-card') : null;
+                        const categoryLabel = option ? option.querySelector('.sp-category-label') : null;
+                        const categoryName = categoryLabel ? categoryLabel.innerText.trim() : '';
+                        if (!categoryCard || !categoryName) return;
+                        speakText('Kategori hambatan. ' + categoryName, categoryCard, 'Sedang membacakan kategori hambatan: ' + categoryName + '.');
+                    });
+                });
+
+                // Tombol melayang membacakan card pertama; tekan lagi untuk berhenti.
+                readerButton.addEventListener('click', function () {
+                    if (isReading || window.speechSynthesis.speaking) {
+                        stopReading('Pembacaan dihentikan.');
                         return;
                     }
-
-                    const main = document.querySelector('.laporan-create-page') || document.body;
-                    const text = main ? main.innerText.replace(/\s+/g, ' ').trim() : '';
-                    if (!text) return;
-
-                    readingPage = true;
-                    readerButton.setAttribute('aria-pressed', 'true');
-                    readerLabel.textContent = 'Hentikan Bacaan';
-                    if (speechStatus) speechStatus.textContent = 'Isi halaman formulir sedang dibacakan.';
-                    
-                    speakText(text, () => {
-                        readingPage = false;
-                        readerButton.setAttribute('aria-pressed', 'false');
-                        readerLabel.textContent = 'Screen Reader';
-                        if (speechStatus) speechStatus.textContent = 'Pembacaan halaman selesai.';
+                    const cards = Array.from(document.querySelectorAll(cardSelector)).filter(function (card) {
+                        return isVisible(card) && getCardText(card).length > 0;
                     });
+                    if (!cards.length) {
+                        if (speechStatus) speechStatus.textContent = 'Belum ada bagian formulir yang dapat dibacakan.';
+                        return;
+                    }
+                    speakCard(cards[0]);
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && isReading) stopReading('Pembacaan dihentikan.');
+                });
+
+                window.addEventListener('pagehide', function () {
+                    speechRunId++;
+                    window.speechSynthesis.cancel();
                 });
             }
 
