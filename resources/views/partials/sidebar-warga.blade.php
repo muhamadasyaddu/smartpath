@@ -70,14 +70,6 @@
             <p class="warga-sidebar__label warga-sidebar__label--spaced">Eksplorasi</p>
 
             <a
-                href="{{ route('peta.nearby') }}"
-                @if(request()->routeIs('peta.nearby')) aria-current="page" @endif
-                class="warga-sidebar__link {{ request()->routeIs('peta.nearby') ? 'is-active' : '' }}"
-            >
-                <i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i>
-                <span>Hambatan Terdekat</span>
-            </a>
-            <a
                 href="{{ route('navigasi.index') }}"
                 @if(request()->routeIs('navigasi.*')) aria-current="page" @endif
                 class="warga-sidebar__link {{ request()->routeIs('navigasi.*') ? 'is-active' : '' }}"

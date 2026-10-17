@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Dashboard Warga - SmartPath')
@@ -30,14 +31,6 @@
         touch-action: none;
     }
 
-    #homeScreenReaderButton:focus-visible,
-    a:focus-visible,
-    button:focus-visible,
-    [tabindex]:focus-visible {
-        outline: 3px solid #059669;
-        outline-offset: 3px;
-    }
-
     #homeSpeechStatus {
         position: absolute;
         width: 1px;
@@ -50,8 +43,30 @@
         border: 0;
     }
 
-    [data-screen-reader-active="true"] {
-        outline: 3px solid #059669 !important;
+    /* ===== GARIS HIJAU PENANDA PILIHAN ===== */
+    .screen-reader-selected {
+        outline: 3px solid #10b981 !important;
+        outline-offset: 4px !important;
+        box-shadow: 0 0 0 5px rgba(16,185,129,.18) !important;
+        border-radius: 6px;
+    }
+
+    body.screen-reader-click-mode button:focus,
+    body.screen-reader-click-mode a:focus,
+    body.screen-reader-click-mode [role="button"]:focus,
+    body.screen-reader-click-mode [role="link"]:focus,
+    body.screen-reader-click-mode input:focus,
+    body.screen-reader-click-mode select:focus,
+    body.screen-reader-click-mode textarea:focus {
+        outline: 3px solid #10b981 !important;
+        outline-offset: 4px !important;
+    }
+
+    #homeScreenReaderButton:focus-visible,
+    a:focus-visible,
+    button:focus-visible,
+    [tabindex]:focus-visible {
+        outline: 3px solid #059669;
         outline-offset: 3px;
     }
 
@@ -173,7 +188,9 @@
     }
 
     @media (max-width: 900px) {
-        .warga-topbar-desktop { display: none; }
+        .warga-topbar-desktop {
+            display: none;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -217,7 +234,6 @@
             data-report-count="{{ $jumlahLaporan ?? 0 }}"
         >
 
-            {{-- PESAN BERHASIL --}}
             @if(session('sukses'))
                 <div
                     class="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800"
@@ -229,16 +245,16 @@
                 </div>
             @endif
 
-            {{-- HERO BANNER --}}
+            {{-- HERO --}}
             <header
                 id="warga-intro-section"
                 class="warga-hero-banner warga-animate-in relative mb-6 overflow-hidden rounded-3xl border border-emerald-100 shadow-sm"
             >
                 <img
-                    src="{{ asset('smartpath-banner.png') }}"
+                    src="{{ asset('banner-baru.png') }}"
                     alt=""
                     aria-hidden="true"
-                    class="smartpath-hero-img pointer-events-none absolute -right-4 top-1/2 hidden h-[120%] w-[45%] -translate-y-1/2 object-contain object-center opacity-90 sm:block lg:w-[42%]"
+                    class="smartpath-hero-img pointer-events-none absolute right-0 top-1/2 hidden h-[140%] w-[52%] -translate-y-1/2 object-contain object-right opacity-100 sm:block"
                     loading="eager"
                 >
 
@@ -261,7 +277,7 @@
 
                         <h1 class="flex flex-wrap items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
                             Halo, {{ $user->nama_lengkap ?? 'Dewi Lestari' }}
-                            <span aria-hidden="true">👋</span>
+                            <span aria-hidden="true"></span>
                         </h1>
 
                         <p class="mt-2 max-w-xl text-sm leading-relaxed text-slate-700 sm:text-base">
@@ -288,7 +304,6 @@
                 <h2 id="warga-actions-title" class="sr-only">Akses cepat Dashboard Warga</h2>
 
                 <div class="warga-quick-actions grid gap-4 sm:gap-5 md:grid-cols-3">
-
                     <a
                         href="{{ route('laporan.create') }}"
                         class="warga-action group flex items-center justify-between rounded-2xl bg-emerald-800 p-5 text-white shadow-md transition hover:bg-emerald-900 hover:shadow-md sm:p-6"
@@ -299,9 +314,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-bold">Buat Laporan</h3>
-                                <p class="mt-0.5 text-sm text-emerald-100">
-                                    Laporkan hambatan aksesibilitas di ruang publik.
-                                </p>
+                                <p class="mt-0.5 text-sm text-emerald-100">Laporkan hambatan aksesibilitas di ruang publik.</p>
                             </div>
                         </div>
                         <i class="fa-solid fa-chevron-right shrink-0 text-sm" aria-hidden="true"></i>
@@ -317,9 +330,7 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-bold text-slate-800">Laporan Saya</h3>
-                                <p class="mt-0.5 text-sm text-slate-600">
-                                    Pantau status laporan Anda.
-                                </p>
+                                <p class="mt-0.5 text-sm text-slate-600">Pantau status laporan Anda.</p>
                             </div>
                         </div>
                         <i class="fa-solid fa-chevron-right shrink-0 text-sm text-slate-400" aria-hidden="true"></i>
@@ -335,14 +346,11 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-bold text-slate-800">Peta Aksesibilitas</h3>
-                                <p class="mt-0.5 text-sm text-slate-600">
-                                    Jelajahi titik hambatan dan fasilitas publik.
-                                </p>
+                                <p class="mt-0.5 text-sm text-slate-600">Jelajahi titik hambatan dan fasilitas publik.</p>
                             </div>
                         </div>
                         <i class="fa-solid fa-chevron-right shrink-0 text-sm text-slate-400" aria-hidden="true"></i>
                     </a>
-
                 </div>
             </section>
 
@@ -360,9 +368,7 @@
                         </div>
                         <div>
                             <h2 class="text-base font-bold text-slate-900">Navigasi Aktif</h2>
-                            <p class="mt-0.5 text-sm text-slate-600">
-                                Tentukan tujuan dan dapatkan panduan suara serta rute ramah disabilitas.
-                            </p>
+                            <p class="mt-0.5 text-sm text-slate-600">Tentukan tujuan dan dapatkan panduan suara serta rute ramah disabilitas.</p>
                         </div>
                     </div>
 
@@ -376,7 +382,7 @@
                 </div>
             </section>
 
-            {{-- PETA AKSESIBILITAS --}}
+            {{-- PETA --}}
             <section
                 id="warga-map-section"
                 class="warga-map-card warga-animate-in mb-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
@@ -389,12 +395,8 @@
                             <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <h2 id="warga-map-title" class="text-base font-bold text-slate-900">
-                                Peta Aksesibilitas
-                            </h2>
-                            <p class="text-sm text-slate-600">
-                                Lokasi hambatan aksesibilitas dan fasilitas publik di sekitar Anda.
-                            </p>
+                            <h2 id="warga-map-title" class="text-base font-bold text-slate-900">Peta Aksesibilitas</h2>
+                            <p class="text-sm text-slate-600">Lokasi hambatan aksesibilitas dan fasilitas publik di sekitar Anda.</p>
                         </div>
                     </div>
 
@@ -464,12 +466,8 @@
                             <i class="fa-solid fa-location-crosshairs text-lg" aria-hidden="true"></i>
                         </div>
                         <div>
-                            <h2 id="warga-nearby-title" class="text-base font-bold text-slate-900">
-                                Hambatan Terdekat
-                            </h2>
-                            <p class="text-sm text-slate-600">
-                                Hambatan di sekitar lokasi Anda dalam radius 50 meter.
-                            </p>
+                            <h2 id="warga-nearby-title" class="text-base font-bold text-slate-900">Hambatan Terdekat</h2>
+                            <p class="text-sm text-slate-600">Hambatan di sekitar lokasi Anda dalam radius 50 meter.</p>
                         </div>
                     </div>
 
@@ -523,9 +521,7 @@
                     </div>
 
                     <div class="min-w-0 flex-1">
-                        <h2 class="text-base font-bold text-slate-900">
-                            Informasi Aksesibilitas
-                        </h2>
+                        <h2 class="text-base font-bold text-slate-900">Informasi Aksesibilitas</h2>
 
                         <p class="mt-2 text-sm leading-relaxed text-slate-700">
                             Informasi hambatan disajikan dalam bentuk teks dan suara agar mudah dipahami oleh pembaca layar.
@@ -555,13 +551,13 @@
     </div>
 </div>
 
-{{-- TOMBOL DENGAR PANDUAN MELAYANG --}}
+{{-- TOMBOL SCREEN READER --}}
 <div id="homeScreenReaderButtonContainer">
     <button
         id="homeScreenReaderButton"
         type="button"
         class="inline-flex items-center gap-2 rounded-full border-2 border-emerald-700 bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-800"
-        aria-label="Dengar panduan halaman. Tekan lagi untuk berhenti."
+        aria-label="Aktifkan pembaca suara setiap klik"
         aria-pressed="false"
     >
         <i class="fa-solid fa-blind text-lg" aria-hidden="true"></i>
@@ -577,7 +573,50 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    /* ===== FALLBACK GAMBAR HERO ===== */
+    const container = document.getElementById('homeScreenReaderButtonContainer');
+    const readerButton = document.getElementById('homeScreenReaderButton');
+    const readerLabel = document.getElementById('homeScreenReaderLabel');
+    const speechStatus = document.getElementById('homeSpeechStatus');
+
+    const speechSupported =
+        'speechSynthesis' in window &&
+        typeof window.SpeechSynthesisUtterance !== 'undefined';
+
+    let clickReaderEnabled = false;
+    let lastHighlightedElement = null;
+
+    /* DRAG BUTTON */
+    let dragging = false;
+    let dragMoved = false;
+    let startX = 0;
+    let startY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
+    let activePointerId = null;
+    let suppressNextReaderClick = false;
+
+    /* CEGAH SUARA GANDA PADA KLIK DAN FOKUS */
+    let keyboardNavigation = false;
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Tab' || event.key.startsWith('Arrow')) {
+            keyboardNavigation = true;
+        }
+
+        if (event.key === 'Escape' && speechSupported) {
+            window.speechSynthesis.cancel();
+
+            if (speechStatus) {
+                speechStatus.textContent = 'Pembacaan suara dihentikan.';
+            }
+        }
+    });
+
+    document.addEventListener('pointerdown', function () {
+        keyboardNavigation = false;
+    });
+
+    /* GAMBAR HERO */
     document.querySelectorAll('img.smartpath-hero-img').forEach(function (img) {
         const fallback = img.parentElement.querySelector('.smartpath-hero-fallback');
 
@@ -597,26 +636,199 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    /* ===== DRAG TOMBOL SCREEN READER ===== */
-    const container = document.getElementById('homeScreenReaderButtonContainer');
-    const readerButton = document.getElementById('homeScreenReaderButton');
-    const readerLabel = document.getElementById('homeScreenReaderLabel');
-    const speechStatus = document.getElementById('homeSpeechStatus');
+    /* FUNGSI SUARA */
+    function speakText(text) {
+        if (!speechSupported || !text) return;
 
-    let dragging = false;
-    let moved = false;
-    let startX = 0;
-    let startY = 0;
-    let initialLeft = 0;
-    let initialTop = 0;
-    let activePointerId = null;
+        window.speechSynthesis.cancel();
 
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    /* PENANDA HIJAU */
+    function clearHighlight() {
+        if (lastHighlightedElement) {
+            lastHighlightedElement.classList.remove('screen-reader-selected');
+            lastHighlightedElement.removeAttribute('data-screen-reader-active');
+            lastHighlightedElement = null;
+        }
+    }
+
+    function highlightElement(target) {
+        if (!target) return;
+
+        clearHighlight();
+
+        lastHighlightedElement = target;
+        target.classList.add('screen-reader-selected');
+        target.setAttribute('data-screen-reader-active', 'true');
+    }
+
+    /* MODE SCREEN READER */
+    function setClickReader(enabled, announce) {
+        clickReaderEnabled = enabled;
+
+        document.body.classList.toggle('screen-reader-click-mode', enabled);
+
+        if (!enabled) {
+            clearHighlight();
+
+            if (speechSupported) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        if (readerLabel) {
+            readerLabel.textContent = enabled
+                ? 'Hentikan Bacaan'
+                : 'Dengar Panduan';
+        }
+
+        if (readerButton) {
+            readerButton.setAttribute(
+                'aria-pressed',
+                enabled ? 'true' : 'false'
+            );
+
+            readerButton.setAttribute(
+                'aria-label',
+                enabled
+                    ? 'Nonaktifkan pembaca suara setiap klik'
+                    : 'Aktifkan pembaca suara setiap klik'
+            );
+        }
+
+        if (speechStatus) {
+            speechStatus.textContent = enabled
+                ? 'Mode pembaca suara aktif. Pilih tombol, menu, atau tautan.'
+                : 'Mode pembaca suara nonaktif.';
+        }
+
+        if (announce) {
+            speakText(
+                enabled
+                    ? 'Pembaca suara aktif. Pilih tombol, menu, atau tautan untuk mendengarkan keterangannya.'
+                    : 'Pembaca suara dinonaktifkan.'
+            );
+        }
+    }
+
+    /* TOMBOL UTAMA */
+    if (readerButton) {
+        if (!speechSupported) {
+            readerButton.disabled = true;
+
+            if (speechStatus) {
+                speechStatus.textContent =
+                    'Browser ini tidak mendukung pembacaan suara.';
+            }
+        } else {
+            readerButton.addEventListener('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (suppressNextReaderClick || dragMoved) {
+                    suppressNextReaderClick = false;
+                    dragMoved = false;
+                    return;
+                }
+
+                setClickReader(!clickReaderEnabled, true);
+            });
+        }
+    }
+
+    /* BACA TOMBOL, MENU, TAUTAN, DAN MARKER PETA */
+    document.addEventListener('click', function (event) {
+        if (!clickReaderEnabled || !speechSupported) return;
+
+        const clickedElement = event.target instanceof Element
+            ? event.target
+            : event.target.parentElement;
+
+        if (!clickedElement) return;
+
+        const target = clickedElement.closest(
+            'button, a, [role="button"], [role="link"], ' +
+            'input[type="submit"], input[type="button"], ' +
+            '.leaflet-marker-icon, .leaflet-interactive'
+        );
+
+        if (!target) return;
+
+        if (target.closest('#homeScreenReaderButtonContainer')) return;
+
+        if (
+            target.disabled ||
+            target.getAttribute('aria-disabled') === 'true'
+        ) {
+            speakText('Tombol tidak tersedia.');
+            return;
+        }
+
+        let text =
+            target.getAttribute('aria-label') ||
+            target.getAttribute('title') ||
+            target.innerText ||
+            target.textContent ||
+            target.value ||
+            '';
+
+        text = text.replace(/\s+/g, ' ').trim();
+
+        if (!text) {
+            if (
+                target.classList.contains('leaflet-marker-icon') ||
+                target.classList.contains('leaflet-interactive')
+            ) {
+                text = 'Penanda lokasi pada peta.';
+            } else {
+                return;
+            }
+        }
+
+        highlightElement(target);
+
+        const isLink =
+            target.tagName.toLowerCase() === 'a' ||
+            target.getAttribute('role') === 'link';
+
+        speakText(isLink ? 'Tautan. ' + text : text);
+    });
+
+    /* FOKUS KEYBOARD: HIGHLIGHT TANPA SUARA GANDA */
+    document.addEventListener('focusin', function (event) {
+        if (!clickReaderEnabled || !speechSupported) return;
+
+        const focusedElement = event.target;
+
+        if (!(focusedElement instanceof Element)) return;
+
+        const target = focusedElement.closest(
+            'button, a, [role="button"], [role="link"], input, select, textarea'
+        );
+
+        if (!target) return;
+
+        if (target.closest('#homeScreenReaderButtonContainer')) return;
+
+        if (keyboardNavigation) {
+            highlightElement(target);
+        }
+    });
+
+    /* DRAG BUTTON SCREEN READER */
     if (container) {
         container.addEventListener('pointerdown', function (event) {
             if (event.button !== undefined && event.button !== 0) return;
 
             dragging = true;
-            moved = false;
+            dragMoved = false;
             activePointerId = event.pointerId;
 
             const rect = container.getBoundingClientRect();
@@ -643,20 +855,32 @@ document.addEventListener('DOMContentLoaded', function () {
             const dy = event.clientY - startY;
 
             if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-                moved = true;
+                dragMoved = true;
+                suppressNextReaderClick = true;
                 container.classList.add('dragging');
             }
 
-            if (!moved) return;
+            if (!dragMoved) return;
 
-            const maxLeft = Math.max(0, window.innerWidth - container.offsetWidth);
-            const maxTop = Math.max(0, window.innerHeight - container.offsetHeight);
+            const maxLeft = Math.max(
+                0,
+                window.innerWidth - container.offsetWidth
+            );
 
-            const left = Math.min(maxLeft, Math.max(0, initialLeft + dx));
-            const top = Math.min(maxTop, Math.max(0, initialTop + dy));
+            const maxTop = Math.max(
+                0,
+                window.innerHeight - container.offsetHeight
+            );
 
-            container.style.left = left + 'px';
-            container.style.top = top + 'px';
+            container.style.left = Math.min(
+                maxLeft,
+                Math.max(0, initialLeft + dx)
+            ) + 'px';
+
+            container.style.top = Math.min(
+                maxTop,
+                Math.max(0, initialTop + dy)
+            ) + 'px';
         });
 
         function finishDrag(event) {
@@ -670,10 +894,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 container.releasePointerCapture(event.pointerId);
             } catch (error) {}
 
-            if (moved) {
+            if (dragMoved) {
                 setTimeout(function () {
-                    moved = false;
-                }, 100);
+                    dragMoved = false;
+                    suppressNextReaderClick = false;
+                }, 300);
             }
         }
 
@@ -681,144 +906,44 @@ document.addEventListener('DOMContentLoaded', function () {
         container.addEventListener('pointercancel', finishDrag);
     }
 
-    /* ===== SCREEN READER HALAMAN ===== */
-    if (!readerButton || !('speechSynthesis' in window)) {
-        if (readerButton) readerButton.disabled = true;
+    /* DOUBLE KLIK BAGIAN INFORMASI UNTUK MEMBACA ISINYA */
+    document.addEventListener('dblclick', function (event) {
+        if (!speechSupported) return;
 
-        if (speechStatus) {
-            speechStatus.textContent = 'Browser ini tidak mendukung pembacaan suara.';
-        }
+        const clickedElement = event.target instanceof Element
+            ? event.target
+            : event.target.parentElement;
 
-        return;
-    }
+        if (!clickedElement) return;
 
-    let reading = false;
-    let speechRunId = 0;
-
-    function updateButton(isReading) {
-        reading = isReading;
-
-        readerLabel.textContent = isReading
-            ? 'Hentikan Bacaan'
-            : 'Dengar Panduan';
-
-        readerButton.setAttribute('aria-pressed', isReading ? 'true' : 'false');
-
-        readerButton.setAttribute(
-            'aria-label',
-            isReading
-                ? 'Hentikan pembacaan suara'
-                : 'Dengar panduan halaman. Tekan lagi untuk berhenti.'
+        const target = clickedElement.closest(
+            '#warga-intro-section, #warga-actions-section, ' +
+            '#warga-tools-section, #warga-map-section, ' +
+            '#warga-nearby-section, #warga-accessibility-section'
         );
-    }
 
-    function stopReading(message) {
-        speechRunId++;
-        window.speechSynthesis.cancel();
-        updateButton(false);
+        if (!target) return;
 
-        document.querySelectorAll('[data-screen-reader-active="true"]').forEach(function (element) {
-            element.removeAttribute('data-screen-reader-active');
+        const clone = target.cloneNode(true);
+
+        clone.querySelectorAll(
+            'button, script, style, .sr-only, ' +
+            '[aria-hidden="true"], #warga-map, #warga-map-skeleton'
+        ).forEach(function (element) {
+            element.remove();
         });
 
-        if (speechStatus && message) {
-            speechStatus.textContent = message;
+        const text = (
+            clone.innerText || clone.textContent || ''
+        ).replace(/\s+/g, ' ').trim();
+
+        if (text) {
+            highlightElement(target);
+            speakText(text);
         }
-    }
-
-    function getDashboardText() {
-        const dashboard = document.getElementById('warga-dashboard');
-        if (!dashboard) return '';
-
-        const parts = [];
-        const selectors = [
-            '#warga-intro-section',
-            '#warga-actions-section',
-            '#warga-tools-section',
-            '#warga-map-section',
-            '#warga-nearby-section',
-            '#warga-accessibility-section'
-        ];
-
-        selectors.forEach(function (selector) {
-            const element = dashboard.querySelector(selector);
-            if (!element) return;
-
-            const clone = element.cloneNode(true);
-
-            clone.querySelectorAll(
-                'button, script, style, .sr-only, [aria-hidden="true"], #warga-map, #warga-map-skeleton'
-            ).forEach(function (item) {
-                item.remove();
-            });
-
-            const text = (clone.innerText || clone.textContent || '')
-                .replace(/\s+/g, ' ')
-                .trim();
-
-            if (text) parts.push(text);
-        });
-
-        return parts.join('. ');
-    }
-
-    readerButton.addEventListener('click', function (event) {
-        if (moved) {
-            event.preventDefault();
-            event.stopPropagation();
-            moved = false;
-            return;
-        }
-
-        if (reading || window.speechSynthesis.speaking) {
-            stopReading('Pembacaan dihentikan.');
-            return;
-        }
-
-        const text = getDashboardText();
-
-        if (!text) {
-            if (speechStatus) speechStatus.textContent = 'Tidak ada konten untuk dibacakan.';
-            return;
-        }
-
-        window.speechSynthesis.cancel();
-        const thisRunId = ++speechRunId;
-        const utterance = new SpeechSynthesisUtterance(text);
-
-        utterance.lang = 'id-ID';
-        utterance.rate = 0.85;
-        utterance.pitch = 1;
-
-        utterance.onend = function () {
-            if (thisRunId !== speechRunId) return;
-
-            updateButton(false);
-            if (speechStatus) speechStatus.textContent = 'Pembacaan selesai.';
-        };
-
-        utterance.onerror = function (event) {
-            if (thisRunId !== speechRunId) return;
-
-            updateButton(false);
-
-            if (speechStatus) {
-                speechStatus.textContent = event.error === 'canceled'
-                    ? 'Pembacaan dihentikan.'
-                    : 'Suara tidak dapat diputar. Silakan coba lagi.';
-            }
-        };
-
-        updateButton(true);
-
-        if (speechStatus) {
-            speechStatus.textContent = 'Konten dashboard sedang dibacakan.';
-        }
-
-        window.speechSynthesis.speak(utterance);
     });
 
-    /* ===== SEMBUNYIKAN SKELETON SAAT PETA SIAP ===== */
+    /* SEMBUNYIKAN SKELETON KETIKA PETA SIAP */
     const mapElement = document.getElementById('warga-map');
     const mapSkeleton = document.getElementById('warga-map-skeleton');
 
@@ -856,7 +981,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    /* ===== SEGARKAN PETA ===== */
+    /* SEGARKAN PETA */
     const refreshButton = document.getElementById('btn-map-refresh');
 
     if (refreshButton) {
@@ -865,28 +990,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (status) status.textContent = 'Menyegarkan peta…';
 
-            document.dispatchEvent(new CustomEvent('smartpath:refresh-map'));
+            document.dispatchEvent(
+                new CustomEvent('smartpath:refresh-map')
+            );
 
             setTimeout(function () {
-                if (status && status.textContent === 'Menyegarkan peta…') {
-                    status.textContent = 'Permintaan penyegaran peta telah dikirim.';
+                if (
+                    status &&
+                    status.textContent === 'Menyegarkan peta…'
+                ) {
+                    status.textContent =
+                        'Permintaan penyegaran peta telah dikirim.';
                 }
             }, 3000);
         });
     }
 
-    /* ===== ESC UNTUK MENGHENTIKAN SUARA ===== */
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && reading) {
-            stopReading('Pembacaan dihentikan.');
-        }
-    });
-
+    /* BERSIHKAN SUARA SAAT MENINGGALKAN HALAMAN */
     window.addEventListener('pagehide', function () {
-        speechRunId++;
-        window.speechSynthesis.cancel();
+        if (speechSupported) {
+            window.speechSynthesis.cancel();
+        }
     });
 });
 </script>
 @endpush
+
+
 

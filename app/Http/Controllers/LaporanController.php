@@ -627,20 +627,29 @@ public function adminIndex(Request $request)
         'Content-Type' => 'text/csv; charset=UTF-8',
     ]);
 }
-public function unduhPdf($id)
-{
-    abort_unless(auth()->user()->isDinas(), 403);
 
-    $laporan = Laporan::query()
-        ->with('kategoriHambatan')
-        ->findOrFail($id);
 
-    $pdf = \PDF::loadView('dinas.laporan-pdf', compact('laporan'));
+        
+        public function unduhPdf($id)
+        {
+            $user = auth()->user();
 
-    return $pdf->download(
-        'laporan-' . $laporan->kode_laporan . '.pdf'
-    );
-}   
+            abort_unless($user && $user->isDinas(), 403);
+
+            $laporan = Laporan::query()
+                ->with('kategoriHambatan')
+                ->findOrFail($id);
+
+            $pdf = Pdf::loadView(
+                'Dinas.laporan-pdf',
+                compact('laporan')
+            );
+
+            return $pdf->download(
+                'laporan-' . $laporan->kode_laporan . '.pdf'
+            );
+        }
+
             
         /**
          * Detail laporan.

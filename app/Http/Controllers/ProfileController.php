@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Wilayah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
-use App\Models\Wilayah;
+use Throwable;
 
 class ProfileController extends Controller
 {
     /**
-     * Tampilkan profil pengguna yang sedang login.
+     * Menampilkan profil pengguna yang sedang login.
      */
     public function edit()
     {
@@ -18,9 +19,8 @@ class ProfileController extends Controller
 
         $user->load([
             'wilayah',
-            'laporanDibuat' => function ($query) {
-                $query->orderByDesc('created_at')->limit(5);
-            },
+            'laporanDibuat' => fn ($query) =>
+                $query->orderByDesc('created_at')->limit(5),
         ]);
 
         $wilayah = Wilayah::aktif()
@@ -31,65 +31,48 @@ class ProfileController extends Controller
     }
 
     /**
-     * Simpan perubahan data profil.
+     * Memperbarui data profil selain foto profil.
      */
-    public function update(Request $request)
+    public function update(UpdateProfileRequest $request)
     {
         $user = $request->user();
+        $data = $request->validated();
 
-        $validated = $request->validate([
-            'nama_lengkap' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+        // Deteksi perubahan email tanpa membedakan huruf besar/kecil.
+        $emailBerubah = strcasecmp(
+            $user->email,
+            $data['email']
+        ) !== 0;
 
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
-            ],
+        // Perbarui hanya field profil yang diizinkan.
+        $user->nama_lengkap = $data['nama_lengkap'];
+        $user->email = $data['email'];
+        $user->nomor_hp = $data['nomor_hp'] ?? null;
+        $user->wilayah_id = $data['wilayah_id'] ?? null;
 
-            'nomor_hp' => [
-                'nullable',
-                'string',
-                'max:20',
-            ],
+        $user->adalah_disabilitas = (bool) (
+            $data['adalah_disabilitas'] ?? false
+        );
 
-            'wilayah_id' => [
-                'nullable',
-                'exists:wilayah,id',
-            ],
+        // Jenis disabilitas hanya disimpan jika dipilih.
+        $user->jenis_disabilitas = $user->adalah_disabilitas
+            ? ($data['jenis_disabilitas'] ?? null)
+            : null;
 
-            'adalah_disabilitas' => [
-                'required',
-                'boolean',
-            ],
-
-            'jenis_disabilitas' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-        ]);
-
-        $user->nama_lengkap = $validated['nama_lengkap'];
-        $user->email = $validated['email'];
-        $user->nomor_hp = $validated['nomor_hp'] ?? null;
-        $user->wilayah_id = $validated['wilayah_id'] ?? null;
-        $user->adalah_disabilitas = $validated['adalah_disabilitas'];
-        $user->jenis_disabilitas = $validated['jenis_disabilitas'] ?? null;
+        // Email yang berubah harus diverifikasi kembali.
+        if ($emailBerubah) {
+            $user->email_terverifikasi = false;
+        }
 
         $user->save();
 
         return redirect()
             ->route('profile.edit')
-            ->with('sukses', 'Perubahan profil berhasil disimpan.');
+            ->with('sukses', 'Data profil berhasil diperbarui.');
     }
 
     /**
-     * Ubah foto profil pengguna.
+     * Mengunggah foto profil pengguna.
      */
     public function updateFoto(Request $request)
     {
@@ -100,29 +83,42 @@ class ProfileController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
+        ], [
+            'foto_profil.required' =>
+                'Pilih foto profil terlebih dahulu.',
+            'foto_profil.image' =>
+                'File harus berupa gambar yang valid.',
+            'foto_profil.mimes' =>
+                'Foto harus berformat JPG, JPEG, PNG, atau WEBP.',
+            'foto_profil.max' =>
+                'Ukuran foto maksimal 2 MB.',
         ]);
 
         $user = $request->user();
         $fotoLama = $user->foto_profil;
 
+        // Simpan foto baru di disk public Laravel.
         $fotoBaru = $request->file('foto_profil')
             ->store('foto-profil', 'public');
 
         if (!$fotoBaru) {
             return back()->withErrors([
-                'foto_profil' => 'Foto gagal disimpan.',
+                'foto_profil' =>
+                    'Foto gagal disimpan. Silakan coba kembali.',
             ]);
         }
 
         try {
             $user->foto_profil = $fotoBaru;
             $user->save();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
+            // Bersihkan file baru jika penyimpanan database gagal.
             Storage::disk('public')->delete($fotoBaru);
 
             throw $e;
         }
 
+        // Hapus foto lama setelah foto baru berhasil disimpan.
         if ($fotoLama && $fotoLama !== $fotoBaru) {
             Storage::disk('public')->delete($fotoLama);
         }
@@ -133,7 +129,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Hapus foto profil pengguna.
+     * Menghapus foto profil pengguna.
      */
     public function deleteFoto(Request $request)
     {
@@ -146,9 +142,11 @@ class ProfileController extends Controller
                 ->with('sukses', 'Foto profil memang sudah kosong.');
         }
 
+        // Perbarui database terlebih dahulu.
         $user->foto_profil = null;
         $user->save();
 
+        // Hapus file lama dari penyimpanan.
         Storage::disk('public')->delete($fotoLama);
 
         return redirect()
