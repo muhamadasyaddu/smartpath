@@ -205,7 +205,7 @@
                 {{-- ===== HERO BANNER ===== --}}
                 <header id="warga-intro-section" class="warga-hero-banner warga-animate-in relative mb-6 overflow-hidden rounded-3xl border border-emerald-100 shadow-sm">
                     <img
-                        src="{{ asset('smartpath-banner.png') }}"
+                        src="{{ asset('Accessible Navigation Map Banner.png') }}"
                         alt=""
                         aria-hidden="true"
                         class="smartpath-hero-img pointer-events-none absolute -right-4 top-1/2 hidden h-[120%] w-[45%] -translate-y-1/2 object-contain object-center opacity-90 sm:block lg:w-[42%]"
