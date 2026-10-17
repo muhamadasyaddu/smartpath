@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Nearby Obstacles - SmartPath')
@@ -131,7 +132,7 @@
 
     .location-button:focus-visible,
     .nearby-back:focus-visible,
-    .obstacle-card:focus-visible {
+    .nearby-readable-card:focus-visible {
         outline: 3px solid #059669;
         outline-offset: 3px;
     }
@@ -175,17 +176,21 @@
     }
 
     .obstacle-icon {
-          width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    background: #fff7ed;
-    color: #ea580c;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 19px;
-    flex-shrink: 0;
-}
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: #fff7ed;
+        color: #ea580c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .obstacle-icon i {
+        color: #ea580c !important;
+    }
 
     .obstacle-content {
         flex: 1;
@@ -280,6 +285,11 @@
         font-size: 23px;
     }
 
+    .empty-icon--warning {
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
     .empty-state h3 {
         margin: 0 0 7px;
         color: #0f172a;
@@ -330,6 +340,18 @@
         border: 0;
     }
 
+    /* SCREEN READER PER KARTU */
+    .nearby-readable-card {
+        cursor: pointer;
+        transition: outline-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .nearby-readable-card[data-screen-reader-active="true"] {
+        outline: 3px solid #059669;
+        outline-offset: 3px;
+        background-color: #f0fdf4;
+    }
+
     /* SCREEN READER MELAYANG */
     #nearby-screen-reader {
         position: fixed;
@@ -348,6 +370,7 @@
         font-weight: 700;
         box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
         cursor: pointer;
+        touch-action: manipulation;
     }
 
     #nearby-screen-reader:hover {
@@ -361,6 +384,11 @@
 
     #nearby-screen-reader i {
         font-size: 19px;
+    }
+
+    #nearby-screen-reader:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 
     @media (max-width: 700px) {
@@ -404,31 +432,16 @@
             padding: 12px 14px;
             font-size: 13px;
         }
-        .empty-icon--warning {
-    background: #fff7ed;
-    color: #ea580c;
-}
-
-/* Ikon peringatan pada daftar Hambatan Terdekat */
-.obstacle-icon {
-    background-color: #fff7ed !important;
-    color: #ea580c !important;
-}
-
-.obstacle-icon i {
-    color: #ea580c !important;
-}
-
     }
-    
-/* Netral untuk kartu hambatan */
-.obstacle-card {
-    border-color: #e2e8f0;
-}
 
+    @media (prefers-reduced-motion: reduce) {
+        .nearby-readable-card {
+            transition: none;
+        }
+    }
 </style>
 
-<main class="nearby-page">
+<main class="nearby-page" id="main-content">
     <div class="nearby-container">
 
         {{-- HEADER UTAMA --}}
@@ -509,9 +522,10 @@
                  aria-describedby="radius-desc">
 
                 <div class="empty-state" role="status">
-                   <div class="empty-icon empty-icon--warning" aria-hidden="true">
-    <i class="fa-solid fa-triangle-exclamation"></i>
-</div>
+                    <div class="empty-icon empty-icon--warning"
+                         aria-hidden="true">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
 
                     <h3>Lokasi belum digunakan</h3>
                     <p>
@@ -524,7 +538,8 @@
         </section>
 
         {{-- INFORMASI AKSESIBILITAS --}}
-        <aside class="accessibility-note" aria-label="Catatan Aksesibilitas">
+        <aside class="accessibility-note"
+               aria-label="Catatan Aksesibilitas">
             <i class="fa-solid fa-universal-access" aria-hidden="true"></i>
             <p>
                 Halaman ini menggunakan informasi berbasis teks
@@ -532,6 +547,7 @@
                 seperti TalkBack atau VoiceOver.
             </p>
         </aside>
+
     </div>
 </main>
 
@@ -539,7 +555,7 @@
 <button
     type="button"
     id="nearby-screen-reader"
-    aria-label="Bacakan isi halaman Nearby Obstacles"
+    aria-label="Bacakan bagian pertama halaman Nearby Obstacles"
     aria-pressed="false"
 >
     <i class="fa-solid fa-blind" aria-hidden="true"></i>
@@ -689,7 +705,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     btnLocation.addEventListener('click', function () {
         if (!navigator.geolocation) {
-            const pesan = 'Perangkat atau browser Anda tidak mendukung fitur lokasi.';
+            const pesan =
+                'Perangkat atau browser Anda tidak mendukung fitur lokasi.';
 
             obstacleList.innerHTML = `
                 <div class="empty-state" role="alert" tabindex="0">
@@ -827,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function () {
 @push('scripts')
     <script src="{{ asset('js/smartpath-warga.js') }}" defer></script>
 
-    {{-- SCREEN READER MELAYANG --}}
+    {{-- SCREEN READER PER KARTU --}}
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         const tombol = document.getElementById('nearby-screen-reader');
@@ -836,48 +853,121 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!tombol || !label || !status) return;
 
-        if (!('speechSynthesis' in window)) {
+        if (
+            !('speechSynthesis' in window) ||
+            !('SpeechSynthesisUtterance' in window)
+        ) {
             tombol.disabled = true;
-            status.textContent = 'Browser tidak mendukung pembaca suara.';
+            status.textContent =
+                'Browser tidak mendukung fitur pembaca suara.';
             return;
         }
 
         let membaca = false;
         let nomorBacaan = 0;
 
-        function resetTombol(pesan) {
-            membaca = false;
-            tombol.setAttribute('aria-pressed', 'false');
-            label.textContent = 'Dengar Panduan';
-            status.textContent = pesan || '';
+        /*
+         * Bagian yang bisa dibacakan secara terpisah.
+         * Kartu hambatan tetap dapat dibaca meskipun dibuat
+         * secara dinamis setelah lokasi GPS berhasil didapat.
+         */
+        const pemilihKartu = [
+            '.nearby-header',
+            '.location-card',
+            '.section-heading',
+            '.obstacle-card',
+            '#obstacle-list .empty-state',
+            '.accessibility-note'
+        ].join(', ');
+
+        function terlihat(elemen) {
+            if (!elemen || !elemen.isConnected) return false;
+
+            const style = window.getComputedStyle(elemen);
+
+            return style.display !== 'none' &&
+                style.visibility !== 'hidden' &&
+                elemen.getClientRects().length > 0;
         }
 
-        function hentikanBacaan() {
-            nomorBacaan++;
-            window.speechSynthesis.cancel();
-            resetTombol('Pembacaan dihentikan.');
-        }
+        function teksKartu(kartu) {
+            if (!kartu) return '';
 
-        function mulaiBacaan() {
-            const halaman = document.querySelector('.nearby-page');
-
-            if (!halaman) {
-                status.textContent = 'Konten halaman tidak ditemukan.';
-                return;
-            }
-
-            const salinan = halaman.cloneNode(true);
+            const salinan = kartu.cloneNode(true);
 
             salinan.querySelectorAll(
-                'script, style, button, input, select, textarea, .sr-only'
+                'script, style, button, input, select, textarea, ' +
+                '.sr-only, [aria-hidden="true"]'
             ).forEach(function (elemen) {
                 elemen.remove();
             });
 
-            const teks = salinan.innerText.replace(/\s+/g, ' ').trim();
+            return (
+                salinan.innerText ||
+                salinan.textContent ||
+                ''
+            ).replace(/\s+/g, ' ').trim();
+        }
+
+        function semuaKartu() {
+            return Array.from(
+                document.querySelectorAll(pemilihKartu)
+            ).filter(function (kartu) {
+                return terlihat(kartu) && teksKartu(kartu).length > 0;
+            });
+        }
+
+        function hapusSorotan() {
+            document.querySelectorAll(
+                '[data-screen-reader-active="true"]'
+            ).forEach(function (kartu) {
+                kartu.removeAttribute('data-screen-reader-active');
+            });
+        }
+
+        function aturTombol(aktif) {
+            membaca = aktif;
+
+            tombol.setAttribute(
+                'aria-pressed',
+                aktif ? 'true' : 'false'
+            );
+
+            label.textContent = aktif
+                ? 'Hentikan Bacaan'
+                : 'Dengar Panduan';
+
+            tombol.setAttribute(
+                'aria-label',
+                aktif
+                    ? 'Hentikan pembacaan suara'
+                    : 'Bacakan bagian pertama halaman Nearby Obstacles'
+            );
+        }
+
+        function hentikanBacaan(pesan) {
+            /*
+             * Nomor bacaan diubah agar callback dari bacaan lama
+             * tidak mengubah status bacaan yang baru.
+             */
+            nomorBacaan++;
+
+            window.speechSynthesis.cancel();
+
+            aturTombol(false);
+            hapusSorotan();
+
+            status.textContent = pesan || 'Pembacaan dihentikan.';
+        }
+
+        function bacakanKartu(kartu) {
+            if (!kartu || !terlihat(kartu)) return;
+
+            const teks = teksKartu(kartu);
 
             if (!teks) {
-                status.textContent = 'Tidak ada teks yang dapat dibacakan.';
+                status.textContent =
+                    'Kartu ini tidak memiliki teks untuk dibacakan.';
                 return;
             }
 
@@ -885,42 +975,193 @@ document.addEventListener('DOMContentLoaded', function () {
             const idBacaan = nomorBacaan;
 
             window.speechSynthesis.cancel();
+            hapusSorotan();
+
+            kartu.setAttribute('data-screen-reader-active', 'true');
+
+            aturTombol(true);
+
+            const judul = kartu.querySelector('h1, h2, h3, h4');
+
+            const namaBagian = judul
+                ? judul.innerText.trim()
+                : 'bagian halaman';
+
+            status.textContent =
+                'Sedang membacakan ' + namaBagian + '.';
 
             const ucapan = new SpeechSynthesisUtterance(teks);
-            ucapan.lang = 'id-ID';
-            ucapan.rate = 0.9;
-            ucapan.pitch = 1;
 
-            membaca = true;
-            tombol.setAttribute('aria-pressed', 'true');
-            label.textContent = 'Hentikan Bacaan';
-            status.textContent = 'Halaman sedang dibacakan.';
+            ucapan.lang = 'id-ID';
+            ucapan.rate = 0.8;
+            ucapan.pitch = 1;
 
             ucapan.onend = function () {
                 if (idBacaan !== nomorBacaan) return;
-                resetTombol('Pembacaan halaman selesai.');
+
+                aturTombol(false);
+                hapusSorotan();
+
+                status.textContent =
+                    'Selesai membaca ' + namaBagian + '.';
             };
 
             ucapan.onerror = function (event) {
                 if (idBacaan !== nomorBacaan) return;
 
-                if (event.error !== 'canceled' &&
-                    event.error !== 'interrupted') {
-                    resetTombol('Suara gagal diputar. Silakan coba lagi.');
+                aturTombol(false);
+                hapusSorotan();
+
+                if (
+                    event.error === 'canceled' ||
+                    event.error === 'interrupted'
+                ) {
+                    status.textContent = 'Pembacaan dihentikan.';
                 } else {
-                    resetTombol('Pembacaan dihentikan.');
+                    status.textContent =
+                        'Suara gagal diputar. Silakan coba lagi.';
                 }
             };
 
             window.speechSynthesis.speak(ucapan);
         }
 
+        function siapkanKartu(kartu) {
+            if (!kartu) return;
+
+            kartu.classList.add('nearby-readable-card');
+
+            /*
+             * Kartu yang sudah punya tabindex, seperti obstacle-card,
+             * tetap mempertahankan tabindex aslinya.
+             */
+            if (!kartu.hasAttribute('tabindex')) {
+                kartu.setAttribute('tabindex', '0');
+            }
+
+            if (!kartu.hasAttribute('aria-label')) {
+                const judul = kartu.querySelector('h1, h2, h3, h4');
+
+                kartu.setAttribute(
+                    'aria-label',
+                    'Bacakan bagian: ' +
+                    (
+                        judul
+                            ? judul.innerText.trim()
+                            : 'informasi halaman'
+                    )
+                );
+            }
+        }
+
+        function siapkanSemuaKartu() {
+            document.querySelectorAll(pemilihKartu).forEach(
+                siapkanKartu
+            );
+        }
+
+        // Siapkan kartu yang sudah tersedia saat halaman dibuka.
+        siapkanSemuaKartu();
+
+        /*
+         * Klik kartu akan membacakan kartu tersebut saja.
+         * Klik tombol, tautan, atau input di dalam kartu
+         * tetap menjalankan fungsi aslinya.
+         */
+        document.addEventListener('click', function (event) {
+            const target = event.target;
+
+            if (!(target instanceof Element)) return;
+
+            const kartu = target.closest(pemilihKartu);
+
+            if (!kartu) return;
+
+            if (target.closest(
+                'button, a, input, select, textarea, label, ' +
+                '[role="button"], #btn-location'
+            )) {
+                return;
+            }
+
+            siapkanKartu(kartu);
+            bacakanKartu(kartu);
+        });
+
+        /*
+         * Enter atau Space juga dapat digunakan untuk membacakan
+         * kartu yang sedang difokuskan dengan keyboard.
+         */
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && membaca) {
+                hentikanBacaan('Pembacaan dihentikan.');
+                return;
+            }
+
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+
+            const target = event.target;
+
+            if (!(target instanceof Element)) return;
+
+            const kartu = target.closest(pemilihKartu);
+
+            if (!kartu || target !== kartu) return;
+
+            if (target.closest(
+                'button, a, input, select, textarea, label'
+            )) {
+                return;
+            }
+
+            event.preventDefault();
+
+            siapkanKartu(kartu);
+            bacakanKartu(kartu);
+        });
+
+        /*
+         * Tombol melayang membacakan bagian pertama yang terlihat.
+         * Jika sedang membaca, tombol ini akan menghentikan bacaan.
+         */
         tombol.addEventListener('click', function () {
             if (membaca || window.speechSynthesis.speaking) {
-                hentikanBacaan();
-            } else {
-                mulaiBacaan();
+                hentikanBacaan('Pembacaan dihentikan.');
+                return;
             }
+
+            const kartuPertama = semuaKartu()[0];
+
+            if (!kartuPertama) {
+                status.textContent =
+                    'Belum ada bagian halaman yang dapat dibacakan.';
+                return;
+            }
+
+            bacakanKartu(kartuPertama);
+        });
+
+        /*
+         * Siapkan kartu baru setelah daftar hambatan diperbarui
+         * oleh fungsi GPS.
+         */
+        const daftarHambatan = document.getElementById('obstacle-list');
+
+        if (daftarHambatan && 'MutationObserver' in window) {
+            const observer = new MutationObserver(function () {
+                siapkanSemuaKartu();
+            });
+
+            observer.observe(daftarHambatan, {
+                childList: true,
+                subtree: true
+            });
+        }
+
+        // Hentikan suara jika pengguna meninggalkan halaman.
+        window.addEventListener('pagehide', function () {
+            nomorBacaan++;
+            window.speechSynthesis.cancel();
         });
     });
     </script>

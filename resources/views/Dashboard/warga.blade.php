@@ -5,11 +5,42 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/smartpath-warga.css') }}">
     <style>
+
         /* ===== SCREEN READER DRAGGABLE BUTTON ===== */
         #homeScreenReaderButtonContainer {
             touch-action: pan-y; /* izinkan scroll vertikal, blokir horizontal saat drag */
             user-select: none;
             transition: box-shadow 0.2s ease;
+            -webkit-user-select: none;
+            cursor: move;
+            max-width: calc(100vw - 16px);
+        }
+
+        #homeScreenReaderButton {
+            touch-action: none;
+        }
+
+        #homeScreenReaderButton:focus-visible {
+            outline: 3px solid #10b981;
+            outline-offset: 3px;
+        }
+
+        [data-screen-reader-active="true"] {
+            outline: 3px solid #059669 !important;
+            outline-offset: 3px;
+        }
+
+        #homeSpeechStatus {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+
         }
         #homeScreenReaderButtonContainer.dragging {
             cursor: grabbing;
@@ -204,6 +235,19 @@
 
                 {{-- ===== HERO BANNER ===== --}}
                 <header id="warga-intro-section" class="warga-hero-banner warga-animate-in relative mb-6 overflow-hidden rounded-3xl border border-emerald-100 shadow-sm">
+                    <div
+                        class="warga-dashboard__flash mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-medium text-emerald-800"
+                        role="status"
+                    >
+                        {{ session('sukses') }}
+                    </div>
+                @endif
+
+                {{-- HERO BANNER UTAMA SMARTPATH --}}
+                <header
+                    id="warga-intro-section"
+                    class="warga-hero-banner relative mb-8 min-h-[150px] overflow-hidden rounded-3xl border border-emerald-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100/70 shadow-sm transition-all duration-300"
+                >
                     <img
                         src="{{ asset('smartpath-banner.png') }}"
                         alt=""
@@ -215,6 +259,10 @@
                     <div class="smartpath-hero-fallback pointer-events-none absolute -right-8 top-1/2 hidden h-40 w-40 -translate-y-1/2 rounded-full bg-emerald-300/30 blur-2xl sm:block" aria-hidden="true"></div>
 
                     <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-emerald-50 via-emerald-50/90 to-transparent sm:via-emerald-50/60" aria-hidden="true"></div>
+                    <div
+                        class="pointer-events-none absolute inset-0 bg-gradient-to-r from-emerald-50 via-emerald-50/80 to-transparent"
+                        aria-hidden="true"
+                    ></div>
 
                     <div class="warga-hero-banner__content relative z-10 flex flex-col justify-center gap-4 sm:w-[68%] lg:w-[65%]">
                         <div class="max-w-2xl">
@@ -225,11 +273,15 @@
                                 </span>
                                 Selamat datang kembali
                             </span>
-                            <h1 class="flex flex-wrap items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+                           <h1 class="flex flex-wrap items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+
+                            <h1 class="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
                                 Halo, {{ $user->nama_lengkap ?? 'Dewi Lestari' }}
                                 <span class="inline-block text-2xl sm:text-3xl" aria-hidden="true">👋</span>
                             </h1>
                             <p class="mt-2 max-w-xl text-sm leading-relaxed text-slate-700 sm:text-base">
+
+                            <p class="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
                                 Kelola laporan aksesibilitas, lihat kondisi jalur pedestrian, dan temukan hambatan terverifikasi di sekitar lokasi Anda.
                             </p>
 
@@ -243,16 +295,34 @@
                     </div>
                 </header>
 
+
                 {{-- ===== QUICK ACTIONS ===== --}}
                 <section id="warga-actions-section" class="warga-animate-in mb-6" data-delay="1" aria-labelledby="warga-actions-title">
                     <h2 id="warga-actions-title" class="sr-only">Akses cepat Dashboard Warga</h2>
 
                     <div class="warga-quick-actions grid gap-4 sm:gap-5 md:grid-cols-3">
                         <a href="{{ route('laporan.create') }}" class="warga-action group relative flex items-center justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-900 p-5 text-white shadow-md ring-1 ring-emerald-900/20 sm:p-6" aria-label="Buat laporan aksesibilitas baru">
+
+                {{-- QUICK ACTIONS SECTION --}}
+                <section
+                    id="warga-actions-section"
+                    class="mb-8"
+                    aria-labelledby="warga-actions-title"
+                >
+                    <h2 id="warga-actions-title" class="sr-only">
+                        Akses cepat Dashboard Warga
+                    </h2>
+
+                    <div class="warga-quick-actions grid gap-6 md:grid-cols-3">
+                        <a
+                            href="{{ route('laporan.create') }}"
+                            class="warga-action group relative flex items-center justify-between rounded-2xl bg-emerald-800 p-6 text-white shadow-sm transition hover:bg-emerald-900 hover:shadow-md"
+                        >
                             <div class="flex items-center gap-4">
                                 <div class="warga-action__icon flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 ring-1 ring-white/30">
                                     <i class="fa-solid fa-file-circle-plus text-xl" aria-hidden="true"></i>
                                 </div>
+
                                 <div>
                                     <h3 class="text-base font-bold">Buat Laporan</h3>
                                     <p class="mt-0.5 text-sm text-emerald-100">Laporkan hambatan aksesibilitas di ruang publik.</p>
@@ -262,10 +332,26 @@
                         </a>
 
                         <a href="{{ route('laporan.index') }}" class="warga-action group relative flex items-center justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md sm:p-6">
+
+                                    <h2 class="font-bold text-base">Buat Laporan</h2>
+                                    <p class="text-xs text-emerald-100/90 mt-0.5">
+                                        Laporkan hambatan aksesibilitas yang Anda temukan di ruang publik.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right text-sm opacity-70 group-hover:translate-x-1 transition-transform" aria-hidden="true"></i>
+                        </a>
+
+                        <a
+                            href="{{ route('laporan.index') }}"
+                            class="warga-action group relative flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-xs transition hover:border-emerald-300 hover:shadow-md"
+                        >
                             <div class="flex items-center gap-4">
                                 <div class="warga-action__icon flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
                                     <i class="fa-solid fa-file-lines text-xl" aria-hidden="true"></i>
                                 </div>
+
                                 <div>
                                     <h3 class="text-base font-bold text-slate-800">Laporan Saya</h3>
                                     <p class="mt-0.5 text-sm text-slate-600">Pantau status laporan Anda.</p>
@@ -275,16 +361,39 @@
                         </a>
 
                         <a href="{{ route('peta.index') }}" class="warga-action group relative flex items-center justify-between overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md sm:p-6">
+                                    <h2 class="font-bold text-base text-slate-800">Laporan Saya</h2>
+                                    <p class="text-xs text-slate-500 mt-0.5">
+                                        Lihat laporan yang pernah Anda kirim dan pantau statusnya.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right text-sm text-slate-400 group-hover:translate-x-1 transition-transform" aria-hidden="true"></i>
+                        </a>
+
+                        <a
+                            href="{{ route('peta.index') }}"
+                            class="warga-action group relative flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-xs transition hover:border-emerald-300 hover:shadow-md"
+                        >
                             <div class="flex items-center gap-4">
                                 <div class="warga-action__icon flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
                                     <i class="fa-solid fa-map-location-dot text-xl" aria-hidden="true"></i>
                                 </div>
+
                                 <div>
                                     <h3 class="text-base font-bold text-slate-800">Peta Aksesibilitas</h3>
                                     <p class="mt-0.5 text-sm text-slate-600">Jelajahi titik hambatan & fasilitas.</p>
                                 </div>
                             </div>
                             <i class="fa-solid fa-chevron-right shrink-0 text-sm text-slate-400 transition-transform group-hover:translate-x-1" aria-hidden="true"></i>
+                                    <h2 class="font-bold text-base text-slate-800">Peta Aksesibilitas</h2>
+                                    <p class="text-xs text-slate-500 mt-0.5">
+                                        Jelajahi titik hambatan terverifikasi dan fasilitas publik yang tersedia.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <i class="fa-solid fa-chevron-right text-sm text-slate-400 group-hover:translate-x-1 transition-transform" aria-hidden="true"></i>
                         </a>
                     </div>
                 </section>
@@ -310,14 +419,28 @@
 
                 {{-- ===== MAP SECTION ===== --}}
                 <section id="warga-map-section" class="warga-map-card warga-animate-in mb-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm" data-delay="3" aria-labelledby="warga-map-title">
-                    <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                    <div class="flex flex-col gap-3 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+                {{-- MAP SECTION --}}
+                <section
+                    id="warga-map-section"
+                    class="warga-map-card mb-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xs"
+                >
+                    <div class="warga-map-card__header flex flex-col gap-3 border-b border-slate-100 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
                         <div class="flex items-center gap-3">
                             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
                                 <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
                             </div>
+
                             <div>
                                 <h2 id="warga-map-title" class="text-base font-bold text-slate-900">Peta Aksesibilitas</h2>
                                 <p class="text-sm text-slate-600">Lokasi hambatan aksesibilitas dan fasilitas publik di sekitar Anda.</p>
+                                <h2 id="warga-map-title" class="text-base font-bold text-slate-900">
+                                    Peta Aksesibilitas
+                                </h2>
+
+                                <p class="text-xs text-slate-500">
+                                    Peta interaktif yang menampilkan lokasi hambatan aksesibilitas dan fasilitas publik di sekitar Anda.
+                                </p>
                             </div>
                         </div>
                         <button type="button" id="btn-map-refresh" class="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 sm:self-auto" aria-label="Segarkan data peta">
@@ -350,6 +473,7 @@
                         </div>
                     </div>
 
+
                     <div id="warga-map-status" class="border-t border-slate-100 bg-slate-50/50 px-5 py-3 text-sm text-slate-700 sm:px-6" role="status" aria-live="polite">
                         Memuat peta…
                     </div>
@@ -360,9 +484,28 @@
                     <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div class="flex items-center gap-3">
                             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100">
+
+                    <div>
+                        id="warga-map"
+                        class="warga-dashboard__map h-96 w-full"
+                        role="region"
+                        aria-label="Peta interaktif aksesibilitas"
+                    ></div>
+                </section>
+
+                {{-- NEARBY SECTION --}}
+                <section
+                    id="warga-nearby-section"
+                    class="warga-nearby mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-xs"
+                >
+                    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
                                 <i class="fa-solid fa-location-crosshairs text-lg" aria-hidden="true"></i>
                             </div>
+
                             <div>
+
                                 <h2 id="warga-nearby-title" class="text-base font-bold text-slate-900">Hambatan Terdekat</h2>
                                 <p class="text-sm text-slate-600">Hambatan di sekitar lokasi Anda dalam radius 50 meter.</p>
                             </div>
@@ -392,6 +535,94 @@
                 </section>
 
                 {{-- ===== ACCESSIBILITY NOTE ===== --}}
+
+                                <h2 id="warga-nearby-title" class="text-base font-bold text-slate-900">
+                                    Hambatan Terdekat
+                                </h2>
+
+                                <p class="text-xs text-slate-500">
+                                    Dapatkan informasi hambatan yang berada di sekitar lokasi Anda dalam radius 50 meter.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            id="btn-warga-location"
+                            class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-xs"
+                        >
+                            <i class="fa-solid fa-location-arrow text-emerald-600" aria-hidden="true"></i>
+                            <span>Gunakan Lokasi Saya</span>
+                        </button>
+                    </div>
+
+                    <div
+                        id="warga-nearby-list"
+                        class="warga-nearby-list grid gap-3"
+                    ></div>
+                </section>
+
+                {{-- SECONDARY TOOLS SECTION --}}
+                <section
+                    id="warga-tools-section"
+                    class="grid gap-6 md:grid-cols-2 mb-8"
+                >
+                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                                <i class="fa-solid fa-eye-low-vision text-xl" aria-hidden="true"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="font-bold text-base text-slate-900">
+                                    Mode Tunanetra (Nearby)
+                                </h2>
+
+                                <p class="text-xs text-slate-500 mt-0.5">
+                                    Buka Mode Tunanetra untuk mendengarkan hambatan terdekat lewat suara.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            id="btn-read-nearby"
+                            class="inline-flex items-center gap-2 rounded-xl bg-emerald-100/70 px-4 py-2.5 text-xs font-bold text-emerald-800 hover:bg-emerald-200 transition"
+                        >
+                            <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                            <span>Mulai Nearby</span>
+                        </button>
+                    </div>
+
+                    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                                <i class="fa-solid fa-route text-xl" aria-hidden="true"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="font-bold text-base text-slate-900">
+                                    Navigasi Aktif
+                                </h2>
+
+                                <p class="text-xs text-slate-500 mt-0.5">
+                                    Tentukan tujuan perjalanan dan dapatkan panduan suara serta rute ramah disabilitas.
+                                </p>
+                            </div>
+                        </div>
+
+                        <a
+                            href="{{ route('navigasi.index') }}"
+                            class="inline-flex items-center gap-2 rounded-xl bg-emerald-100/70 px-4 py-2.5 text-xs font-bold text-emerald-800 hover:bg-emerald-200 transition"
+                        >
+                            <span>Mulai Navigasi</span>
+                            <i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </section>
+
+                {{-- ACCESSIBILITY INFORMATION CARD --}}
+
                 <aside
                     id="warga-accessibility-section"
                     class="warga-accessibility-note warga-animate-in mb-8 rounded-2xl border border-emerald-200 bg-gradient-to-br from-white to-emerald-50/60 p-5 shadow-sm sm:p-6"
@@ -425,20 +656,36 @@
                         </div>
                     </div>
                 </aside>
-
             </main>
         </div>
     </div>
+
 
     {{-- ===== SCREEN READER FLOATING BUTTON ===== --}}
     <div id="homeScreenReaderButtonContainer" class="fixed bottom-5 right-5 z-[9998] flex flex-wrap justify-end gap-2">
         <button id="homeScreenReaderButton" type="button"
             class="inline-flex items-center gap-2 rounded-full border-2 border-emerald-700 bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-800 hover:shadow-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-300"
             aria-label="Dengar panduan halaman. Tekan lagi untuk berhenti.">
+
+    {{-- TOMBOL SCREEN READER MELAYANG --}}
+    <div
+        id="homeScreenReaderButtonContainer"
+        class="fixed bottom-5 right-5 z-[9998] cursor-grab active:cursor-grabbing flex flex-wrap justify-end gap-2"
+        aria-label="Fitur aksesibilitas suara"
+    >
+        <button
+            id="homeScreenReaderButton"
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full border border-emerald-700 bg-emerald-700 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-800 focus-visible:outline-white"
+            aria-label="Bacakan kartu yang tersedia"
+            aria-pressed="false"
+        >
+
             <i class="fa-solid fa-blind text-lg shrink-0" aria-hidden="true"></i>
             <span id="homeScreenReaderLabel">Dengar Panduan</span>
         </button>
-        <p id="homeSpeechStatus" class="sr-only" role="status" aria-live="polite"></p>
+
+        <p id="homeSpeechStatus" role="status" aria-live="polite"></p>
     </div>
 @endsection
 
@@ -446,6 +693,7 @@
     <script src="{{ asset('js/smartpath-warga.js') }}" defer></script>
 
     <script>
+
         document.addEventListener('DOMContentLoaded', () => {
             /* ============================================================
                0. HERO IMAGE FALLBACK (tanpa inline handler, aman CSP)
@@ -466,10 +714,14 @@
             /* ============================================================
                1. DRAGGABLE SCREEN READER BUTTON — Pointer Events API
                ============================================================ */
+
+        document.addEventListener('DOMContentLoaded', function () {
+
             const container = document.getElementById('homeScreenReaderButtonContainer');
             const readerButton = document.getElementById('homeScreenReaderButton');
             const readerLabel = document.getElementById('homeScreenReaderLabel');
             const speechStatus = document.getElementById('homeSpeechStatus');
+
 
             let pointerDown = false;
             let dragStartPoint = null;
@@ -688,9 +940,411 @@
                         readingPage = false;
                         readerLabel.textContent = 'Dengar Panduan';
                         if (speechStatus) speechStatus.textContent = 'Pembacaan selesai.';
-                    });
+
+            /*
+             * DRAG TOMBOL SCREEN READER
+             */
+            let isDragging = false;
+            let startX = 0;
+            let startY = 0;
+            let initialX = 0;
+            let initialY = 0;
+            let hasMoved = false;
+
+            if (container) {
+                container.addEventListener('mousedown', dragStart);
+                document.addEventListener('mousemove', dragMove);
+                document.addEventListener('mouseup', dragEnd);
+
+                container.addEventListener('touchstart', dragStart, {
+                    passive: true
+                });
+
+                document.addEventListener('touchmove', dragMove, {
+                    passive: false
+                });
+
+                document.addEventListener('touchend', dragEnd);
+                document.addEventListener('touchcancel', dragEnd);
+            }
+
+            function getPointerPosition(event) {
+                const point = event.touches
+                    ? event.touches[0]
+                    : event.changedTouches
+                        ? event.changedTouches[0]
+                        : event;
+
+                return {
+                    x: point.clientX,
+                    y: point.clientY
+                };
+            }
+
+            function dragStart(event) {
+                if (!container) return;
+
+                isDragging = true;
+                hasMoved = false;
+
+                const point = getPointerPosition(event);
+
+                startX = point.x;
+                startY = point.y;
+
+                const rect = container.getBoundingClientRect();
+
+                initialX = rect.left;
+                initialY = rect.top;
+
+                container.style.bottom = 'auto';
+                container.style.right = 'auto';
+                container.style.left = initialX + 'px';
+                container.style.top = initialY + 'px';
+            }
+
+            function dragMove(event) {
+                if (!isDragging || !container) return;
+
+                const point = getPointerPosition(event);
+                const dx = point.x - startX;
+                const dy = point.y - startY;
+
+                if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+                    hasMoved = true;
+
+                    if (event.cancelable) {
+                        event.preventDefault();
+                    }
+                }
+
+                const rect = container.getBoundingClientRect();
+
+                const maxLeft = Math.max(
+                    0,
+                    window.innerWidth - rect.width
+                );
+
+                const maxTop = Math.max(
+                    0,
+                    window.innerHeight - rect.height
+                );
+
+                const nextLeft = Math.min(
+                    maxLeft,
+                    Math.max(0, initialX + dx)
+                );
+
+                const nextTop = Math.min(
+                    maxTop,
+                    Math.max(0, initialY + dy)
+                );
+
+                container.style.left = nextLeft + 'px';
+                container.style.top = nextTop + 'px';
+            }
+
+            function dragEnd() {
+                isDragging = false;
+            }
+
+            /*
+             * SCREEN READER PER KARTU
+             */
+            if (!readerButton || !('speechSynthesis' in window)) {
+                if (readerButton) {
+                    readerButton.disabled = true;
+                    readerButton.title =
+                        'Browser ini tidak mendukung fitur suara.';
+                }
+
+                if (speechStatus) {
+                    speechStatus.textContent =
+                        'Browser tidak mendukung pembacaan suara.';
+                }
+
+                return;
+            }
+
+            let speechRunId = 0;
+            let currentCard = null;
+            let isReading = false;
+
+            const cardSelector = [
+                '#warga-intro-section',
+                '#warga-actions-section .warga-action',
+                '#warga-map-section',
+                '#warga-nearby-list > *',
+                '#warga-tools-section > div',
+                '#warga-accessibility-section'
+            ].join(', ');
+
+            function isVisible(element) {
+                if (!element || !element.isConnected) {
+                    return false;
+                }
+
+                const style = window.getComputedStyle(element);
+
+                return (
+                    style.display !== 'none' &&
+                    style.visibility !== 'hidden' &&
+                    element.getClientRects().length > 0
+                );
+            }
+
+            function getCardText(element) {
+                if (!element) return '';
+
+                /*
+                 * Peta tidak selalu memiliki innerText yang bermakna.
+                 * Ambil judul dan deskripsi peta untuk dibacakan.
+                 */
+                if (element.id === 'warga-map-section') {
+                    const title = element.querySelector('#warga-map-title');
+                    const description = element.querySelector(
+                        '.warga-map-card__header p'
+                    );
+
+                    return [
+                        title ? title.innerText : '',
+                        description ? description.innerText : ''
+                    ]
+                        .join('. ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
+
+                /*
+                 * Ikon tidak perlu dibacakan.
+                 * Ambil teks dari kartu yang dipilih saja.
+                 */
+                return (element.innerText || element.textContent || '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+
+            function getReadableCards() {
+                return Array.from(
+                    document.querySelectorAll(cardSelector)
+                ).filter(function (element) {
+                    return isVisible(element) &&
+                        getCardText(element).length > 0;
                 });
             }
+
+            function removeCardHighlight() {
+                document.querySelectorAll(
+                    '[data-screen-reader-active="true"]'
+                ).forEach(function (element) {
+                    element.removeAttribute('data-screen-reader-active');
+                });
+            }
+
+            function updateReaderButton(reading) {
+                isReading = reading;
+
+                readerButton.setAttribute(
+                    'aria-pressed',
+                    reading ? 'true' : 'false'
+                );
+
+                readerLabel.textContent = reading
+                    ? 'Hentikan Bacaan'
+                    : 'Dengar Panduan';
+
+                readerButton.setAttribute(
+                    'aria-label',
+                    reading
+                        ? 'Hentikan pembacaan suara'
+                        : 'Bacakan kartu yang tersedia'
+                );
+            }
+
+            function stopReading(message) {
+                /*
+                 * Ubah ID agar event dari bacaan sebelumnya
+                 * tidak bisa melanjutkan proses.
+                 */
+                speechRunId++;
+
+                window.speechSynthesis.cancel();
+
+                updateReaderButton(false);
+                removeCardHighlight();
+
+                currentCard = null;
+
+                if (speechStatus && message) {
+                    speechStatus.textContent = message;
+                }
+            }
+
+            function speakCard(card) {
+                if (!card || !isVisible(card)) {
+                    if (speechStatus) {
+                        speechStatus.textContent =
+                            'Kartu tidak tersedia untuk dibacakan.';
+                    }
+
+                    return;
+                }
+
+                const text = getCardText(card);
+
+                if (!text) {
+                    if (speechStatus) {
+                        speechStatus.textContent =
+                            'Tidak ada teks yang dapat dibacakan pada kartu ini.';
+                    }
+
+                    return;
+                }
+
+                /*
+                 * Batalkan bacaan sebelumnya sebelum membaca
+                 * kartu yang baru dipilih.
+                 */
+                speechRunId++;
+                const thisRunId = speechRunId;
+
+                window.speechSynthesis.cancel();
+
+                removeCardHighlight();
+
+                currentCard = card;
+
+                card.setAttribute(
+                    'data-screen-reader-active',
+                    'true'
+                );
+
+                updateReaderButton(true);
+
+                if (speechStatus) {
+                    const heading = card.querySelector(
+                        'h1, h2, h3, h4, [aria-label]'
+                    );
+
+                    const cardName = heading
+                        ? (heading.innerText || heading.getAttribute('aria-label') || '').trim()
+                        : '';
+
+                    speechStatus.textContent = cardName
+                        ? 'Sedang membacakan: ' + cardName
+                        : 'Sedang membacakan kartu yang dipilih.';
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+
+                utterance.lang = 'id-ID';
+                utterance.rate = 0.85;
+                utterance.pitch = 1;
+
+                utterance.onend = function () {
+                    if (thisRunId !== speechRunId) return;
+
+                    updateReaderButton(false);
+                    removeCardHighlight();
+                    currentCard = null;
+
+                    if (speechStatus) {
+                        speechStatus.textContent =
+                            'Pembacaan kartu selesai. Pilih kartu lain jika ingin mendengarkan lagi.';
+                    }
+                };
+
+                utterance.onerror = function (event) {
+                    if (thisRunId !== speechRunId) return;
+
+                    updateReaderButton(false);
+                    removeCardHighlight();
+                    currentCard = null;
+
+                    if (speechStatus) {
+                        speechStatus.textContent =
+                            event.error === 'canceled'
+                                ? 'Pembacaan dihentikan.'
+                                : 'Suara tidak dapat diputar. Silakan coba lagi.';
+                    }
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+
+            /*
+             * KARTU DASHBOARD
+             *
+             * Klik area kartu untuk membacakan satu kartu itu saja.
+             * Klik link, tombol, atau kontrol interaktif tetap
+             * menjalankan fungsi aslinya.
+             */
+            function attachCardListeners(root) {
+                if (!root) return;
+
+                const cards = [];
+
+                if (root.matches && root.matches(cardSelector)) {
+                    cards.push(root);
+                }
+
+                if (root.querySelectorAll) {
+                    root.querySelectorAll(cardSelector).forEach(
+                        function (card) {
+                            cards.push(card);
+                        }
+                    );
+                }
+
+                cards.forEach(function (card) {
+                    if (card.dataset.readerClickAttached === 'true') {
+                        return;
+                    }
+
+                    card.dataset.readerClickAttached = 'true';
+
+                    card.addEventListener('click', function (event) {
+                        if (hasMoved) {
+                            hasMoved = false;
+                            return;
+                        }
+
+                        /*
+                         * Jangan mengganggu tautan, tombol, peta,
+                         * formulir, atau kontrol navigasi.
+                         */
+                        if (event.target.closest(
+                            'a, button, input, textarea, select, option, label, ' +
+                            '[role="button"], [role="link"], #warga-map, .leaflet-container'
+                        )) {
+                            return;
+                        }
+
+                        speakCard(card);
+
+                    });
+
+                    /*
+                     * Dukungan keyboard saat kartu menerima fokus.
+                     */
+                    if (!card.matches('a, button, input, select, textarea')) {
+                        card.setAttribute('tabindex', '0');
+
+                        card.addEventListener('keydown', function (event) {
+                            if (
+                                event.target !== card ||
+                                (event.key !== 'Enter' && event.key !== ' ')
+                            ) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            speakCard(card);
+                        });
+                    }
+                });
+            }
+
 
             /* ============================================================
                3. MAP SKELETON — sembunyikan saat Leaflet siap
@@ -772,6 +1426,80 @@
                     }
                 });
             }
+
+            const dashboard = document.getElementById('warga-dashboard');
+            attachCardListeners(dashboard);
+
+            /*
+             * Kartu Hambatan Terdekat dibuat secara dinamis oleh
+             * smartpath-warga.js. Pasang listener saat kartu baru muncul.
+             */
+            const nearbyList = document.getElementById('warga-nearby-list');
+
+            if (nearbyList) {
+                const nearbyObserver = new MutationObserver(function () {
+                    attachCardListeners(nearbyList);
+                });
+
+                nearbyObserver.observe(nearbyList, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+
+            /*
+             * TOMBOL DENGAR PANDUAN
+             *
+             * Saat ditekan:
+             * - Jika sedang membaca, hentikan.
+             * - Jika tidak sedang membaca, bacakan kartu pertama
+             *   yang terlihat.
+             *
+             * Tombol tidak akan membaca seluruh halaman.
+             */
+            readerButton.addEventListener('click', function () {
+                if (hasMoved) {
+                    hasMoved = false;
+                    return;
+                }
+
+                if (isReading || window.speechSynthesis.speaking) {
+                    stopReading('Pembacaan dihentikan.');
+                    return;
+                }
+
+                const cards = getReadableCards();
+
+                if (cards.length === 0) {
+                    if (speechStatus) {
+                        speechStatus.textContent =
+                            'Belum ada kartu yang dapat dibacakan.';
+                    }
+
+                    return;
+                }
+
+                speakCard(cards[0]);
+            });
+
+            /*
+             * Jika pengguna menekan Escape, hentikan pembacaan.
+             */
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && isReading) {
+                    stopReading('Pembacaan dihentikan.');
+                }
+            });
+
+            /*
+             * Jika pengguna meninggalkan halaman, batalkan suara
+             * yang masih berlangsung.
+             */
+            window.addEventListener('pagehide', function () {
+                speechRunId++;
+                window.speechSynthesis.cancel();
+            });
+
         });
     </script>
 @endpush
