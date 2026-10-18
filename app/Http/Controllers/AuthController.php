@@ -223,15 +223,14 @@ class AuthController extends Controller
              * untuk perlindungan OAuth.
              */
             $googleUser = Socialite::driver('google')->user();
-
             $googleEmail = $googleUser->getEmail();
 
-            if (!$googleEmail) {
-                return redirect()
-                    ->route('login')
-                    ->withErrors([
-                        'email' => 'Google tidak memberikan alamat email yang valid.',
-                    ]);
+            $emailGoogleTerverifikasi = filter_var(
+                $googleUser->user['email_verified'] ?? false,
+                FILTER_VALIDATE_BOOLEAN
+            );
+
+            if (!$googleEmail || !$emailGoogleTerverifikasi) {
             }
 
             $user = DB::transaction(

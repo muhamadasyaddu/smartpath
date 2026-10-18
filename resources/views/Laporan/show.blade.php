@@ -119,10 +119,11 @@
     /*
      * Menghitung kelompok laporan terkait.
      */
-    $induk = $laporan->laporanInduk;
+    $induk = $laporan->terhubung_ke_induk ? $laporan->laporanInduk : null;
     $root = $induk ?: $laporan;
 
     $anakAktif = $root->laporanAnak
+        ->where('status_duplikasi', \App\Models\Laporan::DUPLIKASI_DIKONFIRMASI)
         ->whereNotIn('status', ['ditolak', 'diarsipkan']);
 
     $pelaporUnik = $anakAktif
@@ -694,41 +695,56 @@
                     @endif
                 </section>
 
-                {{-- Indikasi laporan duplikat --}}
-                @if ($adaIndikasiDuplikasi)
-                    <section
-                        class="rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6"
-                        aria-labelledby="duplicate-heading"
-                        role="status">
+                
+{{-- Indikasi laporan duplikat --}}
+@if ($adaIndikasiDuplikasi)
+    <section
+        class="rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:p-6"
+        aria-labelledby="duplicate-heading"
+        role="status"
+    >
+        <h2
+            id="duplicate-heading"
+            class="flex items-start gap-3 text-sm font-bold text-amber-900"
+        >
+            <i
+                class="fa-solid fa-triangle-exclamation mt-0.5"
+                aria-hidden="true"
+            ></i>
 
-                        <h2 id="duplicate-heading"
-                            class="flex items-start gap-3 text-sm font-bold text-amber-900">
+            <span>Indikasi Laporan Duplikat</span>
+        </h2>
 
-                            <i class="fa-solid fa-triangle-exclamation mt-0.5"
-                               aria-hidden="true"></i>
-
-                            <span>Indikasi Laporan Duplikat</span>
-                        </h2>
-
-                        <p class="mt-3 text-sm leading-6 text-amber-900">
-                            @if ($induk)
-                                Laporan ini terhubung dengan laporan induk
-                                <span class="font-semibold">
-                                    {{ $induk->kode_laporan }}
-                                </span>
-                                karena terindikasi melaporkan hambatan yang sama.
-                            @else
-                                Terdapat laporan terkait pada kelompok hambatan ini.
-                                Jumlah pelapor unik yang tercatat:
-                                <span class="font-semibold">{{ $pelaporUnik }}</span>.
-                            @endif
-                        </p>
-
-                        <p class="mt-2 text-xs leading-5 text-amber-800">
-                            Indikasi deduplikasi bukan pengganti verifikasi administrator.
-                        </p>
-                    </section>
+        <p class="mt-3 text-sm leading-6 text-amber-900">
+            @if ($induk)
+                @if ($laporan->status_duplikasi === 'dikonfirmasi')
+                    Administrator mengonfirmasi laporan ini melaporkan
+                    hambatan yang sama dengan laporan
+                    <span class="font-semibold">
+                        {{ $induk->kode_laporan }}
+                    </span>.
+                @else
+                    Laporan ini berada dekat dengan laporan
+                    <span class="font-semibold">
+                        {{ $induk->kode_laporan }}
+                    </span>
+                    pada kategori yang sama. Administrator akan memeriksa
+                    apakah keduanya merupakan hambatan yang sama.
                 @endif
+            @else
+                Sistem mendeteksi indikasi kemungkinan laporan duplikat.
+                Informasi ini masih perlu diperiksa oleh administrator.
+            @endif
+        </p>
+
+        <p class="mt-2 text-xs leading-5 text-amber-800">
+            Indikasi deduplikasi bukan pengganti verifikasi administrator.
+        </p>
+    </section>
+@endif
+
+{{-- Aksi laporan --}}
+
 
                 {{-- Aksi laporan --}}
                 @if ($canManage)

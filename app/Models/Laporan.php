@@ -13,6 +13,10 @@ class Laporan extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public const DUPLIKASI_KANDIDAT = 'kandidat';
+    public const DUPLIKASI_DIKONFIRMASI = 'dikonfirmasi';
+    public const DUPLIKASI_MANDIRI = 'mandiri';
+
     protected $table = 'laporan';
 
     protected $fillable = [
@@ -21,6 +25,9 @@ class Laporan extends Model
         'kategori_hambatan_id',
         'wilayah_id',
         'laporan_induk_id',
+        'status_duplikasi',
+        'duplikasi_diputuskan_oleh',
+        'duplikasi_diputuskan_pada',
         'latitude',
         'longitude',
         'alamat_lengkap',
@@ -49,6 +56,7 @@ class Laporan extends Model
         'jarak_fasilitas_meter' => 'decimal:2',
         'jumlah_pelapor' => 'integer',
         'dihitung_pada' => 'datetime',
+        'duplikasi_diputuskan_pada' => 'datetime',
     ];
 
     /**
@@ -304,6 +312,63 @@ class Laporan extends Model
             'diarsipkan' => 'bg-slate-100 text-slate-600 border border-slate-200',
             default => 'bg-slate-50 text-slate-600 border border-slate-200',
         };
+    }
+
+        /**
+     * Laporan yang sudah dinyatakan administrator sebagai duplikat.
+     */
+    public function scopeDuplikatTerkonfirmasi($query)
+    {
+        return $query->where('status_duplikasi', self::DUPLIKASI_DIKONFIRMASI);
+    }
+
+    /**
+     * True hanya jika relasi induk masih berlaku
+     * (kandidat atau terkonfirmasi) dan laporan belum ditolak/diarsipkan.
+     */
+    public function getTerhubungKeIndukAttribute(): bool
+    {
+        return $this->laporan_induk_id !== null
+            && in_array(
+                $this->status_duplikasi,
+                [self::DUPLIKASI_KANDIDAT, self::DUPLIKASI_DIKONFIRMASI],
+                true
+            )
+            && ! in_array($this->status, ['ditolak', 'diarsipkan'], true);
+    }
+
+    public function getLabelRelasiDuplikasiAttribute(): ?string
+    {
+        if (! $this->terhubung_ke_induk) {
+            return null;
+        }
+
+        return $this->status_duplikasi === self::DUPLIKASI_DIKONFIRMASI
+            ? 'Duplikat terkonfirmasi dari'
+            : 'Kandidat duplikat dari';
+    }
+
+    /**
+     * Jumlah pelapor unik = induk + anak yang SUDAH dikonfirmasi admin.
+     * Kandidat yang belum diputuskan tidak ikut dihitung.
+     */
+    public function sinkronkanJumlahPelapor(): void
+    {
+        $jumlah = static::query()
+            ->where(function ($query) {
+                $query
+                    ->where('id', $this->id)
+                    ->orWhere(function ($anak) {
+                        $anak
+                            ->where('laporan_induk_id', $this->id)
+                            ->where('status_duplikasi', self::DUPLIKASI_DIKONFIRMASI);
+                    });
+            })
+            ->whereNotIn('status', ['ditolak', 'diarsipkan'])
+            ->distinct()
+            ->count('pelapor_id');
+
+        $this->update(['jumlah_pelapor' => max(1, $jumlah)]);
     }
 
     public function calculatePriorityScore(): array

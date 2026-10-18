@@ -95,9 +95,9 @@
                                             {{ \Illuminate\Support\Str::limit($item->judul, 40) }}
                                         </a>
 
-                                        @if($item->laporanInduk)
+                                        @if($item->terhubung_ke_induk && $item->laporanInduk)
                                             <p class="text-[11px] text-amber-700 mt-0.5">
-                                                Duplikat dari {{ $item->laporanInduk->kode_laporan }}
+                                                {{ $item->label_relasi_duplikasi }} {{ $item->laporanInduk->kode_laporan }}
                                             </p>
                                         @endif
                                     </div>

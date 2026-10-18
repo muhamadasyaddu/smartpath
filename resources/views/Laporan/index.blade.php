@@ -44,6 +44,10 @@
 @section('content')
 @include('partials.nav-public')
 
+
+<div id="laporan-saya-main"
+    class="max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
+
 <main id="laporan-saya-main"
     class="max-w-7xl mx-auto w-full px-4 py-8 sm:px-6 lg:px-8">
 
@@ -190,6 +194,8 @@
     <div class="space-y-4">
 
         @forelse ($laporan as $item)
+
+
             <article
                 class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200 bg-white shadow-sm hover:border-slate-300 transition">
 
@@ -290,26 +296,43 @@
                     </div>
                 </div>
 
-                {{-- Skor prioritas --}}
-                <div class="self-end lg:self-center shrink-0">
-                    <div
-                        class="w-24 h-16 rounded-xl border border-slate-300 flex flex-col items-center justify-center p-2 text-center bg-white">
+                                
+                {{-- Aksi laporan dan skor prioritas --}}
 
+                <div class="flex w-full shrink-0 flex-row items-center justify-end gap-3 lg:w-auto">
+
+                    {{-- Skor prioritas --}}
+                    <div
+                        class="flex h-20 w-28 shrink-0 flex-col items-center justify-center rounded-xl border border-slate-300 bg-white p-2 text-center"
+                        aria-label="{{ $item->skor_prioritas !== null
+                            ? 'Skor prioritas ' . number_format((float) $item->skor_prioritas, 1)
+                            : 'Laporan belum dinilai' }}"
+                    >
                         @if ($item->skor_prioritas !== null)
-                            <span class="text-xl font-extrabold text-slate-900 leading-none">
+                            <span class="text-2xl font-extrabold leading-none text-slate-900">
                                 {{ number_format((float) $item->skor_prioritas, 1) }}
                             </span>
 
-                            <span class="text-[9px] font-bold tracking-wider text-slate-500 uppercase mt-1">
+                            <span class="mt-1 text-[10px] font-bold tracking-wider text-slate-500">
                                 PRIORITAS
                             </span>
                         @else
-                            <span class="text-xs font-semibold text-slate-400">
+                            <span class="text-sm font-bold leading-tight text-slate-500">
                                 Belum dinilai
                             </span>
                         @endif
                     </div>
+
+                    @php
+                        $bisaKelola = $item->status === 'menunggu_verifikasi'
+                            && (int) $item->pelapor_id === (int) auth()->id();
+                    @endphp
+
+                    
+
+
                 </div>
+
             </article>
 
         @empty
@@ -335,6 +358,8 @@
     @endif
 
 </main>
+
+</div>
 
 {{-- Tombol Screen Reader melayang --}}
 <div

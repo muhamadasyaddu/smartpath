@@ -24,6 +24,11 @@ return Application::configure(
             \App\Http\Middleware\PreventBackHistory::class
         );
 
+        $middleware->appendToGroup(
+            'web',
+            \App\Http\Middleware\EnsureUserIsActive::class
+        );
+
         $middleware->alias([
 
             'admin' =>

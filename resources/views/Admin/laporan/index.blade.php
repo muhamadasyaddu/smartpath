@@ -364,10 +364,14 @@
                                     {{ $item->longitude }}
                                 </p>
 
-                                @if($item->laporan_induk_id)
+                                @if($item->terhubung_ke_induk)
                                     <p class="mt-2 text-xs font-semibold text-amber-800">
-                                        Terhubung ke laporan induk
+                                        {{ $item->label_relasi_duplikasi }}
                                         {{ $item->laporanInduk?->kode_laporan ?? '#' . $item->laporan_induk_id }}
+                                    </p>
+                                @elseif($item->status_duplikasi === 'mandiri')
+                                    <p class="mt-2 text-xs font-medium text-slate-500">
+                                        Dinyatakan laporan mandiri oleh administrator
                                     </p>
                                 @endif
                             </td>
@@ -438,18 +442,11 @@
                                 @endif
                             </td>
 
-                            <td>
-                                <a
-                                    href="{{ route('admin.verifikasi.show', $item) }}"
-                                    class="inline-flex items-center justify-center rounded-lg border border-emerald-200 bg-white px-3 py-2 text-xs font-bold text-emerald-800 transition hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
-                                >
-                                    Detail / Verifikasi
-                                </a>
-                            </td>
+                            
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-12 text-center">
+                            <td colspan="5" class="py-12 text-center">
                                 <p class="font-semibold text-slate-800">
                                     Tidak ada laporan yang sesuai.
                                 </p>

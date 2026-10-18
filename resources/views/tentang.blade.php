@@ -1191,7 +1191,6 @@
             <div class="row align-items-center g-5">
                 <div class="col-lg-6" data-aos="fade-right">
                     <div class="section-label mb-3">
-                        <span class="label-line"></span>
                         <span class="label-text">TENTANG KAMI</span>
                     </div>
                     <h2 class="section-title">Apa itu SmartPath?</h2>
@@ -1222,7 +1221,7 @@
         <div class="container py-5">
             <div class="text-center mb-5" data-aos="fade-up">
                 <div class="section-label justify-content-center mb-3">
-                    <span class="label-line"></span>
+                    
                     <span class="label-text">KENAPA SMARTPATH?</span>
                 </div>
                 <h2 class="section-title">Masih banyak ruang publik<br>yang belum ramah aksesibilitas.</h2>
@@ -1269,7 +1268,6 @@
         <div class="container py-5">
             <div class="text-center mb-5" data-aos="fade-up">
                 <div class="section-label justify-content-center mb-3">
-                    <span class="label-line"></span>
                     <span class="label-text text-mint">SOLUSI SMARTPATH</span>
                 </div>
                 <h2 class="section-title text-white">Data, partisipasi, dan teknologi<br>untuk perubahan yang nyata.</h2>
@@ -1324,7 +1322,6 @@
         <div class="container py-5">
             <div class="text-center mb-5" data-aos="fade-up">
                 <div class="section-label justify-content-center mb-3">
-                    <span class="label-line"></span>
                     <span class="label-text">NILAI UTAMA</span>
                 </div>
                 <h2 class="section-title">Teknologi yang berfokus<br>pada dampak nyata.</h2>
@@ -1535,6 +1532,7 @@
     </script>
 
     <script src="{{ asset('js/smartpath-accessibility.js') }}" defer></script>
+    <script src="{{ asset('js/smartpath-voice.js') }}" defer></script>
 
     <!-- ============================================================
          SMARTPATH - ABOUT PAGE SCRIPTS

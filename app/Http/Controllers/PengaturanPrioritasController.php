@@ -212,35 +212,7 @@ class PengaturanPrioritasController extends Controller
 
     foreach ($laporanList as $laporan) {
 
-        /*
-         * Pastikan jumlah pelapor parent selalu
-         * sinkron sebelum WSM dihitung.
-         */
-        $pelaporIds = Laporan::query()
-            ->where(function ($query) use ($laporan) {
-                $query
-                    ->where('id', $laporan->id)
-                    ->orWhere(
-                        'laporan_induk_id',
-                        $laporan->id
-                    );
-            })
-            ->whereNotIn(
-                'status',
-                [
-                    'ditolak',
-                    'diarsipkan',
-                ]
-            )
-            ->pluck('pelapor_id')
-            ->unique();
-
-        $laporan->update([
-            'jumlah_pelapor' => max(
-                1,
-                $pelaporIds->count()
-            ),
-        ]);
+                $laporan->sinkronkanJumlahPelapor();
 
         $pengaturan =
             PengaturanPrioritas::getActive();

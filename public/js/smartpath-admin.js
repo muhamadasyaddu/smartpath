@@ -362,6 +362,126 @@
         }
     ).addTo(map);
 
+    
+
+/* =====================================================
+   KONTROL LOKASI SAYA — MENYATU DENGAN ZOOM LEAFLET
+   Urutan: Zoom In → Zoom Out → Lokasi Saya
+===================================================== */
+
+const zoomContainer = map.zoomControl?.getContainer();
+
+let userLocationMarker = null;
+let locateButton = null;
+let isLocating = false;
+
+if (zoomContainer) {
+    locateButton = document.createElement('a');
+
+    locateButton.href = '#';
+    locateButton.className = 'sp-locate-button';
+    locateButton.title = 'Tampilkan lokasi saya';
+    locateButton.setAttribute('role', 'button');
+    locateButton.setAttribute(
+        'aria-label',
+        'Tampilkan lokasi saya pada peta'
+    );
+
+    locateButton.innerHTML = `
+        <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+        >
+            <circle cx="12" cy="12" r="7"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+            <path d="M12 2v3"></path>
+            <path d="M12 19v3"></path>
+            <path d="M2 12h3"></path>
+            <path d="M19 12h3"></path>
+        </svg>
+    `;
+
+    // Tambahkan sebagai anak kontrol zoom yang sama.
+    // Tidak perlu membuat L.control() baru atau memindahkan DOM.
+    zoomContainer.appendChild(locateButton);
+
+    L.DomEvent.disableClickPropagation(locateButton);
+    L.DomEvent.disableScrollPropagation(locateButton);
+
+    L.DomEvent.on(locateButton, 'click', function (event) {
+        L.DomEvent.preventDefault(event);
+
+        if (isLocating) return;
+
+        if (!navigator.geolocation) {
+            window.alert(
+                'Browser ini tidak mendukung fitur lokasi.'
+            );
+            return;
+        }
+
+        isLocating = true;
+        locateButton.classList.add('is-locating');
+        locateButton.setAttribute('aria-busy', 'true');
+        locateButton.title = 'Sedang mencari lokasi...';
+
+        map.locate({
+            setView: true,
+            maxZoom: 16,
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 30000
+        });
+    });
+
+    function resetLocateButton() {
+        isLocating = false;
+
+        if (!locateButton) return;
+
+        locateButton.classList.remove('is-locating');
+        locateButton.removeAttribute('aria-busy');
+        locateButton.title = 'Tampilkan lokasi saya';
+    }
+
+    // Lokasi pengguna berhasil ditemukan.
+    map.on('locationfound', function (event) {
+        if (userLocationMarker) {
+            map.removeLayer(userLocationMarker);
+        }
+
+        userLocationMarker = L.circleMarker(event.latlng, {
+            radius: 8,
+            color: '#047857',
+            weight: 3,
+            fillColor: '#34d399',
+            fillOpacity: 0.9
+        }).addTo(map);
+
+        userLocationMarker.bindTooltip('Lokasi Anda');
+
+        resetLocateButton();
+    });
+
+    // Izin ditolak, waktu habis, atau lokasi tidak tersedia.
+    map.on('locationerror', function () {
+        resetLocateButton();
+
+        window.alert(
+            'Lokasi tidak dapat ditemukan. Periksa izin lokasi browser dan coba kembali.'
+        );
+    });
+}
+
+
+
 
     const markerLayer =
         L.layerGroup()

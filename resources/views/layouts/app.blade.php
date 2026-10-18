@@ -69,6 +69,8 @@
 </head>
 <body class="bg-white text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen flex flex-col justify-between transition-colors duration-200">
 
+
+
     <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
 
     <!-- Flash Message Notification -->
@@ -92,6 +94,8 @@
     <!-- Leaflet JS (Dipanggil sebelum script view anak) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{{ asset('js/smartpath-accessibility.js') }}" defer></script>
+    <script src="{{ asset('js/smartpath-voice.js') }}" defer></script>
+
 
     <!-- Lucide Icons Initialization -->
     <script>

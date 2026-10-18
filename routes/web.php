@@ -205,6 +205,14 @@ Route::middleware(['auth', 'admin'])
 
         
         Route::get(
+            '/dashboard/search',
+            [DashboardController::class, 'searchSuggestions']
+        )
+            ->middleware('throttle:60,1')
+            ->name('dashboard.search');
+
+        
+        Route::get(
             '/laporan',
             [LaporanController::class, 'adminIndex']
         )->name('laporan.index');
@@ -267,6 +275,12 @@ Route::middleware(['auth', 'admin'])
             '/verifikasi/{laporan}/jadikan-mandiri',
             [VerifikasiController::class, 'jadikanMandiri']
         )->name('verifikasi.jadikan-mandiri');
+        
+
+        Route::post(
+            '/verifikasi/{laporan}/koreksi-relasi',
+            [VerifikasiController::class, 'koreksiRelasi']
+        )->name('verifikasi.koreksi-relasi');
 
 
         // Fitur verifikasi lama tetap dipertahankan.

@@ -34,14 +34,16 @@
         <nav class="warga-sidebar__nav" aria-label="Menu utama">
             <p class="warga-sidebar__label">Menu</p>
 
+            
             <a
                 href="{{ route('warga.dashboard') }}"
                 @if(request()->routeIs('warga.dashboard')) aria-current="page" @endif
                 class="warga-sidebar__link {{ request()->routeIs('warga.dashboard') ? 'is-active' : '' }}"
             >
                 <i class="fa-solid fa-house" aria-hidden="true"></i>
-                <span>Dashboard</span>
+                <span>Beranda</span>
             </a>
+
             <a
                 href="{{ route('laporan.create') }}"
                 @if(request()->routeIs('laporan.create')) aria-current="page" @endif

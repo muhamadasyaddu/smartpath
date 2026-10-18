@@ -1507,5 +1507,6 @@
     
 
     <script src="{{ asset('js/smartpath-accessibility.js') }}" defer></script>
+    <script src="{{ asset('js/smartpath-voice.js') }}" defer></script>
 </body>
 </html>

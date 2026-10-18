@@ -230,79 +230,173 @@
             </section>
 
             
-        {{-- Informasi hubungan induk dan jarak aktual --}}
-        @if($laporan->laporanInduk)
+                {{-- Relasi deduplikasi: kandidat atau duplikat terkonfirmasi --}}
+        @if($laporan->terhubung_ke_induk && $laporan->laporanInduk)
+            @php
+                $induk = $laporan->laporanInduk;
+                $sudahDikonfirmasi = $laporan->status_duplikasi === \App\Models\Laporan::DUPLIKASI_DIKONFIRMASI;
+                $kategoriSama = (int) $induk->kategori_hambatan_id === (int) $laporan->kategori_hambatan_id;
+                $fotoIni = $laporan->foto_utama;
+                $fotoInduk = $induk->foto_utama;
+            @endphp
+
             <section
-                class="bg-amber-50 rounded-xl border border-amber-200 p-6"
+                class="rounded-xl border p-6 {{ $sudahDikonfirmasi ? 'border-slate-200 bg-white' : 'border-amber-200 bg-amber-50' }}"
                 aria-labelledby="deduplikasi-heading"
             >
                 <h3
                     id="deduplikasi-heading"
-                    class="font-semibold text-amber-900 mb-3"
+                    class="mb-3 font-semibold {{ $sudahDikonfirmasi ? 'text-slate-900' : 'text-amber-900' }}"
                 >
-                    Kandidat Deduplikasi
+                    {{ $sudahDikonfirmasi ? 'Duplikat Terkonfirmasi' : 'Kandidat Deduplikasi' }}
                 </h3>
 
-                <p class="text-sm text-amber-900 mb-3">
-                    Laporan ini terhubung dengan laporan induk.
-                    Periksa bukti foto dan lokasi sebelum menentukan
-                    apakah kedua laporan menggambarkan objek yang sama.
+                <p class="mb-3 text-sm {{ $sudahDikonfirmasi ? 'text-slate-600' : 'text-amber-900' }}">
+                    @if($sudahDikonfirmasi)
+                        Administrator menyatakan laporan ini merekam hambatan yang sama dengan laporan induk.
+                        Laporan tetap tersimpan sebagai pendukung dan dihitung pada jumlah pelapor unik induknya.
+                    @else
+                        Sistem hanya menemukan kesamaan kategori dan jarak. Bandingkan foto, deskripsi,
+                        dan lokasi, lalu putuskan pada panel Keputusan Verifikasi.
+                    @endif
                 </p>
 
-                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                    <div class="bg-white rounded-lg border border-amber-200 p-3">
-                        <dt class="text-slate-600">
-                            Jarak aktual dari laporan induk
-                        </dt>
-                        <dd class="font-semibold text-slate-900 mt-1">
-                            {{ number_format($jarakKeIndukMeter, 2, ',', '.') }}
-                            meter
+                <dl class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                    <div class="rounded-lg border border-slate-200 bg-white p-3">
+                        <dt class="text-slate-600">Jarak aktual dari laporan induk</dt>
+                        <dd class="mt-1 font-semibold text-slate-900">
+                            {{ number_format($jarakKeIndukMeter, 2, ',', '.') }} meter
                         </dd>
                     </div>
 
-                    <div class="bg-white rounded-lg border border-amber-200 p-3">
-                        <dt class="text-slate-600">
-                            Radius deduplikasi aktif
-                        </dt>
-                        <dd class="font-semibold text-slate-900 mt-1">
-                            {{ $radiusDeduplikasiMeter }} meter
-                        </dd>
+                    <div class="rounded-lg border border-slate-200 bg-white p-3">
+                        <dt class="text-slate-600">Radius deduplikasi aktif</dt>
+                        <dd class="mt-1 font-semibold text-slate-900">{{ $radiusDeduplikasiMeter }} meter</dd>
+                    </div>
+
+                    <div class="rounded-lg border border-slate-200 bg-white p-3">
+                        <dt class="text-slate-600">Kategori</dt>
+                        <dd class="mt-1 font-semibold text-slate-900">{{ $kategoriSama ? 'Sama' : 'Berbeda' }}</dd>
+                    </div>
+
+                    <div class="rounded-lg border border-slate-200 bg-white p-3">
+                        <dt class="text-slate-600">Status laporan induk</dt>
+                        <dd class="mt-1 font-semibold text-slate-900">{{ $induk->status_label }}</dd>
                     </div>
                 </dl>
 
-                <p class="text-xs text-amber-900 mt-3">
-                    Jarak dihitung dari koordinat kedua laporan
-                    menggunakan rumus Haversine. Hasil ini merupakan
-                    jarak geografis, bukan jarak berjalan kaki.
+                <p class="mt-3 text-xs text-slate-600">
+                    Jarak dihitung dengan rumus Haversine. Hasil ini merupakan jarak geografis,
+                    bukan jarak berjalan kaki.
                 </p>
 
+                <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <figure>
+                        <figcaption class="mb-1 text-xs font-semibold text-slate-700">
+                            Laporan ini ({{ $laporan->kode_laporan }})
+                        </figcaption>
+                        @if($fotoIni)
+                            <img
+                                src="{{ $fotoIni->url }}"
+                                alt="Foto utama laporan {{ $laporan->kode_laporan }}: {{ $laporan->judul }}"
+                                class="h-44 w-full rounded-lg border border-slate-200 object-cover"
+                                loading="lazy"
+                            >
+                        @else
+                            <p class="rounded-lg border border-dashed border-slate-300 p-4 text-xs text-slate-500">
+                                Tidak ada foto.
+                            </p>
+                        @endif
+                    </figure>
+
+                    <figure>
+                        <figcaption class="mb-1 text-xs font-semibold text-slate-700">
+                            Laporan induk ({{ $induk->kode_laporan }})
+                        </figcaption>
+                        @if($fotoInduk)
+                            <img
+                                src="{{ $fotoInduk->url }}"
+                                alt="Foto utama laporan induk {{ $induk->kode_laporan }}: {{ $induk->judul }}"
+                                class="h-44 w-full rounded-lg border border-slate-200 object-cover"
+                                loading="lazy"
+                            >
+                        @else
+                            <p class="rounded-lg border border-dashed border-slate-300 p-4 text-xs text-slate-500">
+                                Tidak ada foto.
+                            </p>
+                        @endif
+                        <p class="mt-2 text-xs text-slate-700">{{ $induk->judul }}</p>
+                        <p class="mt-1 text-xs text-slate-500">
+                            {{ \Illuminate\Support\Str::limit($induk->deskripsi, 160) }}
+                        </p>
+                    </figure>
+                </div>
+
                 <a
-                    href="{{ route('admin.verifikasi.show', $laporan->laporanInduk) }}"
-                    class="inline-flex items-center gap-1 mt-4 text-sm font-semibold
-                        text-amber-900 underline underline-offset-2"
+                    href="{{ route('admin.verifikasi.show', $induk) }}"
+                    class="mt-4 inline-flex items-center gap-1 text-sm font-semibold
+                        text-emerald-800 underline underline-offset-2"
                 >
-                    Buka laporan induk:
-                    {{ $laporan->laporanInduk->kode_laporan }}
+                    Buka laporan induk: {{ $induk->kode_laporan }}
                 </a>
+
+                @if(
+                    $sudahDikonfirmasi
+                    && auth()->user()->isAdmin()
+                    && in_array($laporan->status, ['diverifikasi', 'dalam_perbaikan', 'selesai'], true)
+                )
+                    <form
+                        method="POST"
+                        action="{{ route('admin.verifikasi.koreksi-relasi', $laporan) }}"
+                        class="mt-5 space-y-3 border-t border-slate-200 pt-4"
+                        onsubmit="return confirm('Lepaskan laporan ini dari laporan induk dan jadikan laporan mandiri? Foto dan riwayat tetap tersimpan.');"
+                    >
+                        @csrf
+
+                        <div>
+                            <label for="catatan_koreksi" class="mb-1.5 block text-sm font-medium text-slate-700">
+                                Alasan koreksi (wajib)
+                            </label>
+                            <textarea
+                                id="catatan_koreksi"
+                                name="catatan_admin"
+                                rows="3"
+                                maxlength="1000"
+                                required
+                                class="w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                            >{{ old('catatan_admin') }}</textarea>
+
+                            @error('catatan_admin')
+                                <p class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="inline-flex w-full items-center justify-center rounded-lg border border-teal-700
+                                bg-white px-4 py-2.5 text-sm font-semibold text-teal-800 hover:bg-teal-50
+                                focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 sm:w-auto"
+                        >
+                            Jadikan laporan mandiri (koreksi)
+                        </button>
+                    </form>
+                @endif
             </section>
         @endif
 
-        {{-- Daftar laporan anak --}}
+        {{-- Daftar laporan terhubung ke titik ini --}}
         @if($laporan->laporanAnak->isNotEmpty())
             <section
-                class="bg-white rounded-xl border border-slate-200 p-6"
+                class="rounded-xl border border-slate-200 bg-white p-6"
                 aria-labelledby="laporan-anak-heading"
             >
-                <h3
-                    id="laporan-anak-heading"
-                    class="font-semibold text-slate-900 mb-3"
-                >
+                <h3 id="laporan-anak-heading" class="mb-3 font-semibold text-slate-900">
                     Laporan Terhubung ke Titik Ini
                 </h3>
 
-                <p class="text-sm text-slate-600 mb-4">
-                    Periksa setiap laporan pendukung. Laporan yang
-                    berada dekat belum tentu menunjukkan objek yang sama.
+                <p class="mb-4 text-sm text-slate-600">
+                    Laporan yang berada dekat belum tentu menunjukkan objek yang sama.
+                    Setiap laporan diputuskan administrator pada halaman verifikasinya masing-masing.
                 </p>
 
                 <div class="space-y-3">
@@ -317,58 +411,50 @@
                                 </a>
 
                                 <span class="text-sm text-slate-600">
-                                    {{ number_format(
-                                        $anak->jarak_dari_induk_meter,
-                                        2,
-                                        ',',
-                                        '.'
-                                    ) }} meter
+                                    {{ number_format($anak->jarak_dari_induk_meter, 2, ',', '.') }} meter
                                 </span>
                             </div>
 
-                            <p class="text-sm text-slate-800 mt-2">
-                                {{ $anak->judul }}
+                            <p class="mt-2 text-sm text-slate-800">{{ $anak->judul }}</p>
+
+                            <p class="mt-1 text-xs text-slate-500">
+                                Pelapor: {{ $anak->pelapor->nama_lengkap ?? 'Tidak tersedia' }}
                             </p>
 
-                            <p class="text-xs text-slate-500 mt-1">
-                                Pelapor:
-                                {{ $anak->pelapor->nama_lengkap ?? 'Tidak tersedia' }}
+                            <p class="mt-1 text-xs font-semibold text-slate-600">
+                                {{ $anak->status_label }}
+                                &middot;
+                                {{ $anak->status_duplikasi === 'dikonfirmasi' ? 'Duplikat terkonfirmasi' : 'Kandidat, menunggu keputusan' }}
                             </p>
+
+                            @if(
+                                $anak->status === 'menunggu_verifikasi'
+                                && $anak->status_duplikasi === 'kandidat'
+                                && auth()->user()->isAdmin()
+                            )
+                                <form
+                                    method="POST"
+                                    action="{{ route('admin.verifikasi.jadikan-mandiri', $anak) }}"
+                                    class="mt-3"
+                                    onsubmit="return confirm('Pisahkan laporan ini dari laporan induk? Laporan tetap tersimpan dan diverifikasi terpisah.');"
+                                >
+                                    @csrf
+
+                                    <button
+                                        type="submit"
+                                        class="inline-flex items-center justify-center rounded-lg border border-teal-700
+                                            bg-white px-3 py-2 text-xs font-semibold text-teal-800 hover:bg-teal-50
+                                            focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2"
+                                    >
+                                        Pisahkan sebagai objek berbeda
+                                    </button>
+                                </form>
+                            @endif
                         </article>
                     @endforeach
                 </div>
-
-                
-                @if($laporan->status === 'menunggu_verifikasi')
-                    <form
-                        method="POST"
-                        action="{{ route('admin.verifikasi.jadikan-mandiri', $laporan) }}"
-                        class="mt-4"
-                        onsubmit="return confirm('Pisahkan laporan ini dari laporan induk? Laporan akan tetap tersimpan dan harus diverifikasi secara terpisah.');"
-                    >
-                        @csrf
-
-                        <button
-                            type="submit"
-                            class="inline-flex w-full sm:w-auto items-center justify-center
-                                rounded-lg border border-teal-700 bg-white px-4 py-2.5
-                                text-sm font-semibold text-teal-800
-                                hover:bg-teal-50 focus:outline-none
-                                focus:ring-2 focus:ring-teal-600 focus:ring-offset-2"
-                        >
-                            Pisahkan objek berbeda
-                        </button>
-
-                        <p class="mt-2 text-xs text-slate-600">
-                            Gunakan hanya setelah membandingkan foto, deskripsi, dan lokasi.
-                            Laporan akan kembali diperlakukan sebagai laporan mandiri.
-                        </p>
-                    </form>
-                @endif
-
             </section>
         @endif
-
 
             {{-- Riwayat verifikasi --}}
             @if($laporan->verifikasi->count())
@@ -874,7 +960,19 @@ function submitVerification(action, isReject) {
         ) {
             return;
         }
-    } else {
+        } else {
+        const pilihan = form.querySelectorAll('input[name="keputusan_duplikasi"]');
+
+        if (
+            pilihan.length > 0 &&
+            !form.querySelector('input[name="keputusan_duplikasi"]:checked')
+        ) {
+            alert('Tentukan terlebih dahulu: duplikat atau bukan duplikat.');
+            pilihan[0].focus();
+
+            return;
+        }
+
         if (
             !confirm(
                 'Setujui laporan ini? Laporan akan menjadi terverifikasi dan diproses ke tahap prioritas.'

@@ -4,16 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Wilayah;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use Throwable;
 
 class ProfileController extends Controller
 {
     /**
-     * Menampilkan profil pengguna yang sedang login.
+     * Direktori penyimpanan foto profil pada disk public.
      */
-    public function edit()
+    private const DIREKTORI_FOTO = 'foto-profil';
+
+    /**
+     * Menampilkan profil pengguna yang sedang login.
+     *
+     * Administrator dan Dinas memakai layout internal,
+     * warga tetap memakai layout warga.
+     */
+    public function edit(): View
     {
         $user = auth()->user();
 
@@ -27,13 +37,17 @@ class ProfileController extends Controller
             ->orderBy('nama')
             ->get();
 
-        return view('profile.edit', compact('user', 'wilayah'));
+        $tampilan = ($user->isAdmin() || $user->isDinas())
+            ? 'profile.admin'
+            : 'profile.edit';
+
+        return view($tampilan, compact('user', 'wilayah'));
     }
 
     /**
      * Memperbarui data profil selain foto profil.
      */
-    public function update(UpdateProfileRequest $request)
+    public function update(UpdateProfileRequest $request): RedirectResponse
     {
         $user = $request->user();
         $data = $request->validated();
@@ -44,20 +58,24 @@ class ProfileController extends Controller
             $data['email']
         ) !== 0;
 
-        // Perbarui hanya field profil yang diizinkan.
         $user->nama_lengkap = $data['nama_lengkap'];
         $user->email = $data['email'];
         $user->nomor_hp = $data['nomor_hp'] ?? null;
-        $user->wilayah_id = $data['wilayah_id'] ?? null;
 
-        $user->adalah_disabilitas = (bool) (
-            $data['adalah_disabilitas'] ?? false
-        );
+        // Wilayah hanya diubah jika field memang dikirim form.
+        // Form profil admin/dinas tidak mengirimnya.
+        if (array_key_exists('wilayah_id', $data)) {
+            $user->wilayah_id = $data['wilayah_id'];
+        }
 
-        // Jenis disabilitas hanya disimpan jika dipilih.
-        $user->jenis_disabilitas = $user->adalah_disabilitas
-            ? ($data['jenis_disabilitas'] ?? null)
-            : null;
+        // Data disabilitas hanya diubah jika dikirim form warga.
+        if (array_key_exists('adalah_disabilitas', $data)) {
+            $user->adalah_disabilitas = (bool) $data['adalah_disabilitas'];
+
+            $user->jenis_disabilitas = $user->adalah_disabilitas
+                ? ($data['jenis_disabilitas'] ?? null)
+                : null;
+        }
 
         // Email yang berubah harus diverifikasi kembali.
         if ($emailBerubah) {
@@ -66,15 +84,13 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return redirect()
-            ->route('profile.edit')
-            ->with('sukses', 'Data profil berhasil diperbarui.');
+        return $this->kembaliKeProfil('Data profil berhasil diperbarui.');
     }
 
     /**
      * Mengunggah foto profil pengguna.
      */
-    public function updateFoto(Request $request)
+    public function updateFoto(Request $request): RedirectResponse
     {
         $request->validate([
             'foto_profil' => [
@@ -82,6 +98,7 @@ class ProfileController extends Controller
                 'image',
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
+                'dimensions:max_width=6000,max_height=6000',
             ],
         ], [
             'foto_profil.required' =>
@@ -92,14 +109,16 @@ class ProfileController extends Controller
                 'Foto harus berformat JPG, JPEG, PNG, atau WEBP.',
             'foto_profil.max' =>
                 'Ukuran foto maksimal 2 MB.',
+            'foto_profil.dimensions' =>
+                'Dimensi foto maksimal 6000 x 6000 piksel.',
         ]);
 
         $user = $request->user();
         $fotoLama = $user->foto_profil;
 
-        // Simpan foto baru di disk public Laravel.
+        // Simpan foto baru di disk public dengan nama acak.
         $fotoBaru = $request->file('foto_profil')
-            ->store('foto-profil', 'public');
+            ->store(self::DIREKTORI_FOTO, 'public');
 
         if (!$fotoBaru) {
             return back()->withErrors([
@@ -113,44 +132,59 @@ class ProfileController extends Controller
             $user->save();
         } catch (Throwable $e) {
             // Bersihkan file baru jika penyimpanan database gagal.
-            Storage::disk('public')->delete($fotoBaru);
+            $this->hapusBerkas($fotoBaru);
 
             throw $e;
         }
 
         // Hapus foto lama setelah foto baru berhasil disimpan.
         if ($fotoLama && $fotoLama !== $fotoBaru) {
-            Storage::disk('public')->delete($fotoLama);
+            $this->hapusBerkas($fotoLama);
         }
 
-        return redirect()
-            ->route('profile.edit')
-            ->with('sukses', 'Foto profil berhasil diperbarui.');
+        return $this->kembaliKeProfil('Foto profil berhasil diperbarui.');
     }
 
     /**
      * Menghapus foto profil pengguna.
      */
-    public function deleteFoto(Request $request)
+    public function deleteFoto(Request $request): RedirectResponse
     {
         $user = $request->user();
         $fotoLama = $user->foto_profil;
 
         if (!$fotoLama) {
-            return redirect()
-                ->route('profile.edit')
-                ->with('sukses', 'Foto profil memang sudah kosong.');
+            return $this->kembaliKeProfil('Foto profil memang sudah kosong.');
         }
 
         // Perbarui database terlebih dahulu.
         $user->foto_profil = null;
         $user->save();
 
-        // Hapus file lama dari penyimpanan.
-        Storage::disk('public')->delete($fotoLama);
+        // Hapus file dari penyimpanan.
+        $this->hapusBerkas($fotoLama);
 
+        return $this->kembaliKeProfil('Foto profil berhasil dihapus.');
+    }
+
+    /**
+     * Kembali ke halaman profil. View yang tampil ditentukan
+     * oleh peran pengguna pada method edit().
+     */
+    private function kembaliKeProfil(string $pesan): RedirectResponse
+    {
         return redirect()
             ->route('profile.edit')
-            ->with('sukses', 'Foto profil berhasil dihapus.');
+            ->with('sukses', $pesan);
+    }
+
+    /**
+     * Menghapus berkas hanya jika berada di direktori foto profil.
+     */
+    private function hapusBerkas(?string $path): void
+    {
+        if ($path && str_starts_with($path, self::DIREKTORI_FOTO . '/')) {
+            Storage::disk('public')->delete($path);
+        }
     }
 }

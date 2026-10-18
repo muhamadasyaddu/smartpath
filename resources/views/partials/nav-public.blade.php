@@ -9,7 +9,14 @@
                 </a>
 
                 <div class="hidden items-center gap-6 md:flex">
-                    <a href="{{ route('warga.dashboard') }}" class="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700">Dashboard</a>
+                    
+                    <a
+                        href="{{ route('warga.dashboard') }}"
+                        class="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700"
+                    >
+                        Beranda
+                    </a>
+
                     <a href="{{ route('peta.index') }}" class="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700">Peta</a>
                     @auth
                         <a href="{{ route('laporan.create') }}" class="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700">Lapor</a>
@@ -22,7 +29,7 @@
             <div class="flex items-center gap-3">
                 @auth
                     @if(auth()->user()->isAdmin() || auth()->user()->isDinas())
-                        <a href="{{ route('admin.dashboard') }}" class="hidden items-center gap-1.5 text-sm font-medium text-emerald-700 transition-colors hover:text-emerald-800 sm:inline-flex">
+                        <a href="{{ route(auth()->user()->getDashboardRouteName()) }}" class="hidden items-center gap-1.5 text-sm font-medium text-emerald-700 ...
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                             </svg>

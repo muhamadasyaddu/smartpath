@@ -304,21 +304,33 @@
                 <h2 id="warga-actions-title" class="sr-only">Akses cepat Dashboard Warga</h2>
 
                 <div class="warga-quick-actions grid gap-4 sm:gap-5 md:grid-cols-3">
-                    <a
-                        href="{{ route('laporan.create') }}"
-                        class="warga-action group flex items-center justify-between rounded-2xl bg-emerald-800 p-5 text-white shadow-md transition hover:bg-emerald-900 hover:shadow-md sm:p-6"
-                    >
-                        <div class="flex items-center gap-4">
-                            <div class="warga-action__icon flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                                <i class="fa-solid fa-file-circle-plus text-xl" aria-hidden="true"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold">Buat Laporan</h3>
-                                <p class="mt-0.5 text-sm text-emerald-100">Laporkan hambatan aksesibilitas di ruang publik.</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right shrink-0 text-sm" aria-hidden="true"></i>
-                    </a>
+                    
+<a
+    href="{{ route('laporan.create') }}"
+    class="warga-action group flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow-sm transition hover:border-emerald-300 hover:bg-slate-50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 sm:p-6"
+>
+    <div class="flex items-center gap-4">
+        <div class="warga-action__icon flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+            <i class="fa-solid fa-file-circle-plus text-xl" aria-hidden="true"></i>
+        </div>
+
+        <div>
+            <h3 class="text-base font-bold text-slate-900">
+                Buat Laporan
+            </h3>
+
+            <p class="mt-0.5 text-sm text-slate-600">
+                Laporkan hambatan aksesibilitas di ruang publik.
+            </p>
+        </div>
+    </div>
+
+    <i
+        class="fa-solid fa-chevron-right shrink-0 text-sm text-slate-700 transition-transform group-hover:translate-x-0.5"
+        aria-hidden="true"
+    ></i>
+</a>
+
 
                     <a
                         href="{{ route('laporan.index') }}"

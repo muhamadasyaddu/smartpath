@@ -237,6 +237,14 @@ public function adminIndex(Request $request)
                 continue;
             }
 
+             // Pembanding harus berada pada kategori hambatan yang sama.
+            if (
+                (int) $kandidat->kategori_hambatan_id
+                !== (int) $item->kategori_hambatan_id
+            ) {
+                continue;
+            }
+
             $jarak = $this->calculateHaversineDistance(
                 (float) $item->latitude,
                 (float) $item->longitude,
@@ -407,6 +415,9 @@ public function adminIndex(Request $request)
                     'kategori_hambatan_id' => $validated['kategori_hambatan_id'],
                     'wilayah_id' => $validated['wilayah_id'],
                     'laporan_induk_id' => $laporanInduk?->id,
+                    'status_duplikasi' => $laporanInduk
+                        ? Laporan::DUPLIKASI_KANDIDAT
+                        : null,
                     'latitude' => $validated['latitude'],
                     'longitude' => $validated['longitude'],
                     'alamat_lengkap' => $validated['alamat_lengkap'] ?? null,
@@ -529,8 +540,8 @@ public function adminIndex(Request $request)
                         'penerima_id' => auth()->id(),
                         'laporan_id' => $laporan->id,
                         'jenis' => 'duplikat_digabung',
-                        'judul' => 'Laporan Terdeteksi Duplikat',
-                        'pesan' => "Laporan Anda terhubung dengan laporan induk {$laporanInduk->kode_laporan} karena berada pada kategori dan radius yang sama.",
+                        'judul' => 'Laporan Berdekatan dengan Laporan Lain',
+                        'pesan' => "Laporan Anda berada dekat dengan laporan {$laporanInduk->kode_laporan} pada kategori yang sama. Administrator akan memeriksa apakah keduanya merupakan hambatan yang sama.",
                         'tautan' => route('laporan.show', $laporan),
                     ]);
                 }
@@ -709,12 +720,20 @@ public function adminIndex(Request $request)
         }
 
 
+    
     /**
-     * Form edit.
+     * Menampilkan formulir edit laporan.
+     * Hanya pemilik atau administrator yang berhak mengakses.
      */
     public function edit(Laporan $laporan)
     {
         $this->authorizeEdit($laporan);
+
+        abort_if(
+            $laporan->status !== 'menunggu_verifikasi',
+            403,
+            'Laporan tidak dapat diedit karena sudah diproses.'
+        );
 
         $kategoriHambatan = KategoriHambatan::aktif()
             ->urutTampil()
@@ -731,10 +750,16 @@ public function adminIndex(Request $request)
         );
     }
 
-    /**
-     * Update data isi laporan.
+
+        /**
+     * Update laporan milik warga yang masih menunggu verifikasi.
      *
-     * Status tidak pernah boleh diubah oleh warga melalui endpoint ini.
+     * - Status tidak pernah diubah oleh endpoint ini.
+     * - Wilayah ditentukan server dari koordinat (lihat UpdateLaporanRequest).
+     * - Jika kategori atau lokasi berubah, parent deduplikasi dan fasilitas
+     *   terdekat dihitung ulang agar tetap konsisten dengan proposal.
+     * - Seluruh perubahan atomik; file foto baru dibersihkan jika gagal,
+     *   file foto lama baru dihapus setelah transaksi berhasil.
      */
     public function update(
         UpdateLaporanRequest $request,
@@ -749,22 +774,230 @@ public function adminIndex(Request $request)
             );
         }
 
+        $validated = $request->validated();
+
+        $kategoriBerubah = (int) $validated['kategori_hambatan_id']
+            !== (int) $laporan->kategori_hambatan_id;
+
+        $lokasiBerubah = abs(
+            (float) $validated['latitude'] - (float) $laporan->latitude
+        ) > 0.0000001
+            || abs(
+                (float) $validated['longitude'] - (float) $laporan->longitude
+            ) > 0.0000001;
+
+        /*
+         * Laporan yang sudah menjadi induk bagi laporan warga lain tidak
+         * boleh berpindah kategori/lokasi, karena laporan anak akan
+         * kehilangan dasar pengelompokannya.
+         */
+        if (
+            ($kategoriBerubah || $lokasiBerubah)
+            && $laporan->laporanAnak()->exists()
+        ) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'laporan' => 'Kategori dan lokasi tidak dapat diubah karena laporan ini sudah dihubungkan dengan laporan warga lain.',
+                ]);
+        }
+
         $dataLama = $laporan->toArray();
+        $pathBaru = [];
+        $pathHapus = [];
 
-        $laporan->update($request->validated());
+        try {
+            $laporanTersimpan = DB::transaction(function () use (
+                $request,
+                $validated,
+                $laporan,
+                $kategoriBerubah,
+                $lokasiBerubah,
+                &$pathBaru,
+                &$pathHapus
+            ) {
+                $laporan = Laporan::query()
+                    ->lockForUpdate()
+                    ->findOrFail($laporan->id);
 
-        Audit::log(
-            auth()->id(),
-            'ubah_laporan',
-            'laporan',
-            $laporan->id,
-            $dataLama,
-            $laporan->fresh()->toArray(),
-            "Laporan diubah: {$laporan->kode_laporan}"
-        );
+                if ($laporan->status !== 'menunggu_verifikasi') {
+                    throw new \RuntimeException(
+                        'Status laporan berubah saat proses penyimpanan.'
+                    );
+                }
+
+                $indukLamaId = $laporan->laporan_induk_id;
+                $indukBaruId = $indukLamaId;
+
+                $atribut = [
+                    'kategori_hambatan_id' => $validated['kategori_hambatan_id'],
+                    'wilayah_id' => $validated['wilayah_id'],
+                    'latitude' => $validated['latitude'],
+                    'longitude' => $validated['longitude'],
+                    'alamat_lengkap' => $validated['alamat_lengkap'] ?? null,
+                    'judul' => $validated['judul'],
+                    'deskripsi' => $validated['deskripsi'],
+                ];
+
+                if ($kategoriBerubah || $lokasiBerubah) {
+                    $induk = $this->findDuplicateReport(
+                        (float) $validated['latitude'],
+                        (float) $validated['longitude'],
+                        (int) $validated['kategori_hambatan_id'],
+                        $laporan->id
+                    );
+
+                    $indukBaruId = $induk?->id;
+
+                    $fasilitas = FasilitasPublik::getNearest(
+                        (float) $validated['latitude'],
+                        (float) $validated['longitude'],
+                        PHP_FLOAT_MAX
+                    );
+
+                    $jarak = $fasilitas
+                        ? $fasilitas->calculateDistance(
+                            (float) $validated['latitude'],
+                            (float) $validated['longitude']
+                        )
+                        : null;
+
+                  $atribut['laporan_induk_id'] = $indukBaruId;
+                    $atribut['status_duplikasi'] = $indukBaruId
+                        ? Laporan::DUPLIKASI_KANDIDAT
+                        : null;
+                    $atribut['duplikasi_diputuskan_oleh'] = null;
+                    $atribut['duplikasi_diputuskan_pada'] = null;
+                }
+
+                $laporan->update($atribut);
+
+                /*
+                 * Hapus foto yang dipilih. Berkas fisik dihapus setelah commit.
+                 */
+                $idHapus = collect($validated['hapus_foto'] ?? [])
+                    ->map(fn ($id) => (int) $id)
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                if ($idHapus !== []) {
+                    $fotoDihapus = FotoLaporan::query()
+                        ->where('laporan_id', $laporan->id)
+                        ->whereIn('id', $idHapus)
+                        ->get();
+
+                    foreach ($fotoDihapus as $foto) {
+                        $pathHapus[] = $foto->path_file;
+                        $foto->delete();
+                    }
+                }
+
+                /*
+                 * Simpan foto baru.
+                 */
+                $urutanAwal = (int) FotoLaporan::query()
+                    ->where('laporan_id', $laporan->id)
+                    ->max('urutan') + 1;
+
+                foreach ($request->file('foto', []) as $index => $file) {
+                    $namaFile = (string) Str::uuid() . '.' . $file->extension();
+
+                    $pathFile = $file->storeAs(
+                        'laporan/' . $laporan->id,
+                        $namaFile,
+                        'public'
+                    );
+
+                    if ($pathFile === false) {
+                        throw new \RuntimeException(
+                            'Foto laporan gagal disimpan.'
+                        );
+                    }
+
+                    $pathBaru[] = $pathFile;
+
+                    $dimensi = @getimagesize($file->getRealPath());
+
+                    FotoLaporan::create([
+                        'laporan_id' => $laporan->id,
+                        'nama_file' => $namaFile,
+                        'nama_asli' => Str::limit(
+                            $file->getClientOriginalName(),
+                            255,
+                            ''
+                        ),
+                        'path_file' => $pathFile,
+                        'mime_type' => $file->getMimeType(),
+                        'ukuran_byte' => $file->getSize(),
+                        'lebar_px' => $dimensi[0] ?? null,
+                        'tinggi_px' => $dimensi[1] ?? null,
+                        'adalah_utama' => false,
+                        'urutan' => $urutanAwal + $index,
+                    ]);
+                }
+
+                /*
+                 * Rapikan urutan dan pastikan tepat satu foto utama.
+                 */
+                $fotoSisa = FotoLaporan::query()
+                    ->where('laporan_id', $laporan->id)
+                    ->orderBy('urutan')
+                    ->orderBy('id')
+                    ->get();
+
+                foreach ($fotoSisa as $posisi => $foto) {
+                    $foto->update([
+                        'adalah_utama' => $posisi === 0,
+                        'urutan' => $posisi,
+                    ]);
+                }
+
+                /*
+                 * Sinkronkan jumlah pelapor pada parent lama dan baru.
+                 */
+                if ($indukLamaId !== $indukBaruId) {
+                    foreach (array_filter([$indukLamaId, $indukBaruId]) as $indukId) {
+                        $parent = Laporan::find($indukId);
+
+                        if ($parent) {
+                            $this->syncParentReporterCount($parent);
+                        }
+                    }
+                }
+
+                Audit::log(
+                    auth()->id(),
+                    'ubah_laporan',
+                    'laporan',
+                    $laporan->id,
+                    $dataLama,
+                    $laporan->fresh()->toArray(),
+                    "Laporan diubah: {$laporan->kode_laporan}"
+                );
+
+                return $laporan;
+            });
+        } catch (Throwable $e) {
+            foreach ($pathBaru as $path) {
+                Storage::disk('public')->delete($path);
+            }
+
+            report($e);
+
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'laporan' => 'Perubahan laporan belum dapat disimpan. Silakan coba lagi.',
+                ]);
+        }
+
+        foreach ($pathHapus as $path) {
+            Storage::disk('public')->delete($path);
+        }
 
         return redirect()
-            ->route('laporan.show', $laporan)
+            ->route('laporan.show', $laporanTersimpan)
             ->with('sukses', 'Laporan berhasil diperbarui.');
     }
 
@@ -854,16 +1087,11 @@ public function adminIndex(Request $request)
     }
 
 
-    /**
-     * Cari parent aktif dengan kategori sama dalam radius deduplikasi.
-     *
-     * Radius 50 meter adalah parameter MVP sesuai tugas Sprint 2
-     * dan bagian implementasi proposal.
-     */
-    protected function findDuplicateReport(
+        protected function findDuplicateReport(
         float $latitude,
         float $longitude,
-        int $kategoriHambatanId
+        int $kategoriHambatanId,
+        ?int $kecualiLaporanId = null
     ): ?Laporan {
         $pengaturan = \App\Models\PengaturanPrioritas::getActive();
 
@@ -875,7 +1103,7 @@ public function adminIndex(Request $request)
             )
         );
 
-                $latitudeDelta = $radiusMeter / 111320;
+        $latitudeDelta = $radiusMeter / 111320;
         $cosLatitude = max(
             cos(deg2rad($latitude)),
             0.01
@@ -884,6 +1112,10 @@ public function adminIndex(Request $request)
 
         $candidates = Laporan::query()
             ->induk()
+            ->when(
+                $kecualiLaporanId !== null,
+                fn ($query) => $query->where('id', '!=', $kecualiLaporanId)
+            )
             ->where('kategori_hambatan_id', $kategoriHambatanId)
             ->whereIn('status', [
                 'menunggu_verifikasi',
@@ -925,24 +1157,13 @@ public function adminIndex(Request $request)
         return $nearest;
     }
 
-    /**
-     * Jumlah pelapor unik pada satu kelompok laporan.
+        /**
+     * Jumlah pelapor unik pada satu kelompok laporan
+     * (hanya duplikat yang sudah dikonfirmasi administrator).
      */
     protected function syncParentReporterCount(Laporan $parent): void
     {
-        $pelaporIds = Laporan::query()
-            ->where(function ($query) use ($parent) {
-                $query
-                    ->where('id', $parent->id)
-                    ->orWhere('laporan_induk_id', $parent->id);
-            })
-            ->whereNotIn('status', ['ditolak', 'diarsipkan'])
-            ->pluck('pelapor_id')
-            ->unique();
-
-        $parent->update([
-            'jumlah_pelapor' => max(1, $pelaporIds->count()),
-        ]);
+        $parent->sinkronkanJumlahPelapor();
     }
 
     /**

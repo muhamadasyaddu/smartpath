@@ -67,6 +67,7 @@ class VerifikasiController extends Controller
             'wilayah',
             'fotoLaporan',
             'laporanInduk',
+            'laporanInduk.fotoLaporan',
             'laporanAnak.pelapor',
             'laporanAnak.kategoriHambatan',
             'laporanAnak.fotoLaporan',
@@ -166,20 +167,17 @@ class VerifikasiController extends Controller
         if ($laporan->status !== 'menunggu_verifikasi') {
             return back()->with(
                 'galat',
-                'Hanya laporan yang menunggu verifikasi yang dapat dipisahkan.'
+                'Hanya laporan yang menunggu verifikasi yang dapat dipisahkan. '
+                . 'Untuk laporan terverifikasi gunakan koreksi relasi.'
             );
         }
 
-        if (!$laporan->laporan_induk_id) {
-            return back()->with(
-                'info',
-                'Laporan ini sudah merupakan laporan mandiri.'
-            );
+        if (! $laporan->laporan_induk_id) {
+            return back()->with('info', 'Laporan ini sudah merupakan laporan mandiri.');
         }
 
         try {
             DB::transaction(function () use ($laporan) {
-                // Kunci data laporan untuk mengurangi risiko perubahan bersamaan.
                 $laporanTerkunci = Laporan::query()
                     ->whereKey($laporan->id)
                     ->lockForUpdate()
@@ -187,9 +185,9 @@ class VerifikasiController extends Controller
 
                 if (
                     $laporanTerkunci->status !== 'menunggu_verifikasi'
-                    || !$laporanTerkunci->laporan_induk_id
+                    || ! $laporanTerkunci->laporan_induk_id
                 ) {
-                    throw new \RuntimeException(
+                    throw new \DomainException(
                         'Status laporan berubah. Muat ulang halaman dan periksa kembali.'
                     );
                 }
@@ -199,33 +197,32 @@ class VerifikasiController extends Controller
                     ->lockForUpdate()
                     ->first();
 
-                // Lepaskan relasi child-parent, tanpa menghapus laporan/fotonya.
+                $indukLamaId = $laporanTerkunci->laporan_induk_id;
+
+                // Lepaskan relasi tanpa menghapus laporan maupun fotonya.
                 $laporanTerkunci->update([
                     'laporan_induk_id' => null,
+                    'status_duplikasi' => Laporan::DUPLIKASI_MANDIRI,
+                    'duplikasi_diputuskan_oleh' => auth()->id(),
+                    'duplikasi_diputuskan_pada' => now(),
                     'jumlah_pelapor' => 1,
                 ]);
 
-                // Perbarui jumlah pelapor unik pada laporan induk sebelumnya.
                 if ($parent) {
-                    $this->syncParentReporterCount($parent);
+                    $parent->sinkronkanJumlahPelapor();
 
                     if ($this->isScoreableStatus($parent->status)) {
                         $this->calculateAndSavePriority($parent);
                     }
                 }
 
-                // Catat tindakan admin untuk audit.
                 Audit::log(
                     auth()->id(),
                     'laporan_dipisahkan_dari_induk',
                     'laporan',
                     $laporanTerkunci->id,
-                    [
-                        'laporan_induk_id' => $parent?->id,
-                    ],
-                    [
-                        'laporan_induk_id' => null,
-                    ],
+                    ['laporan_induk_id' => $indukLamaId, 'status_duplikasi' => Laporan::DUPLIKASI_KANDIDAT],
+                    ['laporan_induk_id' => null, 'status_duplikasi' => Laporan::DUPLIKASI_MANDIRI],
                     'Laporan dipisahkan dari kandidat induk karena dinilai sebagai objek berbeda.'
                 );
             });
@@ -236,6 +233,8 @@ class VerifikasiController extends Controller
                     'sukses',
                     'Laporan berhasil dipisahkan. Periksa kembali bukti dan setujui laporan jika valid.'
                 );
+        } catch (\DomainException $e) {
+            return back()->with('galat', $e->getMessage());
         } catch (\Throwable $e) {
             report($e);
 
@@ -250,6 +249,10 @@ class VerifikasiController extends Controller
 
     /**
      * Terima laporan pending.
+     *
+     * Jika laporan masih terhubung ke kandidat induk, administrator wajib
+     * memutuskan: "duplikat" (relasi dipertahankan) atau "mandiri"
+     * (relasi dilepas dan laporan dinilai sendiri).
      */
     public function approve(
         StoreVerifikasiRequest $request,
@@ -257,71 +260,148 @@ class VerifikasiController extends Controller
     ) {
         $this->ensurePending($laporan);
 
+        $keputusanDuplikasi = $request->validated('keputusan_duplikasi');
+
         try {
-            $notifikasi = DB::transaction(function () use ($request, $laporan) {
-                $statusSebelumnya = $laporan->status;
+            $notifikasi = DB::transaction(function () use ($request, $laporan, $keputusanDuplikasi) {
+                $terkunci = Laporan::query()
+                    ->whereKey($laporan->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if ($terkunci->status !== 'menunggu_verifikasi') {
+                    throw new \DomainException(
+                        'Status laporan berubah. Muat ulang halaman dan periksa kembali.'
+                    );
+                }
+
+                $statusSebelumnya = $terkunci->status;
+                $indukSebelumnyaId = $terkunci->laporan_induk_id;
+                $statusDuplikasiSebelumnya = $terkunci->status_duplikasi;
+                $induk = null;
+
+                if ($indukSebelumnyaId !== null) {
+                    if ($keputusanDuplikasi === null) {
+                        throw new \DomainException(
+                            'Tentukan apakah laporan ini duplikat atau laporan mandiri.'
+                        );
+                    }
+
+                    $induk = Laporan::query()
+                        ->whereKey($indukSebelumnyaId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($keputusanDuplikasi === 'duplikat') {
+                        if (! $induk || in_array($induk->status, ['ditolak', 'diarsipkan'], true)) {
+                            throw new \DomainException(
+                                'Laporan induk sudah tidak aktif. Setujui sebagai laporan mandiri atau tolak laporan ini.'
+                            );
+                        }
+
+                        if (! $this->isScoreableStatus($induk->status)) {
+                            throw new \DomainException(
+                                "Verifikasi laporan induk {$induk->kode_laporan} terlebih dahulu "
+                                . 'sebelum mengonfirmasi duplikasi.'
+                            );
+                        }
+                    }
+                }
 
                 VerifikasiLaporan::create([
-                    'laporan_id' => $laporan->id,
+                    'laporan_id' => $terkunci->id,
                     'admin_id' => auth()->id(),
                     'keputusan' => 'disetujui',
                     'catatan_admin' => $request->validated('catatan_admin'),
                     'kategori_koreksi' => $request->validated('kategori_koreksi'),
                 ]);
 
-                $laporan->update([
-                    'status' => 'diverifikasi',
-                ]);
+                $atribut = ['status' => 'diverifikasi'];
 
-                /*
-                 * Parent adalah titik yang ditampilkan di peta.
-                 * Jika yang diverifikasi adalah child, skor parent
-                 * diperbarui agar agregasi tetap konsisten.
-                 */
-                if ($laporan->laporan_induk_id) {
-                    $parent = Laporan::find($laporan->laporan_induk_id);
+                if ($indukSebelumnyaId !== null) {
+                    $atribut['duplikasi_diputuskan_oleh'] = auth()->id();
+                    $atribut['duplikasi_diputuskan_pada'] = now();
 
-                    if ($parent) {
-                        $this->syncParentReporterCount($parent);
-
-                        if ($this->isScoreableStatus($parent->status)) {
-                            $this->calculateAndSavePriority($parent);
-                        }
+                    if ($keputusanDuplikasi === 'duplikat') {
+                        $atribut['status_duplikasi'] = Laporan::DUPLIKASI_DIKONFIRMASI;
+                    } else {
+                        $atribut['laporan_induk_id'] = null;
+                        $atribut['status_duplikasi'] = Laporan::DUPLIKASI_MANDIRI;
+                        $atribut['jumlah_pelapor'] = 1;
                     }
-                } else {
-                    $this->syncParentReporterCount($laporan);
-                    $this->calculateAndSavePriority($laporan);
                 }
 
+                $terkunci->update($atribut);
+
+                if ($keputusanDuplikasi === 'duplikat' && $induk) {
+                    // Titik di peta adalah induk; skornya diperbarui.
+                    $induk->sinkronkanJumlahPelapor();
+                    $this->calculateAndSavePriority($induk);
+                } else {
+                    // Laporan mandiri: lepas dari induk lama (jika ada) lalu nilai sendiri.
+                    if ($induk) {
+                        $induk->sinkronkanJumlahPelapor();
+
+                        if ($this->isScoreableStatus($induk->status)) {
+                            $this->calculateAndSavePriority($induk);
+                        }
+                    }
+
+                    $terkunci->sinkronkanJumlahPelapor();
+                    $this->calculateAndSavePriority($terkunci);
+                }
+
+                $keterangan = match (true) {
+                    $keputusanDuplikasi === 'duplikat' && $induk
+                        => "Laporan diverifikasi sebagai duplikat terkonfirmasi dari {$induk->kode_laporan}.",
+                    $indukSebelumnyaId !== null && $induk
+                        => "Laporan diverifikasi sebagai laporan mandiri (bukan duplikat dari {$induk->kode_laporan}).",
+                    default => 'Laporan diverifikasi dan disetujui.',
+                };
+
                 RiwayatStatusLaporan::create([
-                    'laporan_id' => $laporan->id,
+                    'laporan_id' => $terkunci->id,
                     'diubah_oleh_id' => auth()->id(),
                     'status_sebelumnya' => $statusSebelumnya,
                     'status_baru' => 'diverifikasi',
-                    'keterangan' => 'Laporan diverifikasi dan disetujui.',
+                    'keterangan' => $keterangan,
                 ]);
 
+                $pesan = $keputusanDuplikasi === 'duplikat' && $induk
+                    ? "Laporan {$terkunci->kode_laporan} telah diverifikasi dan dihitung sebagai dukungan pada laporan {$induk->kode_laporan}."
+                    : "Laporan {$terkunci->kode_laporan} telah diverifikasi.";
+
                 $notifikasi = Notifikasi::create([
-                    'penerima_id' => $laporan->pelapor_id,
-                    'laporan_id' => $laporan->id,
+                    'penerima_id' => $terkunci->pelapor_id,
+                    'laporan_id' => $terkunci->id,
                     'jenis' => 'laporan_diverifikasi',
                     'judul' => 'Laporan Diverifikasi',
-                    'pesan' => "Laporan {$laporan->kode_laporan} telah diverifikasi.",
-                    'tautan' => route('laporan.show', $laporan),
+                    'pesan' => $pesan,
+                    'tautan' => route('laporan.show', $terkunci),
                 ]);
 
                 Audit::log(
                     auth()->id(),
                     'verifikasi_setujui',
                     'laporan',
-                    $laporan->id,
-                    ['status' => $statusSebelumnya],
-                    ['status' => 'diverifikasi'],
-                    "Laporan disetujui: {$laporan->kode_laporan}"
+                    $terkunci->id,
+                    [
+                        'status' => $statusSebelumnya,
+                        'laporan_induk_id' => $indukSebelumnyaId,
+                        'status_duplikasi' => $statusDuplikasiSebelumnya,
+                    ],
+                    [
+                        'status' => 'diverifikasi',
+                        'laporan_induk_id' => $terkunci->laporan_induk_id,
+                        'status_duplikasi' => $terkunci->status_duplikasi,
+                    ],
+                    "Laporan disetujui: {$terkunci->kode_laporan}"
                 );
 
                 return $notifikasi;
             });
+        } catch (\DomainException $e) {
+            return back()->withInput()->with('galat', $e->getMessage());
         } catch (Throwable $e) {
             report($e);
 
@@ -340,8 +420,12 @@ class VerifikasiController extends Controller
                 : 'Laporan berhasil diverifikasi, tetapi email notifikasi gagal dikirim. Periksa email pelapor dan konfigurasi email.');
     }
 
-    /**
+        /**
      * Tolak laporan pending.
+     *
+     * Laporan induk yang masih memiliki pendukung terkonfirmasi tidak boleh
+     * ditolak sebelum relasinya dikoreksi; kandidat yang belum diputuskan
+     * dilepaskan agar tetap dapat diverifikasi sendiri.
      */
     public function reject(
         StoreVerifikasiRequest $request,
@@ -351,26 +435,58 @@ class VerifikasiController extends Controller
 
         try {
             $notifikasi = DB::transaction(function () use ($request, $laporan) {
-                $statusSebelumnya = $laporan->status;
+                $terkunci = Laporan::query()
+                    ->whereKey($laporan->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if ($terkunci->status !== 'menunggu_verifikasi') {
+                    throw new \DomainException(
+                        'Status laporan berubah. Muat ulang halaman dan periksa kembali.'
+                    );
+                }
+
+                $statusSebelumnya = $terkunci->status;
                 $validated = $request->validated();
 
+                $punyaPendukungTerkonfirmasi = Laporan::query()
+                    ->where('laporan_induk_id', $terkunci->id)
+                    ->where('status_duplikasi', Laporan::DUPLIKASI_DIKONFIRMASI)
+                    ->whereNotIn('status', ['ditolak', 'diarsipkan'])
+                    ->lockForUpdate()
+                    ->exists();
+
+                if ($punyaPendukungTerkonfirmasi) {
+                    throw new \DomainException(
+                        'Laporan ini memiliki laporan pendukung yang sudah dikonfirmasi sebagai duplikat. '
+                        . 'Koreksi relasi laporan pendukung terlebih dahulu sebelum menolak laporan induk.'
+                    );
+                }
+
+                // Kandidat yang belum diputuskan dilepas agar tidak ikut tertolak.
+                Laporan::query()
+                    ->where('laporan_induk_id', $terkunci->id)
+                    ->where('status_duplikasi', Laporan::DUPLIKASI_KANDIDAT)
+                    ->update([
+                        'laporan_induk_id' => null,
+                        'status_duplikasi' => null,
+                    ]);
+
                 VerifikasiLaporan::create([
-                    'laporan_id' => $laporan->id,
+                    'laporan_id' => $terkunci->id,
                     'admin_id' => auth()->id(),
                     'keputusan' => 'ditolak',
                     'catatan_admin' => $validated['catatan_admin'],
                     'kategori_koreksi' => $validated['kategori_koreksi'] ?? null,
                 ]);
 
-                $laporan->update([
-                    'status' => 'ditolak',
-                ]);
+                $terkunci->update(['status' => 'ditolak']);
 
-                if ($laporan->laporan_induk_id) {
-                    $parent = Laporan::find($laporan->laporan_induk_id);
+                if ($terkunci->laporan_induk_id) {
+                    $parent = Laporan::find($terkunci->laporan_induk_id);
 
                     if ($parent) {
-                        $this->syncParentReporterCount($parent);
+                        $parent->sinkronkanJumlahPelapor();
 
                         if ($this->isScoreableStatus($parent->status)) {
                             $this->calculateAndSavePriority($parent);
@@ -379,34 +495,36 @@ class VerifikasiController extends Controller
                 }
 
                 RiwayatStatusLaporan::create([
-                    'laporan_id' => $laporan->id,
+                    'laporan_id' => $terkunci->id,
                     'diubah_oleh_id' => auth()->id(),
                     'status_sebelumnya' => $statusSebelumnya,
                     'status_baru' => 'ditolak',
-                    'keterangan' => $validated['catatan_admin'],
+                    'keterangan' => \Illuminate\Support\Str::limit($validated['catatan_admin'], 255, ''),
                 ]);
 
                 $notifikasi = Notifikasi::create([
-                    'penerima_id' => $laporan->pelapor_id,
-                    'laporan_id' => $laporan->id,
+                    'penerima_id' => $terkunci->pelapor_id,
+                    'laporan_id' => $terkunci->id,
                     'jenis' => 'laporan_ditolak',
                     'judul' => 'Laporan Ditolak',
-                    'pesan' => "Laporan {$laporan->kode_laporan} ditolak. Alasan: {$validated['catatan_admin']}",
-                    'tautan' => route('laporan.show', $laporan),
+                    'pesan' => "Laporan {$terkunci->kode_laporan} ditolak. Alasan: {$validated['catatan_admin']}",
+                    'tautan' => route('laporan.show', $terkunci),
                 ]);
 
                 Audit::log(
                     auth()->id(),
                     'verifikasi_tolak',
                     'laporan',
-                    $laporan->id,
+                    $terkunci->id,
                     ['status' => $statusSebelumnya],
                     ['status' => 'ditolak'],
-                    "Laporan ditolak: {$laporan->kode_laporan}"
+                    "Laporan ditolak: {$terkunci->kode_laporan}"
                 );
 
                 return $notifikasi;
             });
+        } catch (\DomainException $e) {
+            return back()->withInput()->with('galat', $e->getMessage());
         } catch (Throwable $e) {
             report($e);
 
@@ -424,6 +542,7 @@ class VerifikasiController extends Controller
                 ? 'Laporan telah ditolak, alasannya disimpan, dan email notifikasi telah dikirim.'
                 : 'Laporan berhasil ditolak, tetapi email notifikasi gagal dikirim. Periksa email pelapor dan konfigurasi email.');
     }
+
 
     /**
      * Fitur lama: kembalikan laporan.
@@ -654,24 +773,12 @@ class VerifikasiController extends Controller
         );
     }
 
-    /**
-     * Sinkronisasi jumlah pelapor unik.
+        /**
+     * Sinkronisasi jumlah pelapor unik (hanya duplikat terkonfirmasi).
      */
     protected function syncParentReporterCount(Laporan $parent): void
     {
-        $pelaporIds = Laporan::query()
-            ->where(function ($query) use ($parent) {
-                $query
-                    ->where('id', $parent->id)
-                    ->orWhere('laporan_induk_id', $parent->id);
-            })
-            ->whereNotIn('status', ['ditolak', 'diarsipkan'])
-            ->pluck('pelapor_id')
-            ->unique();
-
-        $parent->update([
-            'jumlah_pelapor' => max(1, $pelaporIds->count()),
-        ]);
+        $parent->sinkronkanJumlahPelapor();
     }
 
     /**
@@ -704,9 +811,11 @@ class VerifikasiController extends Controller
             $laporan->jarak_fasilitas_meter = null;
         }
 
-        $skor = $laporan->fresh([
-            'kategoriHambatan',
-        ])->calculatePriorityScore();
+        // Simpan data fasilitas lebih dulu agar WSM membaca jarak terbaru.
+        $laporan->save();
+        $laporan->load('kategoriHambatan');
+
+        $skor = $laporan->calculatePriorityScore();
 
         $laporan->update([
             'skor_keparahan' => $skor['skor_keparahan'],

@@ -347,10 +347,22 @@ class DashboardController extends Controller
 
         $aktivitasTerbaru = Audit::query()
             ->where('tabel_terkait', 'laporan')
-            ->with('pengguna')
+            ->with('pengguna:id,nama_lengkap')
             ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->limit(4)
             ->get();
+
+        // Kode laporan + kategori untuk baris meta ("SP-... • Kategori").
+        // withTrashed(): laporan yang sudah dihapus tetap punya jejak audit.
+        $laporanAktivitas = Laporan::withTrashed()
+            ->with('kategoriHambatan:id,nama')
+            ->whereIn(
+                'id',
+                $aktivitasTerbaru->pluck('id_terkait')->filter()->unique()
+            )
+            ->get(['id', 'kode_laporan', 'kategori_hambatan_id'])
+            ->keyBy('id');
 
         /*
          * Jumlah area/wilayah unik yang memiliki laporan.
@@ -432,8 +444,12 @@ class DashboardController extends Controller
             'petaLaporan' =>
                 $petaLaporan,
 
+
             'aktivitasTerbaru' =>
                 $aktivitasTerbaru,
+
+            'laporanAktivitas' =>
+                $laporanAktivitas,
 
             'areaDipantau' =>
                 $areaDipantau,
@@ -921,6 +937,76 @@ public function indexDinas()
             )
         );
     }
+
+    
+    /**
+     * Pencarian global untuk header dashboard administrator.
+     *
+     * Mendukung pencarian berdasarkan kode laporan, judul,
+     * alamat, kategori hambatan, dan wilayah.
+     */
+    public function searchSuggestions(Request $request)
+    {
+        $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        $keyword = trim($validated['q'] ?? '');
+
+        if ($keyword === '' || mb_strlen($keyword) < 2) {
+            return response()->json([
+                'results' => [],
+            ]);
+        }
+
+        $pattern = '%' . $keyword . '%';
+
+        $laporan = Laporan::query()
+            ->induk()
+            ->aktif()
+            ->where(function ($query) use ($pattern) {
+                $query
+                    ->where('kode_laporan', 'like', $pattern)
+                    ->orWhere('judul', 'like', $pattern)
+                    ->orWhere('alamat_lengkap', 'like', $pattern)
+                    ->orWhereHas(
+                        'kategoriHambatan',
+                        fn ($kategori) =>
+                            $kategori->where('nama', 'like', $pattern)
+                    )
+                    ->orWhereHas(
+                        'wilayah',
+                        fn ($wilayah) =>
+                            $wilayah->where('nama', 'like', $pattern)
+                    );
+            })
+            ->with([
+                'kategoriHambatan',
+                'wilayah',
+            ])
+            ->orderByDesc('created_at')
+            ->limit(8)
+            ->get();
+
+        $results = $laporan->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'kode' => $item->kode_laporan,
+                'judul' => $item->judul,
+                'kategori' => $item->kategoriHambatan?->nama
+                    ?? 'Kategori tidak tersedia',
+                'lokasi' => $item->alamat_lengkap
+                    ?: ($item->wilayah?->nama ?? 'Lokasi tidak tersedia'),
+                'status' => $item->status_label,
+                'url' => route('admin.verifikasi.show', $item),
+            ];
+        })->values();
+
+        return response()->json([
+            'results' => $results,
+        ]);
+    }
+
 
     /**
      * Endpoint chart lama.

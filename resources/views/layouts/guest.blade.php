@@ -87,6 +87,8 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
 
+
+
     <a
         href="#main-content"
         class="skip-link"
@@ -112,6 +114,8 @@
         src="{{ asset('js/smartpath-accessibility.js') }}"
         defer
     ></script>
+
+    <script src="{{ asset('js/smartpath-voice.js') }}" defer></script>
 
     @stack('scripts')
 

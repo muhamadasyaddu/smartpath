@@ -181,7 +181,7 @@
 
             <main
                 id="main-content"
-                class="flex-1 p-6 lg:p-8 overflow-y-auto"
+                class="relative flex-1 p-6 lg:p-8 overflow-y-auto"
                 role="main"
                 tabindex="-1"
             >

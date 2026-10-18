@@ -5,7 +5,7 @@
 @section('content')
 @include('partials.nav-public')
 
-<main id="main-content" class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+<div class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-slate-900">Profil Saya</h1>
         <p class="mt-2 text-sm text-slate-500">
@@ -324,7 +324,7 @@
             </div>
         </div>
     </form>
-</main>
+</div>
 
 {{-- MODAL FOTO UKURAN BESAR --}}
 <div
