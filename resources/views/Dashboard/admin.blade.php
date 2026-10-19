@@ -174,62 +174,147 @@
     min-width: 0;
 }
 
-/* Tabel: tanpa min-width paksa, tanpa scroll pada layar normal */
-#admin-dashboard .sp-table-card .sp-table-scroll {
-    flex: 1 1 auto;
-    width: 100%;
-    overflow-x: auto;
+
+/* =====================================================
+   LAPORAN TERBARU — TABEL RESPONSIF
+   Kolom mengikuti lebar kartu, bukan lebar intrinsik teks.
+===================================================== */
+
+#admin-dashboard .sp-table-card {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
 }
+
+#admin-dashboard .sp-table-card .sp-table-scroll {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    box-sizing: border-box;
+}
+
 #admin-dashboard .sp-table-card table {
     width: 100%;
-    height: 100%;
     min-width: 0;
-    table-layout: auto;
+    max-width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
+    box-sizing: border-box;
 }
-#admin-dashboard .sp-table-card :is(th, td) { width: auto; }
+
+#admin-dashboard .sp-table-card th,
+#admin-dashboard .sp-table-card td {
+    box-sizing: border-box;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
 #admin-dashboard .sp-table-card th {
-    padding: 11px 10px;
+    padding: 10px 7px;
     border-bottom: 1px solid #e2e8f0;
     background: #ffffff;
     color: #334155;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
+    line-height: 1.4;
     letter-spacing: 0;
     text-align: left;
     text-transform: none;
-    white-space: nowrap;
+    white-space: normal;
 }
+
 #admin-dashboard .sp-table-card td {
-    padding: 12px 10px;
+    padding: 10px 7px;
     border-bottom: 1px solid #f1f5f9;
     color: #475569;
-    font-size: 12.5px;
+    font-size: 11px;
+    line-height: 1.5;
     vertical-align: middle;
 }
-#admin-dashboard .sp-table-card tbody tr:last-child td { border-bottom: 0; }
 
-/* Kolom pendek: lebar mengikuti isi, tidak pernah patah */
+#admin-dashboard .sp-table-card tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+/* Pembagian lebar tujuh kolom: total 100%. */
+#admin-dashboard .sp-table-card th:nth-child(1),
+#admin-dashboard .sp-table-card td:nth-child(1) {
+    width: 16%;
+}
+
+#admin-dashboard .sp-table-card th:nth-child(2),
+#admin-dashboard .sp-table-card td:nth-child(2) {
+    width: 23%;
+}
+
+#admin-dashboard .sp-table-card th:nth-child(3),
+#admin-dashboard .sp-table-card td:nth-child(3) {
+    width: 13%;
+}
+
+#admin-dashboard .sp-table-card th:nth-child(4),
+#admin-dashboard .sp-table-card td:nth-child(4) {
+    width: 17%;
+}
+
+#admin-dashboard .sp-table-card th:nth-child(5),
+#admin-dashboard .sp-table-card td:nth-child(5) {
+    width: 10%;
+}
+
+#admin-dashboard .sp-table-card th:nth-child(6),
+#admin-dashboard .sp-table-card td:nth-child(6) {
+    width: 13%;
+}
+
+#admin-dashboard .sp-table-card th:nth-child(7),
+#admin-dashboard .sp-table-card td:nth-child(7) {
+    width: 8%;
+}
+
+/* Semua kolom pendek boleh membungkus bila diperlukan. */
 #admin-dashboard .sp-table-card .sp-col-fit {
-    width: 1%;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
-/* Kolom teks panjang: dipotong dengan elipsis (isi lengkap di atribut title) */
-#admin-dashboard .sp-table-card .sp-col-flex {
-    max-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+/* Judul dan lokasi tetap terbaca dalam ruang yang tersedia. */
+#admin-dashboard .sp-table-card td.sp-col-judul,
+#admin-dashboard .sp-table-card td.sp-col-lokasi {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
 }
-#admin-dashboard .sp-table-card .sp-col-judul  { width: 46%; }
-#admin-dashboard .sp-table-card .sp-col-lokasi { width: 38%; }
-/* Kategori memakai label singkat, jadi lebarnya mengikuti isi dan tidak dipotong */
+
+/* Kategori tidak boleh memaksa tabel menjadi lebih lebar. */
 #admin-dashboard .sp-table-card .sp-col-kategori {
-    width: 1%;
-    max-width: none;
-    overflow: visible;
-    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
+
+
+#admin-dashboard .sp-table-card .sp-priority-badge,
+#admin-dashboard .sp-table-card .sp-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    padding: 4px 6px;
+    font-size: 10px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
+    box-sizing: border-box;
+}
+
 
 #admin-dashboard .sp-code {
     color: #475569 !important;
@@ -486,6 +571,91 @@
         animation: none;
     }
 }
+
+
+/* =========================================================
+   FIX FINAL — GRID LAPORAN TERBARU + AKTIVITAS TERBARU
+   Desktop: dua kolom sejajar.
+   Layar sempit: satu kolom agar tetap responsif.
+========================================================= */
+
+#admin-dashboard .sp-bottom-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 2.2fr) minmax(280px, 0.8fr) !important;
+    align-items: start !important;
+    gap: 14px !important;
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 14px;
+}
+
+/* Kedua kartu tidak boleh memaksa grid melebar. */
+#admin-dashboard .sp-bottom-grid > .sp-card {
+    width: 100%;
+    min-width: 0 !important;
+    max-width: 100%;
+    align-self: start;
+    box-sizing: border-box;
+}
+
+/* Tabel mempertahankan kolomnya tanpa merusak kartu aktivitas. */
+#admin-dashboard .sp-table-card .sp-table-scroll {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+}
+
+/* Aktivitas mengikuti tinggi konten, bukan meregang berlebihan. */
+#admin-dashboard .sp-activity-card .sp-activity-list {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    min-height: 0;
+    height: auto;
+}
+
+/* Item aktivitas tetap ringkas dan konsisten. */
+#admin-dashboard .sp-activity-card .sp-activity-item {
+    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 56px;
+    box-sizing: border-box;
+}
+
+/* Cegah teks panjang mendorong kolom aktivitas. */
+#admin-dashboard .sp-activity-card .sp-activity-item > div {
+    min-width: 0;
+}
+
+#admin-dashboard .sp-activity-card .sp-activity-item p {
+    overflow-wrap: anywhere;
+}
+
+/* Laptop/desktop sempit: tetap dua kolom jika ruang mencukupi. */
+@media (min-width: 1200px) {
+    #admin-dashboard .sp-bottom-grid {
+        grid-template-columns: minmax(0, 2.2fr) minmax(260px, 0.8fr) !important;
+    }
+}
+
+/* Tablet dan layar lebih sempit: susun vertikal secara sengaja. */
+@media (max-width: 1199px) {
+    #admin-dashboard .sp-bottom-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
+/* Jangan memaksakan tinggi tabel atau aktivitas agar sama. */
+#admin-dashboard .sp-bottom-grid > .sp-table-card,
+#admin-dashboard .sp-bottom-grid > .sp-activity-card {
+    height: auto;
+    min-height: 0;
+}
+
+
 
 </style>
 
